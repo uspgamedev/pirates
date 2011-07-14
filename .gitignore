@@ -4,3 +4,6 @@
 /src/Debug
 /src/Release
 *.*~
+*~
+.temp/
+bin/

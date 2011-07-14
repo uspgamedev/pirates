@@ -5,3 +5,6 @@
 /src/Release
 *.*~
 *.swp
+*~
+.temp/
+bin/

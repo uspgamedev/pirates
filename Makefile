@@ -1,29 +1,46 @@
 UNAME := $(shell uname)
 
+PYTHONINCLUDE = /usr/include/python2.6
+SRC_DIR = src
+OBJ_DIR = .temp
+OBJS = ${OBJFOLDER}/main.o
+OBJS = .temp/main.o
+OUTPUT_DIR = bin
+OUTPUT = $(OUTPUT_DIR)/pirates
+
+CXX = g++
+CXXFLAGS = -fPIC -O2 -I${PYTHONINCLUDE} -I${PANDA3DINCLUDE}
+
 ifeq ($(UNAME), Darwin)
 # MacOSX
 PANDA3DINCLUDE = /Developer/Panda3D/include
 PANDA3DLIBS = /Developer/Panda3D/lib
+CXXFLAGS += -arch i386
 else
 PANDA3DINCLUDE = /usr/include/panda3d
 PANDA3DLIBS = /usr/lib/panda3d
 endif
 
-SRCFOLDER = src
-OBJFOLDER = obj
-PYTHONINCLUDE = /usr/include/python2.6
-OBJS = ${OBJFOLDER}/main.o
-CXXFLAGS = -fPIC -O2 -I${PYTHONINCLUDE} -I${PANDA3DINCLUDE}
 
 .PHONY: all
-all: main
+all: pirates
 
-${OBJS}: ${SRCFOLDER}/main.cpp
+$(OBJ_DIR):
+	mkdir $@
 
-main: ${OBJS}
-	g++ ${OBJS} -o main -fPIC -L${PANDA3DLIBS} -lp3framework -lpanda -lpandafx -lpandaexpress -lp3dtoolconfig -lp3dtool -lp3pystub -lp3direct
+$(OUTPUT_DIR):
+	mkdir $@
+
+.temp/%.o: src/%.cpp
+	$(CXX) -c $(CXXFLAGS) $< -o $@
+
+.temp/main.o: src/main.cpp
+
+pirates: $(OBJ_DIR) $(OUTPUT_DIR) $(OBJS)
+	g++ $(OBJS) -o $(OUTPUT) ${CXXFLAGS} -L${PANDA3DLIBS} -lp3framework -lpanda -lpandafx -lpandaexpress -lp3dtoolconfig -lp3dtool -lp3pystub -lp3direct
 
 .PHONY: clean
 clean:
-	rm ${OBJFOLDER}/* main
+	rm $(OUTPUT)
+	rm -rf $(OBJ_DIR)
 

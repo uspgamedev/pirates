@@ -4,6 +4,7 @@
 /src/Debug
 /src/Release
 *.*~
+*.swp
 *~
 .temp/
 bin/

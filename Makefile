@@ -3,8 +3,7 @@ UNAME := $(shell uname)
 PYTHONINCLUDE = /usr/include/python2.6
 SRC_DIR = src
 OBJ_DIR = .temp
-OBJS = ${OBJFOLDER}/main.o
-OBJS = .temp/main.o
+OBJS = ${OBJ_DIR}/main.o ${OBJ_DIR}/game.o
 OUTPUT_DIR = bin
 OUTPUT = $(OUTPUT_DIR)/pirates
 
@@ -34,7 +33,8 @@ $(OUTPUT_DIR):
 .temp/%.o: src/%.cpp
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
-.temp/main.o: src/main.cpp
+.temp/main.o: src/main.cpp src/game.h
+.temp/game.o: src/game.cpp src/game.h
 
 pirates: $(OBJ_DIR) $(OUTPUT_DIR) $(OBJS)
 	g++ $(OBJS) -o $(OUTPUT) ${CXXFLAGS} -L${PANDA3DLIBS} -lp3framework -lpanda -lpandafx -lpandaexpress -lp3dtoolconfig -lp3dtool -lp3pystub -lp3direct

@@ -3,7 +3,7 @@ UNAME := $(shell uname)
 PYTHONINCLUDE = /usr/include/python2.6
 SRC_DIR = src
 OBJ_DIR = .temp
-OBJS = ${OBJ_DIR}/main.o ${OBJ_DIR}/game.o
+OBJS = ${OBJ_DIR}/main.o ${OBJ_DIR}/game.o ${OBJ_DIR}/boat.o
 OUTPUT_DIR = bin
 OUTPUT = $(OUTPUT_DIR)/pirates
 
@@ -33,6 +33,7 @@ $(OUTPUT_DIR):
 .temp/%.o: src/%.cpp
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
+.temp/boat.o: src/boat.cpp src/boat.h
 .temp/main.o: src/main.cpp src/game.h
 .temp/game.o: src/game.cpp src/game.h
 
@@ -41,6 +42,6 @@ pirates: $(OBJ_DIR) $(OUTPUT_DIR) $(OBJS)
 
 .PHONY: clean
 clean:
-	rm $(OUTPUT)
+	rm -f $(OUTPUT)
 	rm -rf $(OBJ_DIR)
 

@@ -31,6 +31,7 @@ class Game {
         framework_.open_framework(argc, argv);
         framework_.set_window_title("Pirates by USPGameDev");
         window_ = framework_.open_window();
+        camera_node_ = window_->get_camera_group();
     }
 
     void run () {
@@ -45,6 +46,10 @@ class Game {
         return window_;
     }
 
+    NodePath camera () {
+        return camera_node_;
+    }
+
   private:
     
     Game () : window_(NULL) {}
@@ -53,6 +58,7 @@ class Game {
 
     PandaFramework  framework_;
     WindowFramework *window_;
+    NodePath camera_node_;
 
 };
 

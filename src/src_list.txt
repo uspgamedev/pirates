@@ -1,0 +1,9 @@
+
+set (SRC
+    ${SRC_DIR}/main.cpp
+    ${SRC_DIR}/game.cpp
+    ${SRC_DIR}/game.h
+    ${SRC_DIR}/inputmanager.cpp
+    ${SRC_DIR}/inputmanager.h
+)
+

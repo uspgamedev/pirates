@@ -10,3 +10,9 @@
 bin/
 
 /pirates.ncb
+
+CMake*
+!CMakeLists.txt
+cmake*
+Makefile
+

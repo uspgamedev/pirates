@@ -11,6 +11,8 @@
 
 namespace pirates {
 
+class InputManager;
+
 class Game {
 
   public:
@@ -27,13 +29,9 @@ class Game {
         return reference_;
     }
 
-    void init (int &argc, char **&argv) {
-        framework_.open_framework(argc, argv);
-        framework_.set_window_title("Pirates by USPGameDev");
-        window_ = framework_.open_window();
-    }
+    void Init (int &argc, char **&argv);
 
-    void run () {
+    void Run () {
         framework_.main_loop();
     }
     
@@ -47,12 +45,14 @@ class Game {
 
   private:
     
-    Game () : window_(NULL) {}
+    Game () : window_(NULL), inputmanager_(NULL) {}
 
     static Game *reference_;
 
     PandaFramework  framework_;
     WindowFramework *window_;
+
+    InputManager *inputmanager_;
 
 };
 

@@ -1,6 +1,16 @@
+
 #include "inputmanager.h"
+#include "game.h"
+
+namespace pirates {
 
 InputManager* InputManager::reference_ = NULL;
+
+InputManager::InputManager () : game_(Game::reference()) {}
+
+void InputManager::Init () {
+    Game::reference()->window()->enable_keyboard();
+}
 
 //void InputManager::ClickDownEvent (const Event* e, void *data) {
     /*puts("Mouse click detected!");
@@ -20,3 +30,6 @@ InputManager* InputManager::reference_ = NULL;
         puts("Mouse outsize window! How did you do that!?");
     }*/
 //}
+
+}
+

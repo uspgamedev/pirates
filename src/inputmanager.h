@@ -2,8 +2,12 @@
 #define INPUTMANAGER_H_
 
 #include <cstdlib>
-#include "eventhandler.h"
-#include "game.h"
+
+class Event;
+
+namespace pirates {
+
+class Game;
 
 class InputManager {
 
@@ -20,15 +24,12 @@ class InputManager {
             return reference_;
     }
 
-    void Init () {
-        Game::reference()->window()->enable_keyboard();
-    }
+    void Init ();
 
   private:
 
-    InputManager() : game_(Game::reference()) {}
-
-    Game*& game_;
+    InputManager();
+    Game* game_;
 
     static InputManager* reference_;
 
@@ -37,6 +38,8 @@ class InputManager {
     static void ClickUpEvent(const Event* e, void *data) {}
 
 };
+
+}
 
 #endif
 

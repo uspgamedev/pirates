@@ -5,8 +5,8 @@ using pirates::Game;
 
 int main (int argc, char **argv) {
     Game* game = Game::reference();
-    game->init(argc, argv);
-    game->run();
+    game->Init(argc, argv);
+    game->Run();
     delete game;
     return EXIT_SUCCESS;
 }

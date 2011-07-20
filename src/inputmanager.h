@@ -26,7 +26,7 @@ class InputManager {
 
   private:
 
-    InputManager() :  {}
+    InputManager() : game_(Game::reference()) {}
 
     Game*& game_;
 

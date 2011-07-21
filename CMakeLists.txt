@@ -19,19 +19,20 @@ configure_file (
 
 include (${SRC_DIR}/src_list.txt)
 
-set (CXXFLAGS "-fPIC -O2")
+set (CMAKE_CXX_FLAGS "-fPIC -O2")
 
 include_directories (${SRC_DIR})
 include_directories (/usr/include/python2.6)
 
-if (APPLE)
+set(CMAKE_OSX_ARCHITECTURES "ppc;i386")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    # MACOSX
     include_directories (/Developer/Panda3D/include)
     set (PANDA_LIB_DIR /Developer/Panda3D/lib)
-    set (CXXFLAGS "${CXXFLAGS} -arch i386")
-else (APPLE)
+else ()
     include_directories ("/usr/include/panda3d")
     set (PANDA_LIB_DIR /usr/lib/panda3d)
-endif (APPLE)
+endif ()
 
 add_executable (${OUTPUT_NAME} ${SRC})
 

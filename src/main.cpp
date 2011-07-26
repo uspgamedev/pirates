@@ -1,7 +1,7 @@
 
-#include "game.h"
+#include "base/game.h"
 
-using pirates::Game;
+using pirates::base::Game;
 
 int main (int argc, char **argv) {
     Game* game = Game::reference();
@@ -9,5 +9,6 @@ int main (int argc, char **argv) {
     game->Run();
     delete game;
     return EXIT_SUCCESS;
+
 }
 

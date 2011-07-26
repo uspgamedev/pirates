@@ -8,6 +8,8 @@
 #define GAME_H_
 
 #include "pandaFramework.h"
+#include "genericAsyncTask.h"
+#include "asyncTaskManager.h"
 
 namespace pirates {
 
@@ -40,6 +42,10 @@ class Game {
     
     PandaFramework& framework () {
         return framework_;
+    }
+    
+    AsyncTaskManager& taskMgr () {
+        return framework_.get_task_mgr();
     }
 
     WindowFramework*& window () {

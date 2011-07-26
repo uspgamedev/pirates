@@ -7,11 +7,8 @@
 #ifndef BOAT_H_
 #define BOAT_H_
 
-#include "pandaFramework.h"
-#include "genericAsyncTask.h"
-#include "asyncTaskManager.h"
 #include "lpoint3.h"
-#include <string>
+#include "pandaFramework.h"
 
 namespace pirates {
 
@@ -21,12 +18,10 @@ class Boat {
    
     Boat (std::string &modelpath, WindowFramework*& window, PandaFramework& framework );
     LPoint3f node_pos () { return boat_node_.get_pos(); }
-    AsyncTask::DoneStatus moveBoat ( GenericAsyncTask* task, void* data );
-    void taskInicialize();
+    AsyncTask::DoneStatus moveBoat ( GenericAsyncTask* task );
+    void taskInicialize( AsyncTaskManager& taskMgr );
     
   private :
-    PT(AsyncTaskManager) taskMgr_;
-    PT(ClockObject) globalClock_;
     NodePath boat_node_;
 };
 

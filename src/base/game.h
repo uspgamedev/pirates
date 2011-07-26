@@ -10,6 +10,7 @@
 #include "pandaFramework.h"
 
 namespace pirates {
+namespace base {
 
 class InputManager;
 
@@ -56,7 +57,8 @@ class Game {
 
 };
 
-}
+} // namespace base
+} // namespace pirates
 
 #endif
 

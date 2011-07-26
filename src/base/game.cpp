@@ -1,8 +1,9 @@
 
-#include "game.h"
-#include "inputmanager.h"
+#include "base/game.h"
+#include "base/inputmanager.h"
 
 namespace pirates {
+namespace base {
 
 Game* Game::reference_ = NULL;
 
@@ -13,5 +14,6 @@ void Game::Init (int &argc, char **&argv) {
     InputManager::reference()->Init();
 }
 
-}
+} // namespace base
+} // namespace pirates
 

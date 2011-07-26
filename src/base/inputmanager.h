@@ -6,6 +6,7 @@
 class Event;
 
 namespace pirates {
+namespace base {
 
 class Game;
 
@@ -39,7 +40,8 @@ class InputManager {
 
 };
 
-}
+} // namespace base
+} // namespace pirates
 
 #endif
 

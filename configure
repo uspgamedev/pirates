@@ -2,3 +2,5 @@
 
 ls -R src/ | ./update.pl > src/src_list.txt
 
+cmake .
+

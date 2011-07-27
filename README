@@ -1,2 +1,15 @@
 To open the class diagram found in docs/Classes.zargo you must use the ArgoUML
 editor, which can be downloaded (for free) from http://argouml.tigris.org/
+
+To compile the project in an Unix system you will need:
+
+    - perl 5.10 (or later)
+    - cmake 2.6 (or later)
+    - make 3.81 (or later)
+
+And use the commands, in this order:
+
+$ ./configure
+$ cmake .
+$ make
+

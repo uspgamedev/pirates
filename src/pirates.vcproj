@@ -40,6 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="$(InputDir)"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -110,9 +111,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories=""
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				WarningLevel="3"
+				WarningLevel="2"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -164,11 +166,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\game.cpp"
+				RelativePath=".\base\game.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\inputmanager.cpp"
+				RelativePath=".\base\inputmanager.cpp"
 				>
 			</File>
 			<File
@@ -182,11 +184,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\game.h"
+				RelativePath=".\config\config.h"
 				>
 			</File>
 			<File
-				RelativePath=".\inputmanager.h"
+				RelativePath=".\base\game.h"
+				>
+			</File>
+			<File
+				RelativePath=".\base\inputmanager.h"
 				>
 			</File>
 		</Filter>

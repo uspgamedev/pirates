@@ -1,9 +1,8 @@
-
 set (SRC
     ${SRC_DIR}/main.cpp
     ${SRC_DIR}/base/game.cpp
     ${SRC_DIR}/base/game.h
     ${SRC_DIR}/base/inputmanager.cpp
     ${SRC_DIR}/base/inputmanager.h
+    ${SRC_DIR}/config/config.h
 )
-

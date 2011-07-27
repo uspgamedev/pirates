@@ -1,5 +1,6 @@
-#ifndef INPUTMANAGER_H_
-#define INPUTMANAGER_H_
+
+#ifndef PIRATES_BASE_INPUTMANAGER_H_
+#define PIRATES_BASE_INPUTMANAGER_H_
 
 #include <cstdlib>
 

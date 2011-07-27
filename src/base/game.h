@@ -4,8 +4,8 @@
 // Filename: game.h
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GAME_H_
-#define GAME_H_
+#ifndef PIRATES_BASE_GAME_H_
+#define PIRATES_BASE_GAME_H_
 
 #include "pandaFramework.h"
 

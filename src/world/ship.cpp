@@ -18,9 +18,10 @@ namespace world {
 
 Ship::Ship (std::string &modelpath, WindowFramework*& window, PandaFramework& framework ) {
     NodePath m;
-    m = window->load_model(framework.get_models(), "panda-model");
-    m.set_scale(0.005);
+    m = window->load_model(framework.get_models(), "data/king");
+    m.set_scale(0.5);
     m.reparent_to(window->get_render());
+    m.set_color(0,0,0,1);
     m.set_pos(5, 5, 5);
     ship_node_ = m;
 }

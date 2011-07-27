@@ -7,6 +7,8 @@ set (SRC
     ${SRC_DIR}/config/config.h
     ${SRC_DIR}/world/city.h
     ${SRC_DIR}/world/island.h
+    ${SRC_DIR}/world/ship.cpp
+    ${SRC_DIR}/world/ship.h
     ${SRC_DIR}/world/treasure.h
     ${SRC_DIR}/world/worldactor.h
     ${SRC_DIR}/world/worldobject.h

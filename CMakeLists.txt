@@ -22,7 +22,10 @@ include (${SRC_DIR}/src_list.txt)
 set (CMAKE_CXX_FLAGS "-fPIC -O2")
 
 include_directories (${SRC_DIR})
-include_directories (/usr/include/python2.6)
+
+# Procura a versao do Python e exige que seja igual ou superior a 2.6
+find_package(PythonLibs 2.6 REQUIRED)
+include_directories (${PYTHON_INCLUDE_DIRS})
 
 set(CMAKE_OSX_ARCHITECTURES "ppc;i386")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

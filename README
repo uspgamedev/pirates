@@ -10,6 +10,5 @@ To compile the project in an Unix system you will need:
 And use the commands, in this order:
 
 $ ./configure
-$ cmake .
 $ make
 

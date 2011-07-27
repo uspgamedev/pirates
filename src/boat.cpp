@@ -1,5 +1,15 @@
 
 #include "boat.h"
+#include "genericAsyncTask.h"
+#include <string>
+
+typedef AsyncTask::DoneStatus (*TaskFunc) (GenericAsyncTask*, void*);
+
+static AsyncTask::DoneStatus moveBoatAux ( GenericAsyncTask* task, void* data ) {
+    pirates::Boat* boat = static_cast <pirates::Boat*> (data);
+    return boat->moveBoat(task);
+}
+
 
 namespace pirates {
 
@@ -12,23 +22,21 @@ Boat::Boat (std::string &modelpath, WindowFramework*& window, PandaFramework& fr
     boat_node_ = m;
 }
 
-AsyncTask::DoneStatus Boat::moveBoat ( GenericAsyncTask* task, void* data ) {
-  double time = globalClock_->get_real_time();
-  double angledegrees = time * 6.0;
-  double angleradians = angledegrees * (3.14 / 180.0);
-  boat_node_.set_pos(20*sin(angleradians),-20.0*cos(angleradians),3);
-  boat_node_.set_hpr(angledegrees, 0, 0);
- 
-  return AsyncTask::DS_cont;
+AsyncTask::DoneStatus Boat::moveBoat ( GenericAsyncTask* task ) {
+    static LVector3f spd( 0, -0.1, 0);
+    static double last = task->get_elapsed_time() + last;
+    double dt = task->get_elapsed_time() - last;
+    LVector3f dir = ( 0, 1, 0 );
+    this->boat_node_.set_pos(this->boat_node_.get_pos()+dt*spd);
+
+    return AsyncTask::DS_cont;
 }
 
-void Boat::taskInicialize() {
-    PT(AsyncTaskManager) taskMgr = AsyncTaskManager::get_global_ptr();
-    PT(ClockObject) globalClock = ClockObject::get_global_clock();
-    taskMgr_ = taskMgr;
-    globalClock_ = globalClock;
-    taskMgr_->add(new GenericAsyncTask("Ainda nao sei",
-        &moveBoat, (void*) NULL));
+void Boat::taskInicialize ( AsyncTaskManager& taskMgr ) {
+    GenericAsyncTask *task = new GenericAsyncTask(string("Ainda nao sei"),
+        (TaskFunc)&moveBoatAux, 
+        (void*) this);
+    taskMgr.add(task);
 }
 
 

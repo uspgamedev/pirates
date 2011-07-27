@@ -4,14 +4,16 @@
 // Filename: game.h
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GAME_H_
-#define GAME_H_
+#ifndef PIRATES_BASE_GAME_H_
+#define PIRATES_BASE_GAME_H_
 
 #include "pandaFramework.h"
+#include "genericAsyncTask.h"
+#include "asyncTaskManager.h"
 
 namespace pirates {
-namespace base {
 
+namespace base {
 class InputManager;
 
 class Game {
@@ -39,9 +41,17 @@ class Game {
     PandaFramework& framework () {
         return framework_;
     }
+    
+    AsyncTaskManager& taskMgr () {
+        return framework_.get_task_mgr();
+    }
 
     WindowFramework*& window () {
         return window_;
+    }
+
+    NodePath camera () {
+        return camera_node_;
     }
 
   private:
@@ -52,6 +62,7 @@ class Game {
 
     PandaFramework  framework_;
     WindowFramework *window_;
+    NodePath camera_node_;
 
     InputManager *inputmanager_;
 

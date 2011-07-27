@@ -5,4 +5,10 @@ set (SRC
     ${SRC_DIR}/base/inputmanager.cpp
     ${SRC_DIR}/base/inputmanager.h
     ${SRC_DIR}/config/config.h
+    ${SRC_DIR}/world/city.h
+    ${SRC_DIR}/world/island.h
+    ${SRC_DIR}/world/treasure.h
+    ${SRC_DIR}/world/worldactor.h
+    ${SRC_DIR}/world/worldobject.h
+    ${SRC_DIR}/world/utils/routetracer.h
 )

@@ -39,7 +39,7 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     return AsyncTask::DS_cont;
 }
 
-void Ship::taskInicialize ( AsyncTaskManager& taskMgr ) {
+void Ship::taskInitialize ( AsyncTaskManager& taskMgr ) {
     GenericAsyncTask *task = new GenericAsyncTask(string("Ainda nao sei"),
         (TaskFunc)&moveShipAux, 
         (void*) this);

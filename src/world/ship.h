@@ -25,7 +25,7 @@ class Ship : public WorldActor {
 
     AsyncTask::DoneStatus moveShip(GenericAsyncTask* task);
 
-    void taskInicialize(AsyncTaskManager& taskMgr);
+    void taskInitialize(AsyncTaskManager& taskMgr);
     
   private :
 

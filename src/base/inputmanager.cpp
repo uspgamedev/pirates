@@ -44,16 +44,15 @@ void load_colliders () {
     environment.reparent_to(Game::reference()->window()->get_render());
     // Applies scale and position transforms to the model.
     //environment.set_color(0,0,1,1);
-    //environment.set_scale(5, 5, 5);
-    environment.set_pos(0, 0, 0);
-    //environment.set_hpr(0, 90, 0);
+    environment.set_scale(0.25, 0.25, 0.25);
+    environment.set_pos(-8, 42, 0);
     environment.set_tag("pickable", "");
     // Makes a collision node to store the ray. Since it will come from the mouse, let's call it
     // "mouseRay
     pickerNode = new CollisionNode("mouseRay");
     // As the camera is a NodePath object, we may attatch other nodes to it. In this case, we
     // attatch the pickerNode because it moves together with the camera.
-    pickerNodePath = Game::reference()->window()->get_render().attach_new_node(pickerNode);
+    pickerNodePath = Game::reference()->camera().attach_new_node(pickerNode);
     // TODO...
     pickerNode->set_from_collide_mask(CollisionNode::get_default_collide_mask());
     pickerRay = new CollisionRay();

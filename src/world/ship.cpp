@@ -20,22 +20,22 @@ namespace world {
 
 //LVector3f Ship::dir(0.1, 0, 0);
 
-Ship::Ship () : dir(0.1, 0, 0) {
+Ship::Ship () : dir(0, 0, 0) {
     PandaFramework& framework = Game::reference()->framework();
     WindowFramework* window = Game::reference()->window();
     ship_node_ = window->load_model(framework.get_models(), "data/king");
-    ship_node_.set_scale(0.5);
+    ship_node_.set_scale(5);
     ship_node_.reparent_to(window->get_render());
     ship_node_.set_color(0,0,0,1);
     ship_node_.set_pos(0, 0, 0);
 }
 
 AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
-    static LVector3f spd( 0, -0.1, 0);
+    //static LVector3f spd( 0, -0.1, 0);
     static double last = task->get_elapsed_time() + last;
     double dt = task->get_elapsed_time() - last;
     //LVector3f dir = ( 0, 1, 0 );
-    this->ship_node_.set_pos(this->ship_node_.get_pos()+dt*dir);
+    this->ship_node_.set_pos(this->ship_node_.get_pos()+0.1*dt*dir);
 
     return AsyncTask::DS_cont;
 }

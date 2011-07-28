@@ -1,5 +1,6 @@
 
 #include "world/ship.h"
+#include "base/game.h"
 #include "genericAsyncTask.h"
 #include <string>
 
@@ -13,17 +14,19 @@ static AsyncTask::DoneStatus moveShipAux ( GenericAsyncTask* task, void* data ) 
 
 namespace pirates {
 
+using base::Game;
+
 namespace world {
 
 
-Ship::Ship (std::string &modelpath, WindowFramework*& window, PandaFramework& framework ) {
-    NodePath m;
-    m = window->load_model(framework.get_models(), "data/king");
-    m.set_scale(0.5);
-    m.reparent_to(window->get_render());
-    m.set_color(0,0,0,1);
-    m.set_pos(5, 5, 5);
-    ship_node_ = m;
+Ship::Ship () {
+    PandaFramework& framework = Game::reference()->framework();
+    WindowFramework* window = Game::reference()->window();
+    ship_node_ = window->load_model(framework.get_models(), "data/king");
+    ship_node_.set_scale(0.5);
+    ship_node_.reparent_to(window->get_render());
+    ship_node_.set_color(0,0,0,1);
+    ship_node_.set_pos(5, 5, 5);
 }
 
 AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {

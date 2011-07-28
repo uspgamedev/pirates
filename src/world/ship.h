@@ -9,22 +9,28 @@
 
 #include "lpoint3.h"
 #include "pandaFramework.h"
+#include "world/worldactor.h"
 
 namespace pirates {
 
 namespace world {
 
-class Ship {
+class Ship : public WorldActor {
     
   public :
    
-    Ship (std::string &modelpath, WindowFramework*& window, PandaFramework& framework );
-    LPoint3f node_pos () { return ship_node_.get_pos(); }
-    AsyncTask::DoneStatus moveShip ( GenericAsyncTask* task );
-    void taskInitialize( AsyncTaskManager& taskMgr );
+    Ship();
+
+    LPoint3f node_pos() { return ship_node_.get_pos(); }
+
+    AsyncTask::DoneStatus moveShip(GenericAsyncTask* task);
+
+    void taskInitialize(AsyncTaskManager& taskMgr);
     
   private :
+
     NodePath ship_node_;
+
 };
 
 } // namespace world

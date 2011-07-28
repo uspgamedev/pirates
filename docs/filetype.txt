@@ -1,0 +1,26 @@
+File Extension: .pwd - Pirate World Decription
+
+struct header {
+	// About the file
+	/*    4 */ char mime[4]; // Alyways PWLD
+	/*    1 */uint8 version;
+	/*    4 */uint32 filesize; // Remember to actually use this safeguard.
+	
+	// About the World
+	/*    1 */uint8 number_of_players;
+	/*    4 */uint32 ocean_height;
+	
+	/*  256 */char world_name[256]; // UTF-8 Encoded
+	/*  256 */char thumbnail_path[256];
+	/*   32 */char gametype[32]; // UTF-8 Encoded
+	/* 1024 */char description[1024]; // UTF-8 Encoded (be careful when treating the input for this)
+	
+	// Technical information
+	/*    4 */uint32 number_of_strips;
+	
+	char padding[462]; // Header is exactly 2048 bytes long.
+};
+
+struct 
+
+fread(&asd, sizeof(asd), 1, source);

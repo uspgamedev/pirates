@@ -12,7 +12,7 @@ int main (int argc, char **argv) {
     game->Init(argc, argv);
     std::string modelpath("data/king");
     Ship* ship = new Ship(modelpath, game->window(), game->framework());
-    ship->taskInicialize(game->taskMgr());
+    ship->taskInitialize(game->taskMgr());
     camera = game->camera();
     camera.set_pos(20, 20, 20);
     camera.look_at(ship->node_pos());

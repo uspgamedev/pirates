@@ -21,7 +21,7 @@ class Ship {
     Ship (std::string &modelpath, WindowFramework*& window, PandaFramework& framework );
     LPoint3f node_pos () { return ship_node_.get_pos(); }
     AsyncTask::DoneStatus moveShip ( GenericAsyncTask* task );
-    void taskInicialize( AsyncTaskManager& taskMgr );
+    void taskInitialize( AsyncTaskManager& taskMgr );
     
   private :
     NodePath ship_node_;

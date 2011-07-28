@@ -177,12 +177,20 @@
 				RelativePath=".\main.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\world\ship.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\world\city.h"
+				>
+			</File>
 			<File
 				RelativePath=".\config\config.h"
 				>
@@ -193,6 +201,30 @@
 			</File>
 			<File
 				RelativePath=".\base\inputmanager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\island.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\routetracer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\ship.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\treasure.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\worldactor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\worldobject.h"
 				>
 			</File>
 		</Filter>

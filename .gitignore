@@ -3,6 +3,7 @@
 /Release
 /src/Debug
 /src/Release
+/src/src_list.txt
 *.*~
 *.swp
 *~

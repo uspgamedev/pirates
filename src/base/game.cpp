@@ -20,7 +20,7 @@ void Game::Init (int &argc, char **&argv) {
     camera_node_ = window_->get_camera_group();
     load_prc_file_data("", "model-path .");
     Ship* ship = new Ship();
-    ship->taskInicialize(taskMgr());
+    ship->taskInitialize(taskMgr());
     camera_node_.set_pos(20, 20, 20);
     camera_node_.look_at(ship->node_pos());
 }

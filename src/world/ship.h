@@ -21,6 +21,8 @@ class Ship : public WorldActor {
    
     Ship();
 
+    LVector3f dir;
+
     LPoint3f node_pos() { return ship_node_.get_pos(); }
 
     AsyncTask::DoneStatus moveShip(GenericAsyncTask* task);

@@ -16,13 +16,14 @@ void Game::Init (int &argc, char **&argv) {
     framework_.open_framework(argc, argv);
     framework_.set_window_title("Pirates by USPGameDev");
     window_ = framework_.open_window();
+    load_prc_file_data("", "model-path .");
     InputManager::reference()->Init();
     camera_node_ = window_->get_camera_group();
-    load_prc_file_data("", "model-path .");
+    window_->setup_trackball();
     Ship* ship = new Ship();
-    ship->taskInicialize(taskMgr());
-    camera_node_.set_pos(20, 20, 20);
-    camera_node_.look_at(ship->node_pos());
+    ship->taskInitialize(taskMgr());
+    camera_node_.set_pos(0, 0, 20);
+    camera_node_.look_at(LPoint3f(0,0,0));
 }
 
 } // namespace base

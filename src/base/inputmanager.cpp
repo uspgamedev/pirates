@@ -41,7 +41,7 @@ void load_colliders () {
     // attached to and the path to the model file (.egg or .bam).
     environment = Game::reference()->window()->load_model(Game::reference()->framework().get_models(), "models/environment");
     // Reparents the model to render. This makes it visible.
-    environment.reparent_to(Game::reference()->window()->get_render());
+    //environment.reparent_to(Game::reference()->window()->get_render());
     // Applies scale and position transforms to the model.
     //environment.set_color(0,0,1,1);
     environment.set_scale(0.25, 0.25, 0.25);

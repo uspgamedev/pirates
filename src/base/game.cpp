@@ -2,11 +2,13 @@
 #include "base/game.h"
 #include "base/inputmanager.h"
 #include "world/ship.h"
+#include "world/world.h"
 #include "load_prc_file.h"
 
 namespace pirates {
 
 using world::Ship;
+using world::World;
 
 namespace base {
 
@@ -23,6 +25,8 @@ void Game::Init (int &argc, char **&argv) {
     camera_node_.look_at(0,0,0);
     Ship* ship = new Ship();
     ship->taskInitialize(taskMgr());
+    World* world = new World();
+    world->taskInitialize(taskMgr());
 }
 
 } // namespace base

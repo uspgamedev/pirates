@@ -7,6 +7,11 @@
 class Event;
 
 namespace pirates {
+
+namespace world {
+class Arrow;
+}
+
 namespace base {
 
 class Game;
@@ -32,6 +37,7 @@ class InputManager {
 
     InputManager();
     Game* game_;
+    ::pirates::world::Arrow* arrow_;
 
     static InputManager* reference_;
 

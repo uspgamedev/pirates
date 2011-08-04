@@ -1,6 +1,7 @@
 
 #include "base/inputmanager.h"
 #include "base/game.h"
+#include "world/arrow.h"
 #include "mouseWatcher.h"
 #include "collisionRay.h"
 #include "collisionTraverser.h"
@@ -10,6 +11,9 @@
 #include "plane.h"
 
 namespace pirates {
+
+using world::Arrow;
+
 namespace base {
 
 // More global variables.
@@ -101,6 +105,7 @@ void clickDownEvent (const Event* e, void *data) {
         if (entry) {
             NodePath pickedObj = entry->get_into_node_path();
             hit_pos = entry->get_surface_point(Game::reference()->window()->get_render());
+            arrow_->set_pos(hit_pos);
             //smiley.set_x(hit_pos.get_x());
             //smiley.set_y(hit_pos.get_y());
 
@@ -137,9 +142,11 @@ void clickUpEvent (const Event* e, void *data) {
 
 InputManager* InputManager::reference_ = NULL;
 
-InputManager::InputManager () : game_(Game::reference()) {}
+InputManager::InputManager() : game_(Game::reference()) {
+    arrow_ = new Arrow;
+}
 
-void InputManager::Init () {
+void InputManager::Init() {
     Game::reference()->window()->enable_keyboard();
     mouseWatcher = static_cast<MouseWatcher*>(Game::reference()->window()->get_mouse().node());
     load_colliders();

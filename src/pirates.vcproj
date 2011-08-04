@@ -166,6 +166,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\world\arrow.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\base\game.cpp"
 				>
 			</File>
@@ -191,6 +195,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\world\arrow.h"
+				>
+			</File>
 			<File
 				RelativePath=".\world\city.h"
 				>

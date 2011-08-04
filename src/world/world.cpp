@@ -7,7 +7,7 @@
 #include "geom.h"
 #include "geomNode.h"
 #include "geomVertexWriter.h"
-#include "geomTriangles.h"
+#include "geomTristrips.h"
 #include <string>
 
 typedef AsyncTask::DoneStatus (*TaskFunc) (GenericAsyncTask*, void*);
@@ -39,35 +39,27 @@ World::World () : dir(0, 0, 0) {
     normal = GeomVertexWriter(vdata, "normal");
     color = GeomVertexWriter(vdata, "color");
 
-    vertex.add_data3f(10, 0, 0);
+    vertex.add_data3f(-50, -50, .05);
     normal.add_data3f(0, 0, 1);
-    color.add_data4f(1, 0, 1, 1);
+    color.add_data4f(0, 0, 0, 1);
      
-    vertex.add_data3f(10, 00, 10);
+    vertex.add_data3f(50, -50, .05);
     normal.add_data3f(0, 0, 1);
-    color.add_data4f(0, 1, 1, 1);
+    color.add_data4f(0, 0, 0.3, 1);
      
-    vertex.add_data3f(0, 10, 0);
+    vertex.add_data3f(-50, 50, .05);
     normal.add_data3f(0, 0, 1);
-    color.add_data4f(1, 1, 1, 1);
+    color.add_data4f(0, 0, 0.6, 1);
      
-    vertex.add_data3f(0, 0, 0);
+    vertex.add_data3f(50, 50, .05);
     normal.add_data3f(0, 0, 1);
-    color.add_data4f(1, 0, 0, 1);
+    color.add_data4f(0, 0, 1, 1);
 
 
     // Making the primitive
-    PT(GeomTriangles) prim;
-    prim = new GeomTriangles(Geom::UH_static);
-     
-    prim->add_vertex(0);
-    prim->add_vertex(1);
-    prim->add_vertex(2);
-    // thats the first triangle
-    // you can also add a few at once
-    prim->add_vertices(0, 1, 3);
-    prim->add_vertices(0, 2, 3);
-    prim->add_vertices(1, 2, 3);
+    PT(GeomTristrips) prim;
+    prim = new GeomTristrips(Geom::UH_static);
+    prim->add_vertices(0, 1, 2, 3);
 
     // THE GEOM!
     PT(Geom) geom;

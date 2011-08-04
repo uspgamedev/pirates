@@ -21,12 +21,12 @@ Arrow::Arrow() {
 
 void Arrow::set_pos(LPoint3f pos) {
     arrow_node_.set_pos(pos);
-    arrow_node_.set_z(0);
+    arrow_node_.set_z(1);
 }
 
 void Arrow::look_at(LPoint3f target) {
     arrow_node_.look_at(target);
-    arrow_node_.set_p(90);
+    arrow_node_.set_p(-90);
 }
 
 

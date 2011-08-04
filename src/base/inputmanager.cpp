@@ -131,6 +131,7 @@ void clickUpEvent (const Event* e, void *data) {
             printf("Up: %f, %f, %f \n", vector_end.get_x(), vector_end.get_y(), vector_end.get_z() );
             puts("Vector obtained:  " );//+ hit_pos + vector_end);
             printf("%f, %f, %f \n", vector.get_x(), vector.get_y(), vector.get_z() );
+            InputManager::reference()->get_arrow()->look_at(vector_end);
 			//smiley.set_x(hit_pos.get_x());
             //smiley.set_y(hit_pos.get_y());
         }

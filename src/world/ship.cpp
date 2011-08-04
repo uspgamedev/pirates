@@ -32,11 +32,11 @@ Ship::Ship () : dir(0, 0, 0) {
 
 AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     //static LVector3f spd( 0, -0.1, 0);
-    static double last = task->get_elapsed_time() + last;
-    double dt = task->get_elapsed_time() - last;
-    //LVector3f dir = ( 0, 1, 0 );
-    this->ship_node_.set_pos(this->ship_node_.get_pos()+0.1*dt*dir);
-
+    static double last = task->get_elapsed_time();
+    double dt = task->get_elapsed_time() - last, time = task->get_elapsed_time();
+    dir = LVector3f(cos(time), sin(time), 0);
+    this->ship_node_.set_pos(this->ship_node_.get_pos()+5*dt*dir);
+    last = time;
     return AsyncTask::DS_cont;
 }
 

@@ -7,6 +7,11 @@
 class Event;
 
 namespace pirates {
+
+namespace world {
+class Arrow;
+}
+
 namespace base {
 
 class Game;
@@ -26,12 +31,17 @@ class InputManager {
             return reference_;
     }
 
+    ::pirates::world::Arrow* get_arrow() {
+        return arrow_;
+    }
+
     void Init ();
 
   private:
 
     InputManager();
     Game* game_;
+    ::pirates::world::Arrow* arrow_;
 
     static InputManager* reference_;
 

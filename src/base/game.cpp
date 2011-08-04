@@ -19,7 +19,8 @@ void Game::Init (int &argc, char **&argv) {
     load_prc_file_data("", "model-path .");
     camera_node_ = window_->get_camera_group();
     InputManager::reference()->Init();
-    window_->setup_trackball();
+    camera_node_.set_pos(40,-80,100);
+    camera_node_.look_at(0,0,0);
     Ship* ship = new Ship();
     ship->taskInitialize(taskMgr());
 }

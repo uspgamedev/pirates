@@ -27,6 +27,8 @@ void Arrow::set_pos(LPoint3f pos) {
 void Arrow::look_at(LPoint3f target) {
     arrow_node_.look_at(target);
     arrow_node_.set_p(-90);
+    LVector3f dir = target - arrow_node_.get_pos();
+    arrow_node_.set_sz(5*dir.length()/6.75);
 }
 
 

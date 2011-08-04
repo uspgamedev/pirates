@@ -31,6 +31,10 @@ class InputManager {
             return reference_;
     }
 
+    ::pirates::world::Arrow* get_arrow() {
+        return arrow_;
+    }
+
     void Init ();
 
   private:

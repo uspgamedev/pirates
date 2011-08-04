@@ -105,7 +105,7 @@ void clickDownEvent (const Event* e, void *data) {
         if (entry) {
             NodePath pickedObj = entry->get_into_node_path();
             hit_pos = entry->get_surface_point(Game::reference()->window()->get_render());
-            arrow_->set_pos(hit_pos);
+            InputManager::reference()->get_arrow()->set_pos(hit_pos);
             //smiley.set_x(hit_pos.get_x());
             //smiley.set_y(hit_pos.get_y());
 

@@ -1,5 +1,7 @@
 
 #include "world/arrow.h"
+#include "base/game.h"
+#include "pandaFramework.h"
 
 namespace pirates {
 
@@ -17,14 +19,14 @@ Arrow::Arrow() {
     arrow_node_.set_pos(0, 0, -100);
 }
 
-void Arrow::set_pos(Lpoint3f pos) {
-    arrow_node.set_pos(pos);
-    arrow_node.set_z(0);
+void Arrow::set_pos(LPoint3f pos) {
+    arrow_node_.set_pos(pos);
+    arrow_node_.set_z(0);
 }
 
 void Arrow::look_at(LPoint3f target) {
-    arrow_node.look_at(target);
-    arrow_node.set_p(90);
+    arrow_node_.look_at(target);
+    arrow_node_.set_p(90);
 }
 
 

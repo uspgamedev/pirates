@@ -2,8 +2,9 @@
 #ifndef PIRATES_WORLD_ARROW_H_
 #define PIRATES_WORLD_ARROW_H_
 
-#include "world/worldactor.h"
 #include "lpoint3.h"
+#include "nodePath.h"
+#include "world/worldactor.h"
 
 namespace pirates {
 
@@ -24,6 +25,10 @@ class Arrow : public WorldActor {
     NodePath arrow_node_;
 
 };
+
+}
+
+}
 
 #endif
 

@@ -1,11 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // (temporary header comment)
 // Project Pirates by USPGameDev
-// Filename: ship.h
+// Filename: world.h
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef PIRATES_WORLD_SHIP_H_
-#define PIRATES_WORLD_SHIP_H_
+#ifndef PIRATES_WORLD_WORLD_H_
+#define PIRATES_WORLD_WORLD_H_
 
 #include "lpoint3.h"
 #include "pandaFramework.h"
@@ -15,23 +15,23 @@ namespace pirates {
 
 namespace world {
 
-class Ship : public WorldActor {
+class World : public WorldActor {
     
   public :
    
-    Ship();
+    World();
 
     LVector3f dir;
 
-    LPoint3f node_pos() { return ship_node_.get_pos(); }
+    LPoint3f node_pos() { return world_node_.get_pos(); }
 
-    AsyncTask::DoneStatus moveShip(GenericAsyncTask* task);
+    AsyncTask::DoneStatus moveWorld(GenericAsyncTask* task);
 
     void taskInitialize(AsyncTaskManager& taskMgr);
     
   private :
 
-    NodePath ship_node_;
+    NodePath world_node_;
 
 };
 

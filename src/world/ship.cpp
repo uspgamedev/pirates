@@ -1,5 +1,6 @@
 
 #include "world/ship.h"
+#include "base/game.h"
 #include "genericAsyncTask.h"
 #include <string>
 
@@ -13,36 +14,33 @@ static AsyncTask::DoneStatus moveShipAux ( GenericAsyncTask* task, void* data ) 
 
 namespace pirates {
 
+using base::Game;
+
 namespace world {
 
+//LVector3f Ship::dir(0.1, 0, 0);
 
-Ship::Ship (std::string &modelpath, WindowFramework*& window, PandaFramework& framework ) {
-    NodePath m;
-    m = window->load_model(framework.get_models(), modelpath);
-    m.set_scale(1);
-    m.reparent_to(window->get_render());
-    m.set_color(255,255,255,1);
-    m.set_pos(5, 5, 5);
-    ship_node_ = m;
+Ship::Ship () : dir(0, 0, 0) {
+    PandaFramework& framework = Game::reference()->framework();
+    WindowFramework* window = Game::reference()->window();
+    ship_node_ = window->load_model(framework.get_models(), "data/king");
+    ship_node_.set_scale(5);
+    ship_node_.reparent_to(window->get_render());
+    ship_node_.set_color(0,0,0,1);
+    ship_node_.set_pos(0, 0, 0);
 }
 
 AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
-    static LVector3f spd( 0, -0.05, 0);
-    static double last = 0.0;
-    double dt = task->get_elapsed_time() - last;
-    LVector3f dir = ( 0, 1, 0 );
-    last += task->get_elapsed_time();
-    printf("LAST->%f \n DT->%f \n", last, dt);
-    if ( last - 20.0 >= 0.0 ) {
-        spd = spd*( 0.0, -1.0, 0.0);
-        last = 0.0;
-    }
-    this->ship_node_.set_pos(this->ship_node_.get_pos()+dt*spd);
-
+    //static LVector3f spd( 0, -0.1, 0);
+    static double last = task->get_elapsed_time();
+    double dt = task->get_elapsed_time() - last, time = task->get_elapsed_time();
+    dir = LVector3f(cos(time), sin(time), 0);
+    this->ship_node_.set_pos(this->ship_node_.get_pos()+5*dt*dir);
+    last = time;
     return AsyncTask::DS_cont;
 }
 
-void Ship::taskInicialize ( AsyncTaskManager& taskMgr ) {
+void Ship::taskInitialize ( AsyncTaskManager& taskMgr ) {
     GenericAsyncTask *task = new GenericAsyncTask(string("Ainda nao sei"),
         (TaskFunc)&moveShipAux, 
         (void*) this);

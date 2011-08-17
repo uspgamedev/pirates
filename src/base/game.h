@@ -50,7 +50,7 @@ class Game {
         return window_;
     }
 
-    NodePath camera () {
+    NodePath& camera () {
         return camera_node_;
     }
 

@@ -5,7 +5,7 @@
 #include "pandaFramework.h"
 #include "routetracer.h"
 
-static float knotvector[] = {0,0,0,1,2,2,2};
+static float knotvector[] = {0,0,0,0,1,1,1,1};
 
 namespace pirates {
 
@@ -36,7 +36,7 @@ void RouteTracer::trace_new_route(LPoint3f init_pos, LVector3f init_vel, LVector
     LPoint4f cv_vector[] = {init_pos_4d, init_pos_4d + init_vel_4d, dest_pos_4d - dest_vel_4d, dest_pos_4d};
 
     current_param_ = 0.0f;
-    route_curve_ = new NurbsCurve(3, 4, knotvector, cv_vector);
+    route_curve_ = new NurbsCurve(4, 4, knotvector, cv_vector);
     max_param_ = route_curve_->get_max_t();
     curve_length_ = route_curve_->calc_length();
     printf("nova rota traçada. max_param_ = %f, curve_length_ = %f\n", max_param_, curve_length_);
@@ -45,20 +45,20 @@ void RouteTracer::trace_new_route(LPoint3f init_pos, LVector3f init_vel, LVector
 }
 
 LPoint3f /*void*/ RouteTracer::get_next_point(float vel, float dt/*, LPoint3f& boat_cur_pos_ref, LVector3f& boat_cur_tangent_ref */) {
-    float dist_ran = vel*dt;
-    float new_param = route_curve_->find_length(current_param_, dist_ran);
+    float param_ran = vel*dt/curve_length_;
+    float new_param = current_param_ + param_ran ;//route_curve_->find_length(current_param_, dist_ran);
 
-     if( new_param >= max_param_ ) {
+    if( new_param >= max_param_ ) {
         puts("curva terminou! criando nova curva");
         // Curve ended. Trace new straight line and calculate the movement as if the curve and line were stitched.
-        dist_ran = dist_ran - route_curve_->calc_length(current_param_, max_param_);
+        param_ran = param_ran - (max_param_ - current_param_);
 
         LPoint3f new_startpoint = route_curve_->get_cv_point(3);
         LVector3f new_vel = new_startpoint - route_curve_->get_cv_point(2);
-        LPoint3f new_lastpoint = new_startpoint + 2*new_vel;
+        LPoint3f new_lastpoint = new_startpoint + 3*new_vel;
 
         trace_new_route(new_startpoint, new_vel, new_vel, new_lastpoint, new_vel);
-        current_param_ = route_curve_->find_length(0, dist_ran);
+        current_param_ = param_ran;
     }
     else
         current_param_ = new_param;

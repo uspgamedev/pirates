@@ -10,6 +10,7 @@
 #include "lpoint3.h"
 #include "pandaFramework.h"
 #include "world/worldactor.h"
+#include "world/utils/routetracer.h"
 
 namespace pirates {
 
@@ -23,15 +24,21 @@ class Ship : public WorldActor {
 
     LVector3f dir;
 
+    LVector3f vel;
+
     LPoint3f node_pos() { return ship_node_.get_pos(); }
 
     AsyncTask::DoneStatus moveShip(GenericAsyncTask* task);
 
     void taskInitialize(AsyncTaskManager& taskMgr);
+
+    utils::RouteTracer* route_tracer_;
     
   private :
 
     NodePath ship_node_;
+
+    LPoint3f new_point;
 
 };
 

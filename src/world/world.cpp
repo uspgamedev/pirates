@@ -54,7 +54,8 @@ World::World () : dir(0, 0, 0) {
 
     ++num_vertex;
 
-    for(int j = 1; j < num_lines - 1; ++j) {
+    num_lines--;
+    for(int j = 1; j < num_lines; ++j) {
         float vangle = (0.5f - (float)(j) / num_lines) * PI;
         float z = sin(vangle);
         float cosv = cos(vangle);
@@ -84,7 +85,7 @@ World::World () : dir(0, 0, 0) {
     for(int i = 0; i < num_tri_per_line; ++i)
         prim->add_vertices(0, i + 1, (i + 1) % num_tri_per_line + 1);
 
-    for(int j = 1; j < num_lines - 2; ++j) {
+    for(int j = 1; j < num_lines - 1; ++j) {
         int start = (j - 1) * num_tri_per_line + 1;
         int next = j * num_tri_per_line + 1;
         for(int i = 0; i < num_tri_per_line; ++i) {
@@ -94,7 +95,7 @@ World::World () : dir(0, 0, 0) {
         }
     }
 
-    int last_line = (num_lines - 3) * num_tri_per_line + 1;
+    int last_line = (num_lines - 2) * num_tri_per_line + 1;
     printf("%d %d\n", last_line, num_vertex);
     for(int i = 0; i < num_tri_per_line; ++i) {
         prim->add_vertices(last_line + (i + 1) % num_tri_per_line, last_line + i, num_vertex - 1);

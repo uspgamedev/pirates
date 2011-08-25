@@ -22,7 +22,7 @@ void Game::Init (int &argc, char **&argv) {
     camera_node_ = window_->get_camera_group();
     ship_ = new Ship();
     InputManager::reference()->Init();
-    camera_node_.set_pos(40,-80,100);
+    camera_node_.set_pos(60,-120,150);
     camera_node_.look_at(0,0,0);
     ship_->taskInitialize(taskMgr());
     World* world = new World();

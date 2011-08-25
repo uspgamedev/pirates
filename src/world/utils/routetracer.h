@@ -2,7 +2,7 @@
 #ifndef PIRATES_WORLD_UTILS_ROUTETRACER_H_
 #define PIRATES_WORLD_UTILS_ROUTETRACER_H_
 
-#include "NurbsCurve.h"
+#include "nurbsCurve.h"
 #include "ropeNode.h"
 
 namespace pirates {

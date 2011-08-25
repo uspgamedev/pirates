@@ -9,6 +9,7 @@
 #include "collisionNode.h"
 #include "collisionPlane.h"
 #include "plane.h"
+#include "world/ship.h"
 
 namespace pirates {
 
@@ -126,7 +127,7 @@ void clickUpEvent (const Event* e, void *data) {
         if (entry) {
             NodePath pickedObj = entry->get_into_node_path();
             LPoint3f vector_end = entry->get_surface_point(Game::reference()->window()->get_render());
-			LPoint3f vector = vector_end - hit_pos;
+			LVector3f vector = vector_end - hit_pos;
             printf("Down: %f, %f, %f \n", hit_pos.get_x(), hit_pos.get_y(), hit_pos.get_z() );
             printf("Up: %f, %f, %f \n", vector_end.get_x(), vector_end.get_y(), vector_end.get_z() );
             puts("Vector obtained:  " );//+ hit_pos + vector_end);
@@ -134,6 +135,11 @@ void clickUpEvent (const Event* e, void *data) {
             InputManager::reference()->get_arrow()->look_at(vector_end);
 			//smiley.set_x(hit_pos.get_x());
             //smiley.set_y(hit_pos.get_y());
+
+            if(vector.length()<=0.1f)
+                InputManager::reference()->player_ship_->set_new_route_dest(hit_pos);
+            else
+                InputManager::reference()->player_ship_->set_new_route_dest(hit_pos,vector);
         }
     }
     else {
@@ -153,6 +159,7 @@ void InputManager::Init() {
     load_colliders();
     Game::reference()->framework().define_key("mouse1", "mouse_down", &clickDownEvent, NULL);
     Game::reference()->framework().define_key("mouse1-up", "mouse_up", &clickUpEvent, NULL);
+    player_ship_ = Game::reference()->ship_;
 }
 
 //void InputManager::ClickDownEvent (const Event* e, void *data) {

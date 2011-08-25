@@ -10,6 +10,7 @@
 #include "pandaFramework.h"
 #include "genericAsyncTask.h"
 #include "asyncTaskManager.h"
+#include "world/ship.h"
 
 namespace pirates {
 
@@ -53,6 +54,8 @@ class Game {
     NodePath& camera () {
         return camera_node_;
     }
+
+    world::Ship* ship_;
 
   private:
     

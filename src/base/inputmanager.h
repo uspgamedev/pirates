@@ -3,6 +3,7 @@
 #define PIRATES_BASE_INPUTMANAGER_H_
 
 #include <cstdlib>
+#include "world/ship.h"
 
 class Event;
 
@@ -36,6 +37,8 @@ class InputManager {
     }
 
     void Init ();
+
+    world::Ship* player_ship_;
 
   private:
 

@@ -3,6 +3,8 @@
 #include "base/game.h"
 #include "genericAsyncTask.h"
 #include "world/utils/routetracer.h"
+#include "parametriccurve.h"
+#include "nurbscurve.h"
 #include <string>
 
 typedef AsyncTask::DoneStatus (*TaskFunc) (GenericAsyncTask*, void*);
@@ -30,10 +32,11 @@ Ship::Ship () : dir(0, 0, 0) {
     ship_node_.set_pos(0, 0, 0);
 
     vel = 5.0f; // lol.
-    new_point = LPoint3f(7,7,7);
-    route_tracer_ = new utils::RouteTracer( ship_node_.get_pos(), vel, vel );
+    route_tracer_ = new utils::RouteTracer( ship_node_.get_pos(), vel.length(), vel/vel.length() );
     // next line: sample route.
-    route_tracer_->trace_new_route( LPoint3f(-10.0f,-10.0f,0.0f), LVector3f(-5.0f,-5.0f,0.0f), LVector3f(1.0f), LPoint3f(10.0f,10.0f,0.0f), LVector3f(5.0f,-5.0f,0.0f));
+    route_tracer_->trace_new_route( LPoint3f(-10.0f,-10.0f,0.0f), 5.0f, LVector3f(-0.7071068f,0.7071068f,0.0f), LPoint3f(10.0f,10.0f,0.0f));
+
+    new_route_method_ = 0;
 }
 
 AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
@@ -41,10 +44,21 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     static double last = task->get_elapsed_time();
     float dt = task->get_elapsed_time() - last, time = task->get_elapsed_time();
     this->dir = LVector3f(cos(time), sin(time), 0);
-    if(time>=3.0) {
-        this->new_point = this->route_tracer_->get_next_point(this->vel.length(), dt/*, this->new_point, this->new_tangent*/);
-        this->ship_node_.set_pos(this->new_point);
-        //this->ship_node_.set_pos(this->ship_node_.get_pos()+this->vel*dt);
+    this->route_tracer_->get_next_pt(this->vel.length(), dt, this->new_point, this->new_tangent);
+    this->ship_node_.set_pos(this->new_point);
+    //this->ship_node_.set_pos(this->ship_node_.get_pos()+this->vel*dt);
+    switch(new_route_method_) {
+        case 1:
+            this->route_tracer_->trace_new_route(this->new_point, this->new_tangent.length(), this->new_tangent/this->new_tangent.length(), this->new_route_dest_pos_);
+            new_route_method_ = 0;
+        break;
+        case 2:
+            this->route_tracer_->trace_new_route(this->new_point, this->new_tangent.length(), this->new_tangent/this->new_tangent.length(), this->new_route_dest_pos_, this->new_route_dest_vel_);
+            new_route_method_ = 0;
+        break;
+        case 0:
+        default:
+        break;
     }
     last = time;
     return AsyncTask::DS_cont;
@@ -55,6 +69,17 @@ void Ship::taskInitialize ( AsyncTaskManager& taskMgr ) {
         (TaskFunc)&moveShipAux, 
         (void*) this);
     taskMgr.add(task);
+}
+
+void Ship::set_new_route_dest(LPoint3f& dest) {
+    new_route_dest_pos_ = dest;
+    new_route_method_ = 1;
+}
+
+void Ship::set_new_route_dest(LPoint3f& dest_pos, LVector3f& dest_vel) {
+    new_route_dest_pos_ = dest_pos;
+    new_route_dest_vel_ = dest_vel;
+    new_route_method_ = 2;
 }
 
 

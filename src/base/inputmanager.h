@@ -36,17 +36,25 @@ class InputManager {
         return arrow_;
     }
 
+    void set_current_handler(InputHandler *handler) {
+        if (current_handler_)
+            delete current_handler_;
+        current_handler_ = handler;
+    }
+
     void Init ();
 
     world::Ship* player_ship_;
 
   private:
 
-    InputManager();
-    Game* game_;
-    ::pirates::world::Arrow* arrow_;
+    InputManager() : current_handler_(NULL) {}
 
-    static InputManager* reference_;
+    Game*                   game_;
+    pirates::world::Arrow*  arrow_;
+    InputHandler*           current_handler_;
+
+    static InputManager*    reference_;
 
     static void ClickDownEvent(const Event* e, void *data) {}
 

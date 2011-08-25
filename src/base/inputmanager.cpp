@@ -44,7 +44,8 @@ void load_colliders () {
     // Loads the environmentment model and stores it.
     // The load_model method from the window object needs the parent node that the model shall be
     // attached to and the path to the model file (.egg or .bam).
-    environment = Game::reference()->window()->load_model(Game::reference()->framework().get_models(), "models/environment");
+    environment = Game::reference()->window()->load_model(Game::reference()->framework().get_models(),
+            "models/environment");
     // Reparents the model to render. This makes it visible.
     environment.reparent_to(Game::reference()->window()->get_render());
     // Applies scale and position transforms to the model.

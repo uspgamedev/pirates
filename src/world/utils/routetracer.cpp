@@ -19,7 +19,8 @@ using base::Game;
 RouteTracer::RouteTracer( LPoint3f& init_pos, float init_vel, LVector3f& init_dir ) {
     LVector3f vectorial_vel( LVector3f(init_vel*init_dir) );
     route_curve_ = NULL;
-    trace_new_route( init_pos, init_vel, init_dir, init_pos + vectorial_vel, vectorial_vel );
+    LPoint3f control_point = init_dir + 3*vectorial_vel; 
+    trace_new_route( init_pos, init_vel, init_dir, control_point, vectorial_vel );
 }
 
 void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos ) {

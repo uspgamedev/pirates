@@ -3,8 +3,8 @@
 #include "base/game.h"
 #include "genericAsyncTask.h"
 #include "world/utils/routetracer.h"
-#include "parametriccurve.h"
-#include "nurbscurve.h"
+#include "parametricCurve.h"
+#include "nurbsCurve.h"
 #include <string>
 
 typedef AsyncTask::DoneStatus (*TaskFunc) (GenericAsyncTask*, void*);
@@ -32,9 +32,9 @@ Ship::Ship () : dir(0, 0, 0) {
     ship_node_.set_pos(0, 0, 0);
 
     vel = 5.0f; // lol.
-    route_tracer_ = new utils::RouteTracer( ship_node_.get_pos(), vel.length(), vel/vel.length() );
-    // next line: sample route.
-    route_tracer_->trace_new_route( LPoint3f(-10.0f,-10.0f,0.0f), 5.0f, LVector3f(-0.7071068f,0.7071068f,0.0f), LPoint3f(10.0f,10.0f,0.0f));
+    LPoint3f ship_pos= ship_node_.get_pos();
+    LVector3f ship_vel_norm= vel/vel.length();
+    route_tracer_ = new utils::RouteTracer(ship_pos, vel.length(), ship_vel_norm);
 
     new_route_method_ = 0;
 }
@@ -46,14 +46,15 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     this->dir = LVector3f(cos(time), sin(time), 0);
     this->route_tracer_->get_next_pt(this->vel.length(), dt, this->new_point, this->new_tangent);
     this->ship_node_.set_pos(this->new_point);
+    LVector3f new_tg_norm = this->new_tangent/this->new_tangent.length();
     //this->ship_node_.set_pos(this->ship_node_.get_pos()+this->vel*dt);
     switch(new_route_method_) {
         case 1:
-            this->route_tracer_->trace_new_route(this->new_point, this->new_tangent.length(), this->new_tangent/this->new_tangent.length(), this->new_route_dest_pos_);
+            this->route_tracer_->trace_new_route(this->new_point, this->new_tangent.length(), new_tg_norm, this->new_route_dest_pos_);
             new_route_method_ = 0;
         break;
-        case 2:
-            this->route_tracer_->trace_new_route(this->new_point, this->new_tangent.length(), this->new_tangent/this->new_tangent.length(), this->new_route_dest_pos_, this->new_route_dest_vel_);
+        case 2: 
+            this->route_tracer_->trace_new_route(this->new_point, this->new_tangent.length(), new_tg_norm, this->new_route_dest_pos_, this->new_route_dest_vel_);
             new_route_method_ = 0;
         break;
         case 0:

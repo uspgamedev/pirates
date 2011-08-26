@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // (temporary header comment)
 // Project Pirates by USPGameDev
-// Filename: world.h
+// Filename: planet.h
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef PIRATES_WORLD_WORLD_H_
@@ -15,23 +15,23 @@ namespace pirates {
 
 namespace world {
 
-class World : public WorldActor {
+class Planet : public WorldActor {
     
   public :
    
-    World();
+    Planet();
 
     LVector3f dir;
 
-    LPoint3f node_pos() { return world_node_.get_pos(); }
+    LPoint3f node_pos() { return planet_node_.get_pos(); }
 
-    AsyncTask::DoneStatus moveWorld(GenericAsyncTask* task);
+    AsyncTask::DoneStatus movePlanet(GenericAsyncTask* task);
 
     void taskInitialize(AsyncTaskManager& taskMgr);
     
   private :
 
-    NodePath world_node_;
+    NodePath planet_node_;
 
 };
 

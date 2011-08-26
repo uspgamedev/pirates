@@ -5,8 +5,8 @@
 #include "pandaFramework.h"
 #include "routetracer.h"
 
-static float knotvector[] = {0,0,0,0,4,4,4,4};
-    // The only valid knot vector for a 4th degree NURBS with 4 control points and with parameter space = [0,4]
+static float knotvector[] = {0,0,0,2,4,4,4};
+    // The only valid knot vector for a 3rd degree homogeneous NURBS with 4 control points and with parameter space = [0,1]
 
 namespace pirates {
 
@@ -31,7 +31,6 @@ void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f
 
     LVector3f init_vect_vel(init_vel*init_dir);
     LVector3f shortest_path(dest_pos-init_pos);
-    // rage mode on: COMO ASSIM NÃO TEM UM OPERADOR * ENTRE DOIS LVector3f ???????
     LVector3f dest_vel = 2*init_vect_vel.project(shortest_path) - init_vect_vel;
 
     trace_new_route(init_pos, init_vel, init_dir, dest_pos, dest_vel);
@@ -40,7 +39,7 @@ void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f
 void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos, LVector3f& dest_vel ) {
     // (with a point + vector as destination)
 
-    if( init_vel == 0.0f ) init_vel = 1.0f;
+    if( init_vel == 0.0f ) init_vel = 0.0001f;
 
     LVector3f init_vectorial_vel(init_dir*init_vel);
 
@@ -54,7 +53,7 @@ void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f
     LPoint4f cv_vector[] = {init_pos_4d, init_pos_4d + init_vel_4d, dest_pos_4d - dest_vel_4d, dest_pos_4d};
 
     if(route_curve_) delete route_curve_;
-    route_curve_ = new NurbsCurve(4, 4, knotvector, cv_vector);
+    route_curve_ = new NurbsCurve(3, 4, knotvector, cv_vector);
 
     // Setting up the route's default state.
     current_param_ = 0.0f;
@@ -65,34 +64,27 @@ void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f
 void RouteTracer::get_next_pt( float vel, float dt, LPoint3f& cur_pos_ref, LVector3f& cur_tg_ref ) {
 
     // if vel*dt == 0 then there's nothing to do. cur_pos and cur_tg should be kept the same.
-    // the route may not even be traced.
     if(vel == 0 || dt == 0)
         return;
 
-    float param_ran = vel*dt/curve_length_;
-    float new_param = current_param_ + param_ran;
-        // If this calculation changes, remember to adjust the "temp_vel_ = vel;" line below.
+    float dist_ran = vel*dt;
+    float max_dist = route_curve_->calc_length(current_param_,max_param_);
 
-    if( new_param >= max_param_ ) {
+    if( dist_ran >= max_dist ) {
         // Curve ended. Trace new straight line and calculate the movement as if the curve and line were stitched.
-        param_ran = param_ran - (max_param_ - current_param_);
+        dist_ran = dist_ran - max_dist;
 
         LPoint3f temp_startpoint = route_curve_->get_cv_point(3);
-        float temp_vel = vel;
-            // the correct way would be to calculate it from cv_point(3) - cv_point(2), but this forces it
-            // to keep the same velocity it was using in the end of the movement.
+
         LVector3f temp_dir = temp_startpoint - route_curve_->get_cv_point(2);
         temp_dir = temp_dir/temp_dir.length();
-        LVector3f temp_last_vect_vel = temp_vel*temp_dir;
+        LVector3f temp_last_vect_vel = vel*temp_dir;
         LPoint3f temp_lastpoint = temp_startpoint + 3*temp_last_vect_vel;
             // Control points are positioned with equal length between them.
 
-        trace_new_route(temp_startpoint, temp_vel, temp_dir, temp_lastpoint, temp_last_vect_vel);
-        current_param_ = param_ran;
+        trace_new_route(temp_startpoint, vel, temp_dir, temp_lastpoint, temp_last_vect_vel);
     }
-    else
-        current_param_ = new_param;
-
+    current_param_ = route_curve_->find_length(current_param_,dist_ran);
     route_curve_->get_pt(current_param_, cur_pos_ref, cur_tg_ref);
 }
 

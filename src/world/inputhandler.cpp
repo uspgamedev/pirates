@@ -24,10 +24,8 @@ void InputHandler::Setup() {
 void InputHandler::ClickDownEvent(const Event *event) {
     if (mouse_watcher_->has_mouse()) {
         LPoint2f pos = mouse_watcher_->get_mouse();
-        //printf("Click at (%f, %f)\n", pos.get_x(), pos.get_y());
         PT(CollisionEntry) entry = pick(pos);
         if (entry) {
-            //NodePath picked_obj = entry->get_into_node_path();
             target_pos_ = entry->get_surface_point(game_->window()->get_render());
             InputManager::reference()->get_arrow()->set_pos(target_pos_);
         }
@@ -40,7 +38,6 @@ void InputHandler::ClickDownEvent(const Event *event) {
 void InputHandler::ClickUpEvent(const Event *event) {
     if (mouse_watcher_->has_mouse()){
         LPoint2f pos = mouse_watcher_->get_mouse();
-        //printf("Click at (%f, %f)\n", pos.get_x(), pos.get_y());
         PT(CollisionEntry) entry = pick(pos);
         if (entry) {
             NodePath picked_obj = entry->get_into_node_path();
@@ -48,7 +45,7 @@ void InputHandler::ClickUpEvent(const Event *event) {
 			LVector3f vector = vector_end - target_pos_;
             printf("Down: %f, %f, %f \n", target_pos_.get_x(), target_pos_.get_y(), target_pos_.get_z() );
             printf("Up: %f, %f, %f \n", vector_end.get_x(), vector_end.get_y(), vector_end.get_z() );
-            puts("Vector obtained:  " );//+ target_pos_ + vector_end);
+            puts("Vector obtained:  " );
             printf("%f, %f, %f \n", vector.get_x(), vector.get_y(), vector.get_z() );
             InputManager::reference()->get_arrow()->look_at(vector_end);
             if(vector.length()<=0.1f)
@@ -68,7 +65,7 @@ void InputHandler::loadColliders () {
     // The load_model method from the window object needs the parent node that the model shall be
     // attached to and the path to the model file (.egg or .bam).
     environment_ = game_->window()->load_model(game_->framework().get_models(),
-            "models/envinronment_");
+            "models/environment");
     // Reparents the model to render. This makes it visible.
     environment_.reparent_to(game_->window()->get_render());
     // Applies scale and position transforms to the model.

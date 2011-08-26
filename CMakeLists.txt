@@ -19,7 +19,7 @@ configure_file (
 
 include (${SRC_DIR}/src_list.txt)
 
-set (CMAKE_CXX_FLAGS "-fPIC -O2")
+set (CMAKE_CXX_FLAGS "-fPIC -O2 -g")
 
 include_directories (${SRC_DIR})
 

@@ -40,7 +40,10 @@ void InputManager::Init() {
     Game::reference()->framework().define_key("mouse1", "mouse_down", &ClickDownEvent, NULL);
     Game::reference()->framework().define_key("mouse1-up", "mouse_up", &ClickUpEvent, NULL);
     player_ship_ = Game::reference()->ship_;
-    set_current_handler(new pirates::world::InputHandler(Game::reference(), mouseWatcher, player_ship_));
+    pirates::world::InputHandler *handler =
+        new pirates::world::InputHandler(Game::reference(), mouseWatcher, player_ship_);
+    handler->Setup();
+    set_current_handler(handler);
 }
 
 } // namespace base

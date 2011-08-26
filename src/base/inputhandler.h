@@ -26,7 +26,8 @@ class InputHandler {
 
   protected:
 
-    InputHandler(Game *game, MouseWatcher *mouse_watcher) : game_(game), mouse_watcher_(mouse_watcher_) {}
+    InputHandler(Game *game, MouseWatcher *mouse_watcher) : game_(game), mouse_watcher_(mouse_watcher) {}
+
 
     Game            *game_;
     MouseWatcher    *mouse_watcher_;

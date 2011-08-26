@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 #include "world/ship.h"
+#include "base/inputhandler.h"
 
 class Event;
 
@@ -16,6 +17,7 @@ class Arrow;
 namespace base {
 
 class Game;
+class InputHandler;
 
 class InputManager {
 
@@ -48,7 +50,7 @@ class InputManager {
 
   private:
 
-    InputManager() : current_handler_(NULL) {}
+    InputManager();
 
     Game*                   game_;
     pirates::world::Arrow*  arrow_;

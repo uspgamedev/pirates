@@ -150,7 +150,7 @@ void clickUpEvent (const Event* e, void *data) {
 
 InputManager* InputManager::reference_ = NULL;
 
-InputManager::InputManager() : game_(Game::reference()) {
+InputManager::InputManager() : game_(Game::reference()), current_handler_(NULL) {
     arrow_ = new Arrow;
 }
 

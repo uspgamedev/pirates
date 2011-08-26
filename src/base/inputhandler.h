@@ -3,12 +3,16 @@
 #ifndef PIRATES_BASE_INPUTHANDLER_H_
 #define PIRATES_BASE_INPUTHANDLER_H_
 
+#include "base/game.h"
+
 class Event;
 class MouseWatcher;
 
 namespace pirates {
 
 namespace base {
+
+class Game;
 
 class InputHandler {
 
@@ -22,12 +26,11 @@ class InputHandler {
 
   protected:
 
+    InputHandler(Game *game, MouseWatcher *mouse_watcher) : game_(game), mouse_watcher_(mouse_watcher_) {}
+
     Game            *game_;
     MouseWatcher    *mouse_watcher_;
 
-  private:
-
-    InputHandler(Game *game, MouseWatcher *mouse_watcher) : game_(game), mouse_watcher_(mouse_watcher_) {}
 
 };
 

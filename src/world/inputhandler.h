@@ -3,6 +3,7 @@
 #define PIRATES_WORLD_INPUTHANDLER_H_
 
 #include "base/inputhandler.h"
+
 #include "nodePath.h"
 #include "collisionTraverser.h"
 
@@ -10,6 +11,8 @@ class CollisionRay;
 class CollisionPlane;
 class CollisionHandlerQueue;
 class CollisioNode;
+class CollisionEntry;
+class MouseWatcher;
 
 namespace pirates {
 
@@ -21,7 +24,7 @@ class InputHandler : public pirates::base::InputHandler {
 
   public:
 
-    InputHandler(Game *game, MouseWatcher *mouse_watcher, Ship *ship)
+    InputHandler(pirates::base::Game *game, MouseWatcher *mouse_watcher, Ship *ship)
         : pirates::base::InputHandler(game, mouse_watcher), ship_(ship),
           traverser_("picker_traverser") {}
 
@@ -43,8 +46,11 @@ class InputHandler : public pirates::base::InputHandler {
     NodePath                    picker_node_path_;
     NodePath                    floor_node_path_;
     NodePath                    environment_;
+    LPoint3f                    target_pos_, speed_dir_;
 
     void loadColliders();
+
+    CollisionEntry* pick(LPoint2f pos);
 
 };
 

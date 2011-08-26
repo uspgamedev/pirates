@@ -22,8 +22,6 @@ class Ship : public WorldActor {
    
     Ship();
 
-    LVector3f dir;
-
     LVector3f vel;
 
     LPoint3f node_pos() { return ship_node_.get_pos(); }
@@ -33,12 +31,23 @@ class Ship : public WorldActor {
     void taskInitialize(AsyncTaskManager& taskMgr);
 
     utils::RouteTracer* route_tracer_;
+
+    void set_new_route_dest(LPoint3f& dest);
+
+    void set_new_route_dest(LPoint3f& dest_pos, LVector3f& dest_vel);
     
   private :
 
     NodePath ship_node_;
 
     LPoint3f new_point;
+
+    LVector3f new_tangent;
+
+    int new_route_method_; // 0=no new route, 1=new route with dest only, 2=new route with dest and vel.
+
+    LPoint3f new_route_dest_pos_;
+    LVector3f new_route_dest_vel_;
 
 };
 

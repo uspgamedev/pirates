@@ -58,9 +58,9 @@ class InputManager {
 
     static InputManager*    reference_;
 
-    static void ClickDownEvent(const Event* e, void *data) {}
+    static void ClickDownEvent(const Event* e, void *data);
 
-    static void ClickUpEvent(const Event* e, void *data) {}
+    static void ClickUpEvent(const Event* e, void *data);
 
 };
 

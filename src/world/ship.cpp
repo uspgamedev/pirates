@@ -41,8 +41,17 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     //static LVector3f spd( 0, -0.1, 0);
     static double last = task->get_elapsed_time();
     float dt = task->get_elapsed_time() - last, time = task->get_elapsed_time();
+
+    LVector3f old_tangent = this->new_tangent;
     this->route_tracer_->get_next_pt(this->vel.length(), dt, this->new_point, this->new_tangent);
-    this->vel = this->new_tangent/2; // porque o knot vector avança de 2 em 2.
+
+    float vel_penalty_from_curve = (this->new_tangent/new_tangent.length() - old_tangent/old_tangent.length()).length()/dt;
+    this->vel = this->new_tangent/2.0f; // porque o knot vector avança de 2 em 2.
+    if(vel_penalty_from_curve <= 1.0f)
+        this->vel = this->vel - this->vel*vel_penalty_from_curve;
+    else
+        this->vel = 0.0f;
+
     this->ship_node_.set_pos(this->new_point);
     LVector3f new_tg_norm = this->new_tangent/this->new_tangent.length();
     //this->ship_node_.set_pos(this->ship_node_.get_pos()+this->vel*dt);

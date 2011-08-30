@@ -56,11 +56,10 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     LVector3f old_tangent = this->new_tangent;
     if(!anchored_) {
         this->route_tracer_->get_next_pt(scalar_vel, dt, this->new_point, this->new_tangent);
-        this->matiz_ = this->matiz_+0.2f;
+        this->matiz_ = this->matiz_+(scalar_vel/40.0f); //pq sim lol.
         if( matiz_ >= 6.0f )
             matiz_ = matiz_-6.0f;
         matiz_ctrl = floor(matiz_);
-        printf("matiz_ = %f, matiz_ctrl = %d\n", matiz_, matiz_ctrl);
         switch(matiz_ctrl){
             case 0:
                 red = 0.72f;
@@ -159,14 +158,16 @@ void Ship::taskInitialize ( AsyncTaskManager& taskMgr ) {
 void Ship::set_new_route_dest(LPoint3f& dest) {
     new_route_dest_pos_ = dest;
     new_route_method_ = 1;
-    puts("Raise the anchors!!!1!!!one!");
+    if(anchored_)
+        puts("Raise the anchors!!!1!!!one!");
 }
 
 void Ship::set_new_route_dest(LPoint3f& dest_pos, LVector3f& dest_vel) {
     new_route_dest_pos_ = dest_pos;
     new_route_dest_vel_ = dest_vel;
     new_route_method_ = 2;
-    puts("Raise the anchors!!!!!!");
+    if(anchored_)
+        puts("Raise the anchors!!!!!!");
 }
 
 

@@ -40,7 +40,7 @@ Planet::Planet () {
     // Top One
     vertex.add_data3f(0, 0, 10.0f);
     normal.add_data3f(0, 0, 1);
-    color.add_data4f(0, 0, 0, 1);
+    color.add_data4f(0, 0, 1.0f, 1);
 
     ++num_vertex;
 
@@ -55,7 +55,7 @@ Planet::Planet () {
             float y = sin(xangle) * cosv;
             vertex.add_data3f(sphere_radius * x, sphere_radius * y, sphere_radius * z);
             normal.add_data3f(x, y, z);
-            color.add_data4f(0, 0, 0.5f * (1.1f - z*z), 1);
+            color.add_data4f(0, 0, 1.0f, 1);
 
             ++num_vertex;
         }
@@ -63,7 +63,7 @@ Planet::Planet () {
 
     vertex.add_data3f(0, 0, -10.0f);
     normal.add_data3f(0, 0, 1);
-    color.add_data4f(0, 0, 0, 1);
+    color.add_data4f(0, 0, 1.0f, 1);
 
     ++num_vertex;
 

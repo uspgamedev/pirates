@@ -37,7 +37,7 @@ void Game::Init (int &argc, char **&argv) {
     light->set_color(Colorf(1, 1, 1, 1));
     light->set_lens(new PerspectiveLens());
     NodePath slnp = window_->get_render().attach_new_node(light);
-    slnp.set_pos(20, 0, 100);
+    slnp.set_pos(20, 0, 300);
     slnp.look_at(20, 0, 0);
     window_->get_render().set_light(slnp);
 

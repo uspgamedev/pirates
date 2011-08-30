@@ -35,7 +35,7 @@ Ship::Ship () {
     route_tracer_ = new utils::RouteTracer(ship_pos, vel.length(), ship_vel_norm);
 
     new_route_method_ = 0;
-    anchored_ = true;
+    anchored_ = false;
     matiz_ = 0.0f;
 }
 
@@ -49,44 +49,44 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     float red = 0.72f;
     float green = 0.0f;
     float blue = 0.0f;
-    float chroma_ctrl = 0.72f*(1 - fabs(matiz_ - 1));//0.72 = 0.9V * 0.8S
+    float matiz_mod = (float)((int)(matiz_)%2) + (matiz_ - (float)((int)(matiz_))); 
+    float chroma_ctrl = (1 - fabs(matiz_mod - 1));
     int matiz_ctrl = 0;
 
     LVector3f old_tangent = this->new_tangent;
     if(!anchored_) {
         this->route_tracer_->get_next_pt(scalar_vel, dt, this->new_point, this->new_tangent);
         this->matiz_ = this->matiz_+(scalar_vel/40.0f); //pq sim lol.
-        if( matiz_ >= 6.0f )
-            matiz_ = matiz_-6.0f;
+        matiz_ = (float)((int)(matiz_)%6) + (matiz_ - (float)((int)(matiz_)));
         matiz_ctrl = floor(matiz_);
         switch(matiz_ctrl){
             case 0:
-                red = 0.72f;
+                red = 1.0f;
                 green = chroma_ctrl;
                 blue = 0.0f;
             break;
             case 1:
                 red = chroma_ctrl;
-                green = 0.72f;
+                green = 1.0f;
                 blue = 0.0f;
             break;
             case 2:
                 red = 0.0f;
-                green = 0.72f;
+                green = 1.0f;
                 blue = chroma_ctrl;
             break;
             case 3:
                 red = 0.0f;
                 green = chroma_ctrl;
-                blue = 0.72f;
+                blue = 1.0f;
             break;
             case 4:
                 red = chroma_ctrl;
                 green = 0.0f;
-                blue = 0.72f;
+                blue = 1.0f;
             break;
             case 5:
-                red = 0.72f;
+                red = 1.0f;
                 green = 0.0f;
                 blue = chroma_ctrl;
             break;
@@ -101,9 +101,10 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     }
 
     this->vel = this->new_tangent/2.0f; // porque o knot vector avança de 2 em 2.
-    if(vel_penalty_from_curve <= 1.0f)
+    scalar_vel = vel.length();
+    if(vel_penalty_from_curve <= 1.0f && scalar_vel > 0.1f)
         this->vel = this->vel*(1.0f-vel_penalty_from_curve);
-    else
+    else if(scalar_vel > 0.1f)
         this->vel = 0.0f;
     scalar_vel = vel.length();
 

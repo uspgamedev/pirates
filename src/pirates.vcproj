@@ -174,6 +174,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\world\inputhandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\base\inputmanager.cpp"
 				>
 			</File>
@@ -182,15 +186,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\world\planet.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\world\utils\routetracer.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\world\ship.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\world\world.cpp"
 				>
 			</File>
 		</Filter>
@@ -216,11 +220,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\base\inputhandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\inputhandler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\base\inputmanager.h"
 				>
 			</File>
 			<File
 				RelativePath=".\world\island.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\planet.h"
 				>
 			</File>
 			<File

@@ -28,6 +28,10 @@ void InputHandler::ClickDownEvent(const Event *event) {
         if (entry) {
             target_pos_ = entry->get_surface_point(game_->window()->get_render());
             InputManager::reference()->get_arrow()->set_pos(target_pos_);
+            floor_plane_ = new CollisionPlane(Planef(LVector3f(target_pos_), target_pos_));
+            //floor_plane_ = new CollisionPlane(Planef(LVector3f(0,0,1), target_pos_));
+            plane_id_ = floor_node_->add_solid(floor_plane_);
+            world_node_->remove_solid(sphere_id_);
         }
     }
     else {
@@ -47,7 +51,9 @@ void InputHandler::ClickUpEvent(const Event *event) {
             printf("Up: %f, %f, %f \n", vector_end.get_x(), vector_end.get_y(), vector_end.get_z() );
             puts("Vector obtained:  " );
             printf("%f, %f, %f \n", vector.get_x(), vector.get_y(), vector.get_z() );
-            InputManager::reference()->get_arrow()->look_at(vector_end);
+            InputManager::reference()->get_arrow()->look_at(vector_end, vector);
+            floor_node_->remove_solid(plane_id_);
+            sphere_id_ = world_node_->add_solid(world_);
             if(vector.length()<=0.1f)
                 InputManager::reference()->player_ship_->set_new_route_dest(target_pos_);
             else
@@ -87,10 +93,15 @@ void InputHandler::loadColliders () {
     traverser_.add_collider(picker_node_path_, picker_handler_);
     // Floor
     floor_node_ = new CollisionNode("floor");
-    floor_node_path_ = environment_.attach_new_node(floor_node_);
+    world_node_ = new CollisionNode("sphere");
+    world_node_path_ = game_->window()->get_render().attach_new_node(world_node_);
+    world_node_path_.set_pos(0, 0, 0);
+    floor_node_path_ = game_->window()->get_render().attach_new_node(floor_node_);
     floor_node_path_.set_pos(0, 0, 0);
     floor_plane_ = new CollisionPlane(Planef(LVector3f(0, 0, 1), LPoint3f(0, 0, 0)));
-    floor_node_->add_solid(floor_plane_);
+    // World
+    world_ = new CollisionSphere(0.0f, 0.0f, 0.0f, 40.0f);
+    sphere_id_ = world_node_->add_solid(world_);
 }
 
 CollisionEntry* InputHandler::pick(LPoint2f pos) {

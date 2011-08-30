@@ -41,14 +41,14 @@ Planet::Planet () : dir(0, 0, 0) {
     normal = GeomVertexWriter(vdata, "normal");
     color = GeomVertexWriter(vdata, "color");
 
-    int num_tri_per_line = 16;
-    int num_lines = 16;
-    float sphere_radius = 10.0f;
+    int num_tri_per_line = 32;
+    int num_lines = 32;
+    float sphere_radius = 40.0f;
 
     int num_vertex = 0;
 
     // Top One
-    vertex.add_data3f(0, 0, 10.0f);
+    vertex.add_data3f(0, 0, 40.0f);
     normal.add_data3f(0, 0, 1);
     color.add_data4f(0, 0, 0, 1);
 
@@ -71,7 +71,7 @@ Planet::Planet () : dir(0, 0, 0) {
         }
     }
 
-    vertex.add_data3f(0, 0, -10.0f);
+    vertex.add_data3f(0, 0, -40.0f);
     normal.add_data3f(0, 0, 1);
     color.add_data4f(0, 0, 0, 1);
 

@@ -47,11 +47,11 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     float scalar_vel = vel.length();
     float vel_penalty_from_curve = 0.0f;
 
-    float red = 1.0f;
+    float red = 0.72f;
     float green = 0.0f;
     float blue = 0.0f;
     float chroma_ctrl = 0.72f*(1 - abs(matiz_ - 1));//0.72 = 0.9V * 0.8S
-    int matiz_ctrl = -1;
+    int matiz_ctrl = 0;
 
     LVector3f old_tangent = this->new_tangent;
     if(!anchored_) {

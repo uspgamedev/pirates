@@ -197,10 +197,6 @@
 				RelativePath=".\world\ship.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\world\world.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -249,10 +245,6 @@
 			</File>
 			<File
 				RelativePath=".\world\treasure.h"
-				>
-			</File>
-			<File
-				RelativePath=".\world\world.h"
 				>
 			</File>
 			<File

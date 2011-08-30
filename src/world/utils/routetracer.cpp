@@ -64,7 +64,7 @@ void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f
 void RouteTracer::get_next_pt( float vel, float dt, LPoint3f& cur_pos_ref, LVector3f& cur_tg_ref ) {
 
     // if vel*dt == 0 then there's nothing to do. cur_pos and cur_tg should be kept the same.
-    if(vel <= 0.0001f || dt <= 0.00001f ) {
+    if(vel <= 0.00001f || dt <= 0.00001f ) {
         puts("boat is stopped");
         return;
     }

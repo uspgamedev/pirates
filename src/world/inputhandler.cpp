@@ -48,7 +48,7 @@ void InputHandler::ClickUpEvent(const Event *event) {
             puts("Vector obtained:  " );
             printf("%f, %f, %f \n", vector.get_x(), vector.get_y(), vector.get_z() );
             InputManager::reference()->get_arrow()->look_at(vector_end);
-            if(vector.length()<=0.1f)
+            if(vector.length()<=0.5f)
                 InputManager::reference()->player_ship_->set_new_route_dest(target_pos_);
             else
                 InputManager::reference()->player_ship_->set_new_route_dest(target_pos_,vector);

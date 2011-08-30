@@ -36,6 +36,10 @@ class Ship : public WorldActor {
 
     void set_new_route_dest(LPoint3f& dest_pos, LVector3f& dest_vel);
     
+    bool anchored_;
+
+    float matiz_;
+    
   private :
 
     NodePath ship_node_;

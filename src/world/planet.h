@@ -15,24 +15,14 @@ namespace pirates {
 
 namespace world {
 
-class Planet : public WorldActor {
-    
+class Planet : public WorldActor {    
   public :
-   
     Planet();
-
-    LVector3f dir;
 
     LPoint3f node_pos() { return planet_node_.get_pos(); }
 
-    AsyncTask::DoneStatus movePlanet(GenericAsyncTask* task);
-
-    void taskInitialize(AsyncTaskManager& taskMgr);
-    
   private :
-
     NodePath planet_node_;
-
 };
 
 } // namespace world

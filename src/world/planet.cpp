@@ -1,7 +1,6 @@
 
 #include "world/planet.h"
 #include "base/game.h"
-#include "genericAsyncTask.h"
 #include "geomVertexData.h"
 #include "geomVertexFormat.h"
 #include "geom.h"
@@ -11,13 +10,6 @@
 #include "geomTriangles.h"
 #include <string>
 
-typedef AsyncTask::DoneStatus (*TaskFunc) (GenericAsyncTask*, void*);
-
-static AsyncTask::DoneStatus movePlanetAux ( GenericAsyncTask* task, void* data ) {
-    pirates::world::Planet* planet = static_cast <pirates::world::Planet*> (data);
-    return planet->movePlanet(task);
-}
-
 #define PI 3.1415926535897932384626433832795
 
 namespace pirates {
@@ -26,9 +18,7 @@ using base::Game;
 
 namespace world {
 
-//LVector3f Planet::dir(0.1, 0, 0);
-
-Planet::Planet () : dir(0, 0, 0) {
+Planet::Planet () {
     PandaFramework& framework = Game::reference()->framework();
     WindowFramework* window = Game::reference()->window();
 
@@ -113,32 +103,7 @@ Planet::Planet () : dir(0, 0, 0) {
      
 
     planet_node_ = window->get_render().attach_new_node(node);
-
-
-    /* planet_node_ = window->load_model(framework.get_models(), "data/king");
-    planet_node_.set_scale(5);
-    planet_node_.reparent_to(window->get_render());
-    planet_node_.set_color(0,0,0,1);
-    planet_node_.set_pos(4, 0, 0); */
 }
-
-AsyncTask::DoneStatus Planet::movePlanet ( GenericAsyncTask* task ) {
-    //static LVector3f spd( 0, -0.1, 0);
-    static double last = task->get_elapsed_time() + last;
-    double dt = task->get_elapsed_time() - last;
-    //LVector3f dir = ( 0, 1, 0 );
-    this->planet_node_.set_pos(this->planet_node_.get_pos()+0.1*dt*dir);
-
-    return AsyncTask::DS_cont;
-}
-
-void Planet::taskInitialize ( AsyncTaskManager& taskMgr ) {
-    GenericAsyncTask *task = new GenericAsyncTask(string("Ainda nao sei"),
-        (TaskFunc)&movePlanetAux, 
-        (void*) this);
-    taskMgr.add(task);
-}
-
 
 } // Namespace world
 } // Namespace pirates

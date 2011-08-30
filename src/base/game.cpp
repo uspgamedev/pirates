@@ -20,12 +20,13 @@ void Game::Init (int &argc, char **&argv) {
     window_ = framework_.open_window();
     load_prc_file_data("", "model-path .");
     camera_node_ = window_->get_camera_group();
-    ship_ = new Ship();
     camera_node_.set_pos(60,-120,150);
     camera_node_.look_at(0,0,0);
+
+    ship_ = new Ship();
     ship_->taskInitialize(taskMgr());
+
     Planet* planet = new Planet();
-    planet->taskInitialize(taskMgr());
     InputManager::reference()->Init();
 }
 

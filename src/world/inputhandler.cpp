@@ -11,6 +11,15 @@
 #include "collisionPlane.h"
 #include "plane.h"
 
+#include "geomVertexData.h"
+#include "geomVertexFormat.h"
+#include "geom.h"
+#include "geomNode.h"
+#include "geomVertexWriter.h"
+#include "geomTristrips.h"
+#include "geomTriangles.h"
+
+
 namespace pirates {
 
 namespace world {
@@ -21,7 +30,7 @@ void InputHandler::Setup() {
     loadColliders();
 }
 
-void InputHandler::ClickDownEvent(const Event *event) {
+void InputHandler::ClickDownEvent(const Event *event, int mouse_button) {
     if (mouse_watcher_->has_mouse()) {
         LPoint2f pos = mouse_watcher_->get_mouse();
         PT(CollisionEntry) entry = pick(pos);
@@ -30,12 +39,9 @@ void InputHandler::ClickDownEvent(const Event *event) {
             InputManager::reference()->get_arrow()->set_pos(target_pos_);
         }
     }
-    else {
-        puts("Mouse outsize window! How did you do that!?");
-    }
 }
 
-void InputHandler::ClickUpEvent(const Event *event) {
+void InputHandler::ClickUpEvent(const Event *event, int mouse_button) {
     if (mouse_watcher_->has_mouse()){
         LPoint2f pos = mouse_watcher_->get_mouse();
         PT(CollisionEntry) entry = pick(pos);
@@ -54,32 +60,62 @@ void InputHandler::ClickUpEvent(const Event *event) {
                 InputManager::reference()->player_ship_->set_new_route_dest(target_pos_,vector);
         }
     }
-    else {
-        puts("Mouse outsize window! How did you do that!?");
-    }
 }
 
 // Let's check out the load_colliders function.
 void InputHandler::loadColliders () {
-    // Loads the envinronment_ment model and stores it.
-    // The load_model method from the window object needs the parent node that the model shall be
-    // attached to and the path to the model file (.egg or .bam).
-    environment_ = game_->window()->load_model(game_->framework().get_models(),
-            "models/environment");
-    // Reparents the model to render. This makes it visible.
-    environment_.reparent_to(game_->window()->get_render());
-    // Applies scale and position transforms to the model.
-    environment_.set_color(1,1,1,1);
-    environment_.set_scale(0.25, 0.25, 0.25);
-    environment_.set_pos(-8, 42, 0);
-    environment_.set_tag("pickable", "");
+
+
+    PT(GeomVertexData) vdata;
+    vdata = new GeomVertexData("triangle", GeomVertexFormat::get_v3n3c4(), Geom::UH_static);
+    GeomVertexWriter vertex, normal, color, texcoord;
+    vertex = GeomVertexWriter(vdata, "vertex");
+    normal = GeomVertexWriter(vdata, "normal");
+    color = GeomVertexWriter(vdata, "color");
+
+    int num_point = 200;
+
+    for(int y = -num_point * 0.5f; y < num_point * 0.5f; y++) {
+         for(int x = -num_point * 0.5f; x < num_point * 0.5f; x++) {
+            vertex.add_data3f(x * 0.5f, y * 0.5f, 0.0f);
+            normal.add_data3f(0, 0, 1);
+            color.add_data4f(0, 0.35f, 0.75f, 1);
+        }
+    }
+
+    // Making the primitive
+    //PT(GeomTristrips) prim;
+    PT(GeomTriangles) prim;
+    //prim = new GeomTristrips(Geom::UH_static);
+    prim = new GeomTriangles(Geom::UH_static);
+
+    for(int y = 0; y < num_point - 1; y++) {
+         for(int x = 0; x < num_point - 1; x++) {
+            int i = y * num_point + x;
+            prim->add_vertices(i, i + 1, i + num_point);
+            prim->add_vertices(i + num_point, i + 1, i + num_point + 1);
+        }
+    }
+
+    // THE GEOM!
+    PT(Geom) geom;
+    geom = new Geom(vdata);
+    geom->add_primitive(prim);
+     
+    // DA NODE!
+    PT(GeomNode) node;
+    node = new GeomNode("gnode");
+    node->add_geom(geom);
+
+    environment_ = game_->window()->get_render().attach_new_node(node);
+
+
     // Makes a collision node to store the ray. Since it will come from the mouse, let's call it
     // "mouseRay
     picker_node_ = new CollisionNode("mouseRay");
     // As the camera is a Nodepath_ object, we may attatch other nodes to it. In this case, we
     // attatch the picker_node_ because it moves together with the camera.
     picker_node_path_ = game_->camera().attach_new_node(picker_node_);
-    // TODO...
     picker_node_->set_from_collide_mask(CollisionNode::get_default_collide_mask());
     picker_ray_ = new CollisionRay();
     picker_node_->add_solid(picker_ray_);

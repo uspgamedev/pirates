@@ -25,12 +25,12 @@ InputManager::InputManager() : game_(Game::reference()), arrow_(new Arrow),
 
 void InputManager::ClickDownEvent (const Event* e, void *data) {
     if (reference_->current_handler_)
-        reference_->current_handler_->ClickDownEvent(e);
+        reference_->current_handler_->ClickDownEvent(e, 0);
 }
 
 void InputManager::ClickUpEvent (const Event* e, void *data) {
     if (reference_->current_handler_)
-        reference_->current_handler_->ClickUpEvent(e);
+        reference_->current_handler_->ClickUpEvent(e, 0);
 }
 
 void InputManager::Init() {

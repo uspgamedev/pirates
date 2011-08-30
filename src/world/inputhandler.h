@@ -15,27 +15,20 @@ class CollisionEntry;
 class MouseWatcher;
 
 namespace pirates {
-
 namespace world {
-
 class Ship;
 
 class InputHandler : public pirates::base::InputHandler {
-
   public:
-
     InputHandler(pirates::base::Game *game, MouseWatcher *mouse_watcher, Ship *ship)
         : pirates::base::InputHandler(game, mouse_watcher), ship_(ship),
           traverser_("picker_traverser") {}
 
     void Setup();
-
-    void ClickDownEvent(const Event *event);
-
-    void ClickUpEvent(const Event *event);
+    void ClickDownEvent(const Event *event, int mouse_button);
+    void ClickUpEvent(const Event *event, int mouse_button);
 
   private:
-
     Ship                        *ship_;
     PT(CollisionRay)            picker_ray_;
     PT(CollisionPlane)          floor_plane_;
@@ -49,14 +42,11 @@ class InputHandler : public pirates::base::InputHandler {
     LPoint3f                    target_pos_, speed_dir_;
 
     void loadColliders();
-
     CollisionEntry* pick(LPoint2f pos);
 
 };
-
-}
-
-}
+} // namespace world
+} // namespace pirates
 
 #endif
 

@@ -102,7 +102,7 @@ Planet::Planet () {
     node->add_geom(geom);
      
 
-    planet_node_ = window->get_render().attach_new_node(node);
+    //planet_node_ = window->get_render().attach_new_node(node);
 }
 
 } // Namespace world

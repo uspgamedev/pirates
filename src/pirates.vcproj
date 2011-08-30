@@ -225,6 +225,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\base\inputhandler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\base\inputmanager.h"
 				>
 			</File>

@@ -11,6 +11,8 @@
 #include "pandaFramework.h"
 #include "world/worldactor.h"
 #include "world/utils/routetracer.h"
+#include <cstdlib>
+#include <cmath>
 
 namespace pirates {
 

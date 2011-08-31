@@ -21,7 +21,8 @@ class Planet : public WorldActor {
 
     LPoint3f node_pos() { return planet_node_.get_pos(); }
 
-    LVector3f normal_at(LPoint3f& pos);
+    const LVector3f normal_at(LPoint3f& pos);
+    const float height_at(LPoint3f& pos);
 
   private :
     NodePath planet_node_;

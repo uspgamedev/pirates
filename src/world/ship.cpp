@@ -40,6 +40,7 @@ Ship::Ship () {
 }
 
 AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
+    Planet *planet = Game::reference()->planet();
     //static LVector3f spd( 0, -0.1, 0);
     static double last = task->get_elapsed_time();
     float dt = task->get_elapsed_time() - last, time = task->get_elapsed_time();
@@ -56,7 +57,7 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     LVector3f old_tangent = this->new_tangent;
     if(!anchored_) {
         this->route_tracer_->get_next_pt(scalar_vel, dt, this->new_point, this->new_tangent);
-        this->matiz_ = this->matiz_+(scalar_vel/40.0f); //pq sim lol.
+        this->matiz_ = this->matiz_+(scalar_vel/planet->height_at(this->new_point)); //pq sim lol.
         matiz_ = (float)((int)(matiz_)%6) + ( matiz_ - (float)((int)(matiz_)) );
         matiz_ctrl = floor(matiz_);
         switch(matiz_ctrl){
@@ -141,10 +142,10 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
         anchored_ = true;
     }
 
-    LPoint3f ship_sphere_pos = this->new_point/(this->new_point.length()/40.f);
+    LPoint3f ship_sphere_pos = this->new_point/(this->new_point.length()/planet->height_at(this->new_point));
     LVector3f ship_look_at = ship_sphere_pos + this->new_tangent - this->new_tangent.project(ship_sphere_pos);
     this->ship_node_.set_pos(ship_sphere_pos);
-    this->ship_node_.look_at(ship_look_at, base::Game::reference()->planet()->normal_at(this->new_point) );
+    this->ship_node_.look_at(ship_look_at, planet->normal_at(this->new_point) );
 
     return AsyncTask::DS_cont;
 }

@@ -33,7 +33,6 @@ Planet::Planet () {
 
     int num_tri_per_line = 32;
     int num_lines = 32;
-    float sphere_radius = 40.0f;
 
     int num_vertex = 0;
 
@@ -53,6 +52,8 @@ Planet::Planet () {
             float xangle = ((float)(i) / num_tri_per_line) * 2.0f * PI;
             float x = cos(xangle) * cosv;
             float y = sin(xangle) * cosv;
+            LPoint3f geom_point(x, y, z);
+            float sphere_radius = height_at(geom_point);
             vertex.add_data3f(sphere_radius * x, sphere_radius * y, sphere_radius * z);
             normal.add_data3f(x, y, z);
             color.add_data4f(0.0f, 0.0f, 1.0f, 0.0f);
@@ -104,8 +105,11 @@ Planet::Planet () {
     planet_node_ = window->get_render().attach_new_node(node);
 }
 
-LVector3f Planet::normal_at(LPoint3f& pos) {
+const LVector3f Planet::normal_at(LPoint3f& pos) {
     return pos/pos.length();
+}
+const float Planet::height_at(LPoint3f& pos) {
+    return 50.0f;
 }
 
 } // Namespace world

@@ -3,6 +3,7 @@
 #include "base/inputmanager.h"
 #include "world/inputhandler.h"
 #include "world/arrow.h"
+#include "world/planet.h"
 #include "mouseWatcher.h"
 #include "collisionRay.h"
 #include "collisionTraverser.h"
@@ -118,7 +119,9 @@ void InputHandler::loadColliders () {
     floor_node_path_.set_pos(0, 0, 0);
     floor_plane_ = new CollisionPlane(Planef(LVector3f(0, 0, 1), LPoint3f(0, 0, 0)));
     // World
-    world_ = new CollisionSphere(0.0f, 0.0f, 0.0f, 40.0f);
+
+    LPoint3f pos(1.0f, 0.0f, 0.0f);
+    world_ = new CollisionSphere(0.0f, 0.0f, 0.0f, base::Game::reference()->planet()->height_at(pos));
     sphere_id_ = world_node_->add_solid(world_);
 }
 

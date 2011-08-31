@@ -11,6 +11,8 @@
 #include "pandaFramework.h"
 #include "world/worldactor.h"
 #include "world/utils/routetracer.h"
+#include <cstdlib>
+#include <cmath>
 
 namespace pirates {
 
@@ -35,6 +37,10 @@ class Ship : public WorldActor {
     void set_new_route_dest(LPoint3f& dest);
 
     void set_new_route_dest(LPoint3f& dest_pos, LVector3f& dest_vel);
+    
+    bool anchored_;
+
+    float matiz_;
     
   private :
 

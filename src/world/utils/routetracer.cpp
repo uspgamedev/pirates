@@ -27,7 +27,7 @@ void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f
     // (with a point as destination)
     // TODO : test
     // TODO : reescrever isso, de forma que o barco faça uma rota mais esperta.
-    if ( init_vel == 0.0f ) init_vel = 1.0f;
+    if ( init_vel == 0.0f ) init_vel = 0.0001f;
 
     LVector3f init_vect_vel(init_vel*init_dir);
     LVector3f shortest_path(dest_pos-init_pos);
@@ -64,8 +64,10 @@ void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f
 void RouteTracer::get_next_pt( float vel, float dt, LPoint3f& cur_pos_ref, LVector3f& cur_tg_ref ) {
 
     // if vel*dt == 0 then there's nothing to do. cur_pos and cur_tg should be kept the same.
-    if(vel == 0 || dt == 0)
+    if(vel <= 0.00001f || dt <= 0.00001f ) {
+        puts("boat is stopped");
         return;
+    }
 
     float dist_ran = vel*dt;
     float max_dist = route_curve_->calc_length(current_param_,max_param_);

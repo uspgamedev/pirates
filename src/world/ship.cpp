@@ -57,7 +57,7 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     if(!anchored_) {
         this->route_tracer_->get_next_pt(scalar_vel, dt, this->new_point, this->new_tangent);
         this->matiz_ = this->matiz_+(scalar_vel/40.0f); //pq sim lol.
-        matiz_ = (float)((int)(matiz_)%6) + (matiz_ - (float)((int)(matiz_)));
+        matiz_ = (float)((int)(matiz_)%6) + ( matiz_ - (float)((int)(matiz_)) );
         matiz_ctrl = floor(matiz_);
         switch(matiz_ctrl){
             case 0:

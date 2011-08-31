@@ -18,7 +18,7 @@ class Arrow : public WorldActor {
 
     void set_pos(LPoint3f pos);
 
-    void look_at(LPoint3f target);
+    void look_at(LPoint3f target, LPoint3f vector);
 
   private:
 

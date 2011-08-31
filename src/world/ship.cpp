@@ -26,7 +26,7 @@ Ship::Ship () {
     ship_node_.set_p(-90);
     ship_node_.reparent_to(window->get_render());
     ship_node_.set_color((rand() / (float)(RAND_MAX))/10.0f+0.6f, (rand() / (float)(RAND_MAX))/10.0f+0.6f, (rand() / (float)(RAND_MAX))/10.0f+0.6f,1);
-    ship_node_.set_pos(0, 0, 0);
+    ship_node_.set_pos(0.0f, 0.0f, 40.0f);
 
     vel.set(1.0f,1.0f,0.0f); // lol.
     vel = vel/vel.length();
@@ -57,7 +57,7 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     if(!anchored_) {
         this->route_tracer_->get_next_pt(scalar_vel, dt, this->new_point, this->new_tangent);
         this->matiz_ = this->matiz_+(scalar_vel/40.0f); //pq sim lol.
-        matiz_ = (float)((int)(matiz_)%6) + (matiz_ - (float)((int)(matiz_)));
+        matiz_ = (float)((int)(matiz_)%6) + ( matiz_ - (float)((int)(matiz_)) );
         matiz_ctrl = floor(matiz_);
         switch(matiz_ctrl){
             case 0:

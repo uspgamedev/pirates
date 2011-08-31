@@ -39,7 +39,7 @@ void InputManager::Init() {
     //load_colliders();
     Game::reference()->framework().define_key("mouse1", "mouse_down", &ClickDownEvent, NULL);
     Game::reference()->framework().define_key("mouse1-up", "mouse_up", &ClickUpEvent, NULL);
-    player_ship_ = Game::reference()->ship_;
+    player_ship_ = Game::reference()->ship();
     pirates::world::InputHandler *handler =
         new pirates::world::InputHandler(Game::reference(), mouseWatcher, player_ship_);
     handler->Setup();

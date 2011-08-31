@@ -30,7 +30,7 @@ void Game::Init (int &argc, char **&argv) {
     ship_ = new Ship();
     ship_->taskInitialize(taskMgr());
 
-    Planet* planet = new Planet();
+    planet_ = new Planet();
     InputManager::reference()->Init();
 
     Spotlight* light = new Spotlight("the_light");

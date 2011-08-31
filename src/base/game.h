@@ -10,9 +10,13 @@
 #include "pandaFramework.h"
 #include "genericAsyncTask.h"
 #include "asyncTaskManager.h"
-#include "world/ship.h"
 
 namespace pirates {
+
+namespace world {
+class Ship;
+class Planet;
+}
 
 namespace base {
 class InputManager;
@@ -55,10 +59,10 @@ class Game {
         return camera_node_;
     }
 
-    world::Ship* ship_;
+    world::Ship* ship() { return ship_; }
+    world::Planet* planet() { return planet_; }
 
   private:
-    
     Game () : window_(NULL), inputmanager_(NULL) {}
 
     static Game *reference_;
@@ -68,6 +72,9 @@ class Game {
     NodePath camera_node_;
 
     InputManager *inputmanager_;
+
+    world::Ship* ship_;
+    world::Planet* planet_;
 
 };
 

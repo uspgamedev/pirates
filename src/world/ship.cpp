@@ -26,7 +26,7 @@ Ship::Ship () {
     ship_node_.set_p(-90);
     ship_node_.reparent_to(window->get_render());
     ship_node_.set_color((rand() / (float)(RAND_MAX))/10.0f+0.6f, (rand() / (float)(RAND_MAX))/10.0f+0.6f, (rand() / (float)(RAND_MAX))/10.0f+0.6f,1);
-    ship_node_.set_pos(0, 0, 0);
+    ship_node_.set_pos(0.0f, 0.0f, 40.0f);
 
     vel.set(1.0f,1.0f,0.0f); // lol.
     vel = vel/vel.length();

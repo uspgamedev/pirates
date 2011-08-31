@@ -12,7 +12,7 @@ namespace world {
 Arrow::Arrow() {
     PandaFramework& framework = Game::reference()->framework();
     WindowFramework* window = Game::reference()->window();
-    arrow_node_ = window->load_model(framework.get_models(), "data/king");
+    arrow_node_ = window->load_model(framework.get_models(), "data/old_king");
     arrow_node_.set_scale(5);
     arrow_node_.reparent_to(window->get_render());
     arrow_node_.set_color(0,0.5,1,1);

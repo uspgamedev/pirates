@@ -31,7 +31,7 @@ void InputHandler::Setup() {
 }
 
 void InputHandler::ClickDownEvent(const Event *event, int mouse_button) {
-    if (mouse_watcher_->has_mouse()) {
+    if (mouse_watcher_->has_mouse() && mouse_button == InputManager::RIGHT_BUTTON) {
         LPoint2f pos = mouse_watcher_->get_mouse();
         PT(CollisionEntry) entry = pick(pos);
         if (entry) {
@@ -46,7 +46,7 @@ void InputHandler::ClickDownEvent(const Event *event, int mouse_button) {
 }
 
 void InputHandler::ClickUpEvent(const Event *event, int mouse_button) {
-    if (mouse_watcher_->has_mouse()){
+    if (mouse_watcher_->has_mouse() && mouse_button == InputManager::RIGHT_BUTTON){
         LPoint2f pos = mouse_watcher_->get_mouse();
         PT(CollisionEntry) entry = pick(pos);
         if (entry) {

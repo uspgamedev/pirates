@@ -104,5 +104,9 @@ Planet::Planet () {
     planet_node_ = window->get_render().attach_new_node(node);
 }
 
+LVector3f Planet::normal_at(LPoint3f& pos) {
+    return pos/pos.length();
+}
+
 } // Namespace world
 } // Namespace pirates

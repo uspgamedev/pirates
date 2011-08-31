@@ -141,7 +141,7 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     }
 
     this->ship_node_.set_pos(this->new_point);
-    this->ship_node_.look_at(this->new_point + new_tangent);
+    this->ship_node_.look_at(this->new_point + new_tangent/*, place up vector here*/ );
 
     return AsyncTask::DS_cont;
 }

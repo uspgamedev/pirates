@@ -55,6 +55,8 @@ class Ship : public WorldActor {
     LPoint3f new_route_dest_pos_;
     LVector3f new_route_dest_vel_;
 
+    TextureStage* ts_;
+
 };
 
 } // namespace world

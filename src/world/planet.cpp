@@ -55,14 +55,14 @@ Planet::Planet () {
             float y = sin(xangle) * cosv;
             vertex.add_data3f(sphere_radius * x, sphere_radius * y, sphere_radius * z);
             normal.add_data3f(x, y, z);
-            color.add_data4f(0, 0, 1.0f, 1);
+            color.add_data4f(0.0f, 0.0f, 1.0f, 0.0f);
 
             ++num_vertex;
         }
     }
 
     vertex.add_data3f(0, 0, -40.0f);
-    normal.add_data3f(0, 0, 1);
+    normal.add_data3f(0, 0, -1);
     color.add_data4f(0, 0, 1.0f, 1);
 
     ++num_vertex;
@@ -100,9 +100,8 @@ Planet::Planet () {
     PT(GeomNode) node;
     node = new GeomNode("gnode");
     node->add_geom(geom);
-     
 
-    //planet_node_ = window->get_render().attach_new_node(node);
+    planet_node_ = window->get_render().attach_new_node(node);
 }
 
 } // Namespace world

@@ -79,29 +79,11 @@ void InputHandler::loadColliders () {
     normal = GeomVertexWriter(vdata, "normal");
     color = GeomVertexWriter(vdata, "color");
 
-    int num_point = 200;
-
-    for(int y = -num_point * 0.5f; y < num_point * 0.5f; y++) {
-         for(int x = -num_point * 0.5f; x < num_point * 0.5f; x++) {
-            vertex.add_data3f(x * 0.5f, y * 0.5f, 0.0f);
-            normal.add_data3f(0, 0, 1);
-            color.add_data4f(0, 0.35f, 0.75f, 1);
-        }
-    }
-
     // Making the primitive
     //PT(GeomTristrips) prim;
     PT(GeomTriangles) prim;
     //prim = new GeomTristrips(Geom::UH_static);
     prim = new GeomTriangles(Geom::UH_static);
-
-    for(int y = 0; y < num_point - 1; y++) {
-         for(int x = 0; x < num_point - 1; x++) {
-            int i = y * num_point + x;
-            prim->add_vertices(i, i + 1, i + num_point);
-            prim->add_vertices(i + num_point, i + 1, i + num_point + 1);
-        }
-    }
 
     // THE GEOM!
     PT(Geom) geom;

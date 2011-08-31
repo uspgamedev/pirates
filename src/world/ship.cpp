@@ -22,8 +22,7 @@ Ship::Ship () {
     PandaFramework& framework = Game::reference()->framework();
     WindowFramework* window = Game::reference()->window();
     ship_node_ = window->load_model(framework.get_models(), "data/king");
-    ship_node_.set_scale(5);
-    ship_node_.set_p(-90);
+    ship_node_.set_scale(0.5f);
     ship_node_.reparent_to(window->get_render());
     ship_node_.set_color((rand() / (float)(RAND_MAX))/10.0f+0.6f, (rand() / (float)(RAND_MAX))/10.0f+0.6f, (rand() / (float)(RAND_MAX))/10.0f+0.6f,1);
     ship_node_.set_pos(0.0f, 0.0f, 40.0f);
@@ -143,7 +142,6 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
 
     this->ship_node_.set_pos(this->new_point);
     this->ship_node_.look_at(this->new_point + new_tangent);
-    this->ship_node_.set_p(-90);
 
     return AsyncTask::DS_cont;
 }

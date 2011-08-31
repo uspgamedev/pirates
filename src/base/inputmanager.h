@@ -20,9 +20,13 @@ class Game;
 class InputHandler;
 
 class InputManager {
-
   public:
-    
+    enum MouseButton {
+        LEFT_BUTTON = 1,
+        RIGHT_BUTTON = 2,
+        MIDDLE_BUTTON = 3
+    };
+
     ~InputManager() {
         reference_ = NULL;
     }

@@ -96,7 +96,7 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
                 blue = 0.0f;
             break;
         }
-        ship_node_.set_color(red, green, blue, 1);
+        ship_node_.set_color(red, green, blue, 1.0f);
         vel_penalty_from_curve = (this->new_tangent/new_tangent.length() - old_tangent/old_tangent.length()).length()/(2.0*dt);
     }
 
@@ -142,7 +142,7 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     }
 
     LPoint3f ship_sphere_pos = this->new_point/(this->new_point.length()/40.f);
-    LVector3f ship_look_at = ship_sphere_pos + new_tangent;
+    LVector3f ship_look_at = ship_sphere_pos + this->new_tangent - this->new_tangent.project(ship_sphere_pos);
     this->ship_node_.set_pos(ship_sphere_pos);
     this->ship_node_.look_at(ship_look_at, base::Game::reference()->planet()->normal_at(this->new_point) );
 

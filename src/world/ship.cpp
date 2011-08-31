@@ -4,6 +4,8 @@
 #include "genericAsyncTask.h"
 #include "world/utils/routetracer.h"
 #include "world/planet.h"
+#include "pnmImage.h"
+#include "texture.h"
 #include <string>
 
 typedef AsyncTask::DoneStatus (*TaskFunc) (GenericAsyncTask*, void*);
@@ -27,6 +29,15 @@ Ship::Ship () {
     ship_node_.reparent_to(window->get_render());
     ship_node_.set_color((rand() / (float)(RAND_MAX))/10.0f+0.6f, (rand() / (float)(RAND_MAX))/10.0f+0.6f, (rand() / (float)(RAND_MAX))/10.0f+0.6f,1);
     ship_node_.set_pos(0.0f, 0.0f, 40.0f);
+
+    PNMImage texImage = PNMImage();
+    texImage.read(Filename("./data/blank.png"));
+    Texture* ship_texture = new Texture("ship_texture");
+    ship_texture->load(texImage);
+
+    ts_ = new TextureStage("ts");
+    ts_->set_mode(TextureStage::M_blend);
+    ship_node_.set_texture( ts_, ship_texture, 1 );
 
     vel.set(1.0f,1.0f,0.0f); // lol.
     vel = vel/vel.length();
@@ -97,7 +108,7 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
                 blue = 0.0f;
             break;
         }
-        ship_node_.set_color(red, green, blue, 1.0f);
+        ts_->set_color(LVector4f(red, green, blue, 1.0f));
         vel_penalty_from_curve = (this->new_tangent/new_tangent.length() - old_tangent/old_tangent.length()).length()/(2.0*dt);
     }
 

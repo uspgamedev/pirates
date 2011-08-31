@@ -3,6 +3,7 @@
 #include "base/game.h"
 #include "genericAsyncTask.h"
 #include "world/utils/routetracer.h"
+#include "world/planet.h"
 #include <string>
 
 typedef AsyncTask::DoneStatus (*TaskFunc) (GenericAsyncTask*, void*);
@@ -140,8 +141,10 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
         anchored_ = true;
     }
 
-    this->ship_node_.set_pos(this->new_point);
-    this->ship_node_.look_at(this->new_point + new_tangent/*, place up vector here*/ );
+    LPoint3f ship_sphere_pos = this->new_point/(this->new_point.length()/40.f);
+    LVector3f ship_look_at = ship_sphere_pos + new_tangent;
+    this->ship_node_.set_pos(ship_sphere_pos);
+    this->ship_node_.look_at(ship_look_at, base::Game::reference()->planet()->normal_at(this->new_point) );
 
     return AsyncTask::DS_cont;
 }

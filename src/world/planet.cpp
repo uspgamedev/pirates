@@ -87,7 +87,6 @@ Planet::Planet () {
     }
 
     int last_line = (num_lines - 2) * num_tri_per_line + 1;
-    printf("%d %d\n", last_line, num_vertex);
     for(int i = 0; i < num_tri_per_line; ++i) {
         prim->add_vertices(last_line + (i + 1) % num_tri_per_line, last_line + i, num_vertex - 1);
     }
@@ -103,6 +102,9 @@ Planet::Planet () {
     node->add_geom(geom);
 
     planet_node_ = window->get_render().attach_new_node(node);
+
+    LPoint3f pos(1.0f, 0.0f, 0.0f);
+    collision_ = new CollisionSphere(0.0f, 0.0f, 0.0f, height_at(pos));
 }
 
 const LVector3f Planet::normal_at(LPoint3f& pos) {

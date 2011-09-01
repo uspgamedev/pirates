@@ -9,6 +9,9 @@
 
 #include "lpoint3.h"
 #include "pandaFramework.h"
+#include "collisionSolid.h"
+#include "collisionSphere.h"
+
 #include "world/worldactor.h"
 
 namespace pirates {
@@ -24,8 +27,11 @@ class Planet : public WorldActor {
     const LVector3f normal_at(LPoint3f& pos);
     const float height_at(LPoint3f& pos);
 
+    CollisionSolid* get_collision() { return collision_; }
+
   private :
     NodePath planet_node_;
+    PT(CollisionSphere) collision_;
 };
 
 } // namespace world

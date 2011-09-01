@@ -1,9 +1,9 @@
 
 #include "world/arrow.h"
 #include "base/game.h"
-#include "world/utils/routetracer.h"
+#include "world/utils/navigator.h"
 #include "pandaFramework.h"
-#include "routetracer.h"
+#include "navigator.h"
 
 static float knotvector[] = {0,0,0,2,4,4,4};
     // The only valid knot vector for a 3rd degree homogeneous NURBS with 4 control points and with parameter space = [0,1]
@@ -16,14 +16,14 @@ namespace utils {
 
 using base::Game;
 
-RouteTracer::RouteTracer( LPoint3f& init_pos, float init_vel, LVector3f& init_dir ) {
+Navigator::Navigator( LPoint3f& init_pos, float init_vel, LVector3f& init_dir ) {
     LVector3f vectorial_vel( LVector3f(init_vel*init_dir) );
     route_curve_ = NULL;
     LPoint3f control_point = init_dir + 3*vectorial_vel; 
     trace_new_route( init_pos, init_vel, init_dir, control_point, vectorial_vel );
 }
 
-void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos ) {
+void Navigator::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos ) {
     // (with a point as destination)
     // TODO : test
     // TODO : reescrever isso, de forma que o barco faça uma rota mais esperta.
@@ -36,7 +36,7 @@ void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f
     trace_new_route(init_pos, init_vel, init_dir, dest_pos, dest_vel);
 }
 
-void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos, LVector3f& dest_vel ) {
+void Navigator::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos, LVector3f& dest_vel ) {
     // (with a point + vector as destination)
 
     if( init_vel == 0.0f ) init_vel = 0.0001f;
@@ -61,7 +61,7 @@ void RouteTracer::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f
     curve_length_ = route_curve_->calc_length();
 }
 
-void RouteTracer::get_next_pt( float vel, float dt, LPoint3f& cur_pos_ref, LVector3f& cur_tg_ref ) {
+void Navigator::get_next_pt( float vel, float dt, LPoint3f& cur_pos_ref, LVector3f& cur_tg_ref ) {
 
     // if vel*dt == 0 then there's nothing to do. cur_pos and cur_tg should be kept the same.
     if(vel <= 0.00001f || dt <= 0.00001f ) {

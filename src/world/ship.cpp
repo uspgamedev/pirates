@@ -2,7 +2,7 @@
 #include "world/ship.h"
 #include "base/game.h"
 #include "genericAsyncTask.h"
-#include "world/utils/routetracer.h"
+#include "world/utils/navigator.h"
 #include "world/planet.h"
 #include "pnmImage.h"
 #include "texture.h"
@@ -43,7 +43,7 @@ Ship::Ship () {
     vel = vel/vel.length();
     LPoint3f ship_pos = ship_node_.get_pos();
     LVector3f ship_vel_norm = vel/vel.length();
-    route_tracer_ = new utils::RouteTracer(ship_pos, vel.length(), ship_vel_norm);
+    navigator_ = new utils::Navigator(ship_pos, vel.length(), ship_vel_norm);
 
     new_route_method_ = 0;
     anchored_ = false;
@@ -68,7 +68,7 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
 
     LVector3f old_tangent = this->new_tangent;
     if(!anchored_) {
-        this->route_tracer_->get_next_pt(scalar_vel, dt, this->new_point, this->new_tangent);
+        this->navigator_->get_next_pt(scalar_vel, dt, this->new_point, this->new_tangent);
         this->matiz_ = this->matiz_+(scalar_vel/planet->height_at(this->new_point)); //pq sim lol.
         matiz_ = (float)((int)(matiz_)%6) + ( matiz_ - (float)((int)(matiz_)) );
         matiz_ctrl = floor(matiz_);
@@ -132,14 +132,14 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
             if( scalar_vel < 0.1f ) {
                 scalar_vel = 0.1f;
             }
-            this->route_tracer_->trace_new_route(this->new_point, scalar_vel, new_tg_norm, this->new_route_dest_pos_);
+            this->navigator_->trace_new_route(this->new_point, scalar_vel, new_tg_norm, this->new_route_dest_pos_);
             new_route_method_ = 0;
             anchored_ = false;
         break;
         case Ship::DEST_AND_SPEED:
             if( scalar_vel < 0.1f )
                 scalar_vel = 0.1f;
-            this->route_tracer_->trace_new_route(this->new_point, scalar_vel, new_tg_norm, this->new_route_dest_pos_, this->new_route_dest_vel_);
+            this->navigator_->trace_new_route(this->new_point, scalar_vel, new_tg_norm, this->new_route_dest_pos_, this->new_route_dest_vel_);
             new_route_method_ = 0;
             anchored_ = false;
         break;

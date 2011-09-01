@@ -9,11 +9,11 @@ namespace pirates {
 namespace world {
 namespace utils {
 
-class RouteTracer {
+class Navigator {
 
     public:
-        RouteTracer(LPoint3f& init_pos, float init_vel, LVector3f& init_dir);
-            // Initializes the RouteTracer and builds a default route (either stopped or straight with constant speed).
+        Navigator(LPoint3f& init_pos, float init_vel, LVector3f& init_dir);
+            // Initializes the Navigator and builds a default route (either stopped or straight with constant speed).
 
         void trace_new_route(LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos);
         void trace_new_route(LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos, LVector3f& dest_vel);

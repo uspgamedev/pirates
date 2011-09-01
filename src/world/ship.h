@@ -10,7 +10,7 @@
 #include "lpoint3.h"
 #include "pandaFramework.h"
 #include "world/worldactor.h"
-#include "world/utils/routetracer.h"
+#include "world/utils/navigator.h"
 #include <cstdlib>
 #include <cmath>
 
@@ -24,7 +24,7 @@ class Ship : public WorldActor {
     enum TraceMethod {
         DONT_TRACE = 0,
         DEST_ONLY = 1,
-        DEST_AND_SPEED = 2,
+        DEST_AND_SPEED = 2
     };
    
     Ship();
@@ -37,7 +37,7 @@ class Ship : public WorldActor {
 
     void taskInitialize(AsyncTaskManager& taskMgr);
 
-    utils::RouteTracer* route_tracer_;
+    utils::Navigator* navigator_;
 
     void set_new_route_dest(LPoint3f& dest);
 
@@ -55,7 +55,7 @@ class Ship : public WorldActor {
 
     LVector3f new_tangent;
 
-    int new_route_method_; // 0=no new route, 1=new route with dest only, 2=new route with dest and vel.
+    int new_route_method_;
 
     LPoint3f new_route_dest_pos_;
     LVector3f new_route_dest_vel_;

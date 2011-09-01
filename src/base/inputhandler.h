@@ -1,7 +1,6 @@
+
 #ifndef PIRATES_BASE_INPUTHANDLER_H_
 #define PIRATES_BASE_INPUTHANDLER_H_
-
-#include "base/game.h"
 
 class Event;
 class MouseWatcher;
@@ -16,7 +15,7 @@ class InputHandler {
     virtual void ClickUpEvent(const Event *event, int mouse_button) = 0;
 
   protected:
-    InputHandler(Game *game, MouseWatcher *mouse_watcher) : game_(game), mouse_watcher_(mouse_watcher) {}
+ InputHandler(Game *game, MouseWatcher *mouse_watcher) : game_(game), mouse_watcher_(mouse_watcher) {}
 
     Game            *game_;
     MouseWatcher    *mouse_watcher_;

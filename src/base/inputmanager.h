@@ -3,7 +3,6 @@
 #define PIRATES_BASE_INPUTMANAGER_H_
 
 #include <cstdlib>
-#include "world/ship.h"
 #include "base/inputhandler.h"
 
 class Event;
@@ -50,22 +49,16 @@ class InputManager {
 
     void Init ();
 
-    world::Ship* player_ship_;
-
   private:
-
     InputManager();
 
-    Game*                   game_;
     pirates::world::Arrow*  arrow_;
     InputHandler*           current_handler_;
 
     static InputManager*    reference_;
 
     static void ClickDownEvent(const Event* e, void *data);
-
     static void ClickUpEvent(const Event* e, void *data);
-
 };
 
 } // namespace base

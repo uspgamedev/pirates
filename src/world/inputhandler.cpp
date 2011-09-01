@@ -1,16 +1,13 @@
 
 #include "base/game.h"
 #include "base/inputmanager.h"
+#include "world/ship.h"
 #include "world/inputhandler.h"
 #include "world/arrow.h"
 #include "world/planet.h"
+
 #include "mouseWatcher.h"
-#include "collisionRay.h"
-#include "collisionTraverser.h"
-#include "collisionHandlerQueue.h"
-#include "collisionNode.h"
 #include "collisionPlane.h"
-#include "plane.h"
 
 typedef AsyncTask::DoneStatus (*TaskFunc) (GenericAsyncTask*, void*);
 
@@ -84,9 +81,9 @@ void InputHandler::ClickUpEvent(const Event *event, int mouse_button) {
                 floor_node_->remove_solid(plane_id_);
                 planet_id_ = world_node_->add_solid(base::Game::reference()->planet()->get_collision());
                 if(vector.length()<=0.5f)
-                    InputManager::reference()->player_ship_->set_new_route_dest(target_pos_);
+		  game_->ship()->set_new_route_dest(target_pos_);
                 else
-                    InputManager::reference()->player_ship_->set_new_route_dest(target_pos_,vector);
+		  game_->ship()->set_new_route_dest(target_pos_,vector);
             }
         }
     }

@@ -1,6 +1,7 @@
 
 #include "base/game.h"
 #include "base/inputmanager.h"
+#include "world/inputhandler.h"
 #include "world/ship.h"
 #include "world/planet.h"
 #include "load_prc_file.h"
@@ -8,6 +9,7 @@
 #include "ambientLight.h"
 #include "spotlight.h"
 #include "perspectiveLens.h"
+#include "mouseWatcher.h"
 
 namespace pirates {
 
@@ -32,6 +34,12 @@ void Game::Init (int &argc, char **&argv) {
 
     planet_ = new Planet();
     InputManager::reference()->Init();
+
+    MouseWatcher *mouseWatcher = static_cast<MouseWatcher*>(window_->get_mouse().node());
+    pirates::world::InputHandler *handler =
+        new pirates::world::InputHandler(Game::reference(), mouseWatcher, ship_);
+    handler->Setup();
+    InputManager::reference()->set_current_handler(handler);
 
     Spotlight* light = new Spotlight("the_light");
     light->set_color(Colorf(1, 1, 1, 1));

@@ -6,6 +6,9 @@
 
 #include "nodePath.h"
 #include "collisionTraverser.h"
+#include "collisionNode.h"
+#include "collisionHandlerQueue.h"
+#include "collisionRay.h"
 
 class CollisionRay;
 class CollisionPlane;

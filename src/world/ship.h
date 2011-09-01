@@ -21,6 +21,11 @@ namespace world {
 class Ship : public WorldActor {
     
   public :
+    enum TraceMethod {
+        DONT_TRACE = 0,
+        DEST_ONLY = 1,
+        DEST_AND_SPEED = 2,
+    };
    
     Ship();
 

@@ -31,7 +31,6 @@ void Arrow::look_at(LPoint3f target, LPoint3f vector) {
     arrow_node_.set_sz(5*dir.length()/6.75);
     dir.normalize();
     arrow_node_.set_p(-dir.angle_deg(zVec));
-    printf("Angle: %f", -dir.angle_deg(zVec));
 }
 
 

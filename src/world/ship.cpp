@@ -2,7 +2,7 @@
 #include "world/ship.h"
 #include "base/game.h"
 #include "genericAsyncTask.h"
-#include "world/utils/routetracer.h"
+#include "world/utils/navigator.h"
 #include "world/planet.h"
 #include "pnmImage.h"
 #include "texture.h"
@@ -43,7 +43,7 @@ Ship::Ship () {
     vel = vel/vel.length();
     LPoint3f ship_pos = ship_node_.get_pos();
     LVector3f ship_vel_norm = vel/vel.length();
-    route_tracer_ = new utils::RouteTracer(ship_pos, vel.length(), ship_vel_norm);
+    navigator_ = new utils::Navigator(ship_pos, vel.length(), ship_vel_norm);
 
     new_route_method_ = 0;
     anchored_ = false;
@@ -61,13 +61,14 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     float red = 0.72f;
     float green = 0.0f;
     float blue = 0.0f;
-    float matiz_mod = (float)((int)(matiz_)%2) + (matiz_ - (float)((int)(matiz_))); 
+    float matiz_mod = (float)((int)(matiz_)%2) + (matiz_ - (float)((int)(matiz_)));
     float chroma_ctrl = (1 - fabs(matiz_mod - 1));
+        // função triângulo (slopes lineares) : f(0)=0, f(1)=1, f(2)=f(0)=0, etc...
     int matiz_ctrl = 0;
 
     LVector3f old_tangent = this->new_tangent;
     if(!anchored_) {
-        this->route_tracer_->get_next_pt(scalar_vel, dt, this->new_point, this->new_tangent);
+        this->navigator_->get_next_pt(scalar_vel, dt, this->new_point, this->new_tangent);
         this->matiz_ = this->matiz_+(scalar_vel/planet->height_at(this->new_point)); //pq sim lol.
         matiz_ = (float)((int)(matiz_)%6) + ( matiz_ - (float)((int)(matiz_)) );
         matiz_ctrl = floor(matiz_);
@@ -127,22 +128,22 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
         new_tg_norm = new_route_dest_pos_/new_route_dest_pos_.length();
     //this->ship_node_.set_pos(this->ship_node_.get_pos()+this->vel*dt);
     switch(new_route_method_) {
-        case 1:
+        case Ship::DEST_ONLY:
             if( scalar_vel < 0.1f ) {
                 scalar_vel = 0.1f;
             }
-            this->route_tracer_->trace_new_route(this->new_point, scalar_vel, new_tg_norm, this->new_route_dest_pos_);
+            this->navigator_->trace_new_route(this->new_point, scalar_vel, new_tg_norm, this->new_route_dest_pos_);
             new_route_method_ = 0;
             anchored_ = false;
         break;
-        case 2:
+        case Ship::DEST_AND_SPEED:
             if( scalar_vel < 0.1f )
                 scalar_vel = 0.1f;
-            this->route_tracer_->trace_new_route(this->new_point, scalar_vel, new_tg_norm, this->new_route_dest_pos_, this->new_route_dest_vel_);
+            this->navigator_->trace_new_route(this->new_point, scalar_vel, new_tg_norm, this->new_route_dest_pos_, this->new_route_dest_vel_);
             new_route_method_ = 0;
             anchored_ = false;
         break;
-        case 0:
+        case Ship::DONT_TRACE:
         default:
         break;
     }

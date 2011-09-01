@@ -187,11 +187,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\world\planet.cpp"
+				RelativePath=".\world\utils\navigator.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\world\utils\routetracer.cpp"
+				RelativePath=".\world\planet.cpp"
 				>
 			</File>
 			<File
@@ -237,11 +237,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\world\planet.h"
+				RelativePath=".\world\utils\navigator.h"
 				>
 			</File>
 			<File
-				RelativePath=".\world\utils\routetracer.h"
+				RelativePath=".\world\planet.h"
 				>
 			</File>
 			<File

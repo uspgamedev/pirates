@@ -24,7 +24,7 @@ class InputManager {
     enum MouseButton {
         LEFT_BUTTON = 1,
         RIGHT_BUTTON = 2,
-        MIDDLE_BUTTON = 3
+        MIDDLE_BUTTON = 4
     };
 
     ~InputManager() {

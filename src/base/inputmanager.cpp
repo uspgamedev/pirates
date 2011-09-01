@@ -22,7 +22,7 @@ InputManager* InputManager::reference_ = NULL;
 
 
 struct MouseClickData {
-    int mouse_button;
+    InputManager::MouseButton mouse_button;
 };
 
 static struct MouseClickData mouse1, mouse2, mouse3;
@@ -34,7 +34,6 @@ void InputManager::ClickDownEvent (const Event* e, void *data) {
     struct MouseClickData mousedata = *((struct MouseClickData*)data);
     if (reference_->current_handler_)
         reference_->current_handler_->ClickDownEvent(e, mousedata.mouse_button);
-    printf("Click down %d\n", mousedata.mouse_button);
 }
 
 void InputManager::ClickUpEvent (const Event* e, void *data) {

@@ -11,6 +11,8 @@
 #include "genericAsyncTask.h"
 #include "asyncTaskManager.h"
 
+#define GAME() (base::Game::reference())
+
 namespace pirates {
 
 namespace world {

@@ -45,6 +45,11 @@ class Ship : public WorldActor {
 
     float matiz_;
     
+    // New Stuff //
+
+    TextureStage* ts() { return ts_; }
+
+
   private :
 
     NodePath ship_node_;

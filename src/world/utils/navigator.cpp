@@ -18,8 +18,8 @@ using base::Game;
 
 // StandardShipMovTask //
 
-StandardShipMovTask::StandardShipMovTask(Ship* ship, Navigator* navigator)
-  : AsyncTask("standard ship movement"), ship_(ship), navigator_(navigator), last_time_(0.0) {}
+StandardShipMovTask::StandardShipMovTask(Ship* ship)
+  : AsyncTask("standard ship movement"), ship_(ship), last_time_(0.0) {}
 
 AsyncTask::DoneStatus StandardShipMovTask::do_task() {
 
@@ -29,7 +29,7 @@ AsyncTask::DoneStatus StandardShipMovTask::do_task() {
     last_time_ = get_elapsed_time();
 
     // Make the ship move.
-    bool did_move = navigator_->Move( Navigator::NextPoint(dt) );
+    bool did_move = actor_->navigator()->Move( Navigator::NextPoint(dt) );
     if(did_move) {
         ship_->ship_node_.set_pos(navigator->pos());
         LPoint3f look_at = navigator_->pos() + navigator_->dir();
@@ -37,7 +37,7 @@ AsyncTask::DoneStatus StandardShipMovTask::do_task() {
     }
 
     // LOL.
-    ship_->ts_->set_color(navigator_->color_);
+    ship_->ts()->set_color(navigator_->color_);
 
     return AsyncTask::DS_done;
 }
@@ -51,7 +51,7 @@ void StandardShipMovTask::upon_death(AsyncTaskManager *manager, bool clean_exit)
 
 // Navigator //
 
-Navigator::Navigator( LPoint3f& init_pos, LVector3f& init_dir )
+Navigator::Navigator( const LPoint3f& init_pos, const LVector3f& init_dir )
   : route_curve_(NULL), actor_pos_(init_pos), actor_dir_(init_dir) {}
 
 /*

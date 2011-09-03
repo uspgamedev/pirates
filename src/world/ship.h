@@ -37,8 +37,6 @@ class Ship : public WorldActor {
 
     void taskInitialize(AsyncTaskManager& taskMgr);
 
-    utils::Navigator* navigator_;
-
     void set_new_route_dest(LPoint3f& dest);
 
     void set_new_route_dest(LPoint3f& dest_pos, LVector3f& dest_vel);
@@ -50,6 +48,8 @@ class Ship : public WorldActor {
   private :
 
     NodePath ship_node_;
+
+    utils::Navigator* navigator_;
 
     LPoint3f new_point;
 

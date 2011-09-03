@@ -58,7 +58,7 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     float scalar_vel = vel.length();
     float vel_penalty_from_curve = 0.0f;
 
-    float red = 0.72f;
+    float red = 1.0f;
     float green = 0.0f;
     float blue = 0.0f;
     float matiz_mod = (float)((int)(matiz_)%2) + (matiz_ - (float)((int)(matiz_)));

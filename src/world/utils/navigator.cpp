@@ -5,8 +5,8 @@
 #include "pandaFramework.h"
 #include "navigator.h"
 
-static float knotvector[] = {0,0,0,2,4,4,4};
-    // The only valid knot vector for a 3rd degree homogeneous NURBS with 4 control points and with parameter space = [0,1]
+static float knotvector[] = {0,0,0,1,2,2,2};
+    // The only valid knot vector for a 3rd degree homogeneous NURBS with 4 control points and with parameter space = [0,2] (two effective 3-control-point knot spans).
 
 namespace pirates {
 
@@ -16,16 +16,47 @@ namespace utils {
 
 using base::Game;
 
-Navigator::Navigator( LPoint3f& init_pos, float init_vel, LVector3f& init_dir ) {
-    LVector3f vectorial_vel( LVector3f(init_vel*init_dir) );
-    route_curve_ = NULL;
-    LPoint3f control_point = init_dir + 3*vectorial_vel; 
-    trace_new_route( init_pos, init_vel, init_dir, control_point, vectorial_vel );
+// StandardShipMovTask //
+
+StandardShipMovTask::StandardShipMovTask(Ship* ship, Navigator* navigator)
+  : AsyncTask("standard ship movement"), ship_(ship), navigator_(navigator), last_time_(0.0) {}
+
+AsyncTask::DoneStatus StandardShipMovTask::do_task() {
+
+    puts("DO_TASK");
+    // Timing stuff.
+    float dt = (float)( get_elapsed_time() - last_time_ );
+    last_time_ = get_elapsed_time();
+
+    // Make the ship move.
+    bool did_move = navigator_->Move( Navigator::NextPoint(dt) );
+    if(did_move) {
+        ship_->ship_node_.set_pos(navigator->pos());
+        LPoint3f look_at = navigator_->pos() + navigator_->dir();
+        ship_->ship_node_.look_at(look_at, navigator->up());
+    }
+
+    // LOL.
+    ship_->ts_->set_color(navigator_->color_);
+
+    return AsyncTask::DS_done;
 }
 
+void StandardShipMovTask::upon_death(AsyncTaskManager *manager, bool clean_exit) {
+
+    puts("UPON_DEATH");
+
+}
+
+
+// Navigator //
+
+Navigator::Navigator( LPoint3f& init_pos, LVector3f& init_dir )
+  : route_curve_(NULL), actor_pos_(init_pos), actor_dir_(init_dir) {}
+
+/*
 void Navigator::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos ) {
     // (with a point as destination)
-    // TODO : test
     // TODO : reescrever isso, de forma que o barco faça uma rota mais esperta.
     if ( init_vel == 0.0f ) init_vel = 0.0001f;
 
@@ -35,9 +66,10 @@ void Navigator::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& 
 
     trace_new_route(init_pos, init_vel, init_dir, dest_pos, dest_vel);
 }
+*/
 
-void Navigator::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos, LVector3f& dest_vel ) {
-    // (with a point + vector as destination)
+void Navigator::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos, LVector3f& dest_vel = LVector3f(0,0,0) ) {
+    // TODO: caso onde a vel final é nula ou mto próxima de 0.
 
     if( init_vel == 0.0f ) init_vel = 0.0001f;
 

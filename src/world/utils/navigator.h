@@ -4,35 +4,76 @@
 
 #include "nurbsCurve.h"
 #include "ropeNode.h"
+#include "asyncTask.h"
 
 namespace pirates {
 namespace world {
+
+class Ship;
+
 namespace utils {
+
+class Navigator;
+class StandardShipMovTask : public AsyncTask {
+  public:
+    StandardShipMovTask(Ship* ship, Navigator* navigator);
+  protected:
+    AsyncTask::DoneStatus do_task();
+    void upon_death(AsyncTaskManager *manager, bool clean_exit);
+  private:
+    Ship* ship_;
+    Navigator* navigator_;
+    double last_time_;
+};
+
 
 class Navigator {
 
-    public:
-        Navigator(LPoint3f& init_pos, float init_vel, LVector3f& init_dir);
-            // Initializes the Navigator and builds a default route (either stopped or straight with constant speed).
+  public:
+    Navigator(const LPoint3f& init_pos, const LVector3f& init_dir);
+        // Initializes the Navigator and builds a default route (either stopped or straight with constant speed).
 
-        void trace_new_route(LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos);
-        void trace_new_route(LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos, LVector3f& dest_vel);
-            // Builds the nurbsCurve that represents the path.
+    //void trace_new_route(LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos);
+    void trace_new_route(const LPoint3f& init_pos, const float init_vel,
+                         const LVector3f& init_dir, const LPoint3f& dest_pos, const LVector3f& dest_vel);
+        // Builds the nurbsCurve that represents the path.
 
-        void get_next_pt(float vel, float dt, LPoint3f& cur_pos_ptr, LVector3f& cur_tg_ptr);
-            // Returns the next point, based on the nurbsCurve, velocity of the boat and time elapsed.
-            // If the end of the curve is reached, it should trace a new, straight curve.
+    void GetNextPointAndTangent(const float vel, const float dt, LPoint3f& cur_pos_ptr, LVector3f& cur_tg_ptr);
+        // Returns the next point, based on the nurbsCurve, velocity of the boat and time elapsed.
+        // If the end of the curve is reached, it should trace a new, straight curve.
 
-    private:
-        NurbsCurve* route_curve_;
-            // The current stored curve.
 
-        float current_param_;
-            // The current stored parameter of the curve where the ship is located.
-        float max_param_;
-            // The stored curve's max value of the parameter.
-        float curve_length_;
-            // The route's length.
+    // New Stuff //
+
+    bool CreateMovTask(const char* task_name);
+
+    bool Anchor();
+
+    bool Move(const float dt);
+
+    LPoint3f pos();
+    LVector3f dir();
+    float speed();
+    LVector3f up();
+
+  private:
+    NurbsCurve* route_curve_;
+        // The current stored curve.
+    float current_param_;
+        // The current stored parameter of the curve where the ship is located.
+    float max_param_;
+        // The stored curve's max value of the parameter.
+    float curve_length_;
+        // The route's length.
+
+
+    // New Stuff //
+
+    LPoint3f pos_;
+    LVector3f dir_;
+    float speed_;
+    LVector3f up_;
+
 };
 
 }

@@ -35,9 +35,9 @@ Ship::Ship () {
     Texture* ship_texture = new Texture("ship_texture");
     ship_texture->load(texImage);
 
-    ts_ = new TextureStage("ts");
-    ts_->set_mode(TextureStage::M_blend);
-    ship_node_.set_texture( ts_, ship_texture, 1 );
+    texture_blend_stage_ = new TextureStage("ts");
+    texture_blend_stage_->set_mode(TextureStage::M_blend);
+    ship_node_.set_texture( texture_blend_stage_, ship_texture, 1 );
 
     vel.set(1.0f,1.0f,0.0f); // lol.
     vel = vel/vel.length();
@@ -109,7 +109,7 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
                 blue = 0.0f;
             break;
         }
-        ts_->set_color(LVector4f(red, green, blue, 1.0f));
+        texture_blend_stage_->set_color(LVector4f(red, green, blue, 1.0f));
         vel_penalty_from_curve = (this->new_tangent/new_tangent.length() - old_tangent/old_tangent.length()).length()/(2.0*dt);
     }
 

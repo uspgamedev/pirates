@@ -47,7 +47,7 @@ class Ship : public WorldActor {
     
     // New Stuff //
 
-    TextureStage* ts() { return ts_; }
+    TextureStage* texture_blend_stage() { return texture_blend_stage_; }
 
 
   private :
@@ -65,7 +65,7 @@ class Ship : public WorldActor {
     LPoint3f new_route_dest_pos_;
     LVector3f new_route_dest_vel_;
 
-    TextureStage* ts_;
+    TextureStage* texture_blend_stage_;
 
 };
 

@@ -14,14 +14,14 @@ class Ship;
 namespace utils {
 
 class Navigator;
-class StandardShipMovTask : public AsyncTask {
+class StandardMovTask : public AsyncTask {
   public:
-    StandardShipMovTask(Ship* ship);
+    StandardMovTask(Ship* ship);
   protected:
     AsyncTask::DoneStatus do_task();
     void upon_death(AsyncTaskManager *manager, bool clean_exit);
   private:
-    Ship* ship_;
+    WorldActor* actor_;
     double last_time_;
 };
 
@@ -45,16 +45,22 @@ class Navigator {
     // New Stuff //
 
     bool CreateMovTask(const char* task_name);
-
+        // Creates the movement task for the WorldActor and returns true if succesful.
+        //TODO
     bool Anchor();
-
+        // Stops the WorldActor.
+        // TODO
     bool Move(const float dt);
+        // Moves the WorldActor.
+        //TODO
 
-    // Inline Funcions: 
+    // Inline Getters: 
     LPoint3f pos() { return pos_; }
     LVector3f dir() { return dir_; }
     float speed() { return speed_; }
     LVector3f up() { return up_; }
+    // LOL.
+    Colorf speed_based_color() { return speed_based_color_; }
 
   private:
     NurbsCurve* route_curve_;

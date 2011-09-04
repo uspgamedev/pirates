@@ -16,33 +16,38 @@ namespace utils {
 
 using base::Game;
 
-// StandardShipMovTask //
+// StandardMovTask //
 
-StandardShipMovTask::StandardShipMovTask(Ship* ship)
-  : AsyncTask("standard ship movement"), ship_(ship), last_time_(0.0) {}
+StandardMovTask::StandardMovTask(const WorldActor* actor)
+  : AsyncTask("standard movement"), actor_(actor), last_time_(0.0) {}
 
-AsyncTask::DoneStatus StandardShipMovTask::do_task() {
+AsyncTask::DoneStatus StandardMovTask::do_task() {
 
-    puts("DO_TASK");
     // Timing stuff.
     float dt = (float)( get_elapsed_time() - last_time_ );
     last_time_ = get_elapsed_time();
 
-    // Make the ship move.
-    bool did_move = actor_->navigator()->Move( Navigator::NextPoint(dt) );
+    // Find the WorldActor's Navigator and Node
+    Navigator* navi = actor_->navigator();
+    PandaNode* node = actor_->node();
+
+    // Make the actor move.
+    bool did_move = navi->Move(dt);
     if(did_move) {
-        ship_->ship_node_.set_pos(navigator->pos());
-        LPoint3f look_at = navigator_->pos() + navigator_->dir();
-        ship_->ship_node_.look_at(look_at, navigator->up());
+        node->set_pos( navi->pos() );
+        LPoint3f look_at = navi->pos() + navi->dir();
+        node->look_at( look_at, navi->up() );
     }
 
     // LOL.
-    ship_->ts()->set_color(navigator_->color_);
+    if( actor_texture_blend_stage() )
+        actor_->texture_blend_stage()->set_color( navi->speed_based_color() );
 
-    return AsyncTask::DS_done;
+    // And... We're done.
+    return AsyncTask::DS_cont;
 }
 
-void StandardShipMovTask::upon_death(AsyncTaskManager *manager, bool clean_exit) {
+void StandardMovTask::upon_death(AsyncTaskManager *manager, bool clean_exit) {
 
     puts("UPON_DEATH");
 

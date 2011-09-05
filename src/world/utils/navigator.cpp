@@ -1,12 +1,23 @@
+  /************/
+  /* INCLUDES */
+  /************/
 
-#include "world/arrow.h"
-#include "base/game.h"
 #include "world/utils/navigator.h"
-#include "pandaFramework.h"
-#include "navigator.h"
+#include "base/game.h" // used for GAME()->planet() .
 
-static float knotvector[] = {0,0,0,1,2,2,2};
-    // The only valid knot vector for a 3rd degree homogeneous NURBS with 4 control points and with parameter space = [0,2] (two effective 3-control-point knot spans).
+  /*************/
+  /* CONSTANTS */
+  /*************/
+
+#define MAX_PARAM 2
+#define MID_PARAM 1
+static float knotvector[] = {0, 0, 0, MID_PARAM, MAX_PARAM, MAX_PARAM, MAX_PARAM};
+    // The only valid knot vector for a 3rd degree 'homogeneous' NURBS with 4 control points
+    // and with parameter space = [0,MAX_PARAM] (MAX_PARAM effective 3-control-point knot spans).
+
+  /**************/
+  /* NAMESPACES */
+  /**************/
 
 namespace pirates {
 
@@ -14,15 +25,20 @@ namespace world {
 
 namespace utils {
 
-using base::Game;
+  /******************/
+  /* MOVEMENT TASKS */
+  /******************/
 
-// StandardMovTask //
+  /*********************/
+  /* HueCyclingMovTask */
+  /*********************/
 
-StandardMovTask::StandardMovTask(const WorldActor* actor)
-  : AsyncTask("standard movement"), actor_(actor), last_time_(0.0) {}
+HueCyclingMovTask::HueCyclingMovTask(const string movtask_name, const WorldActor* actor)
+  : AsyncTask(movtask_name), actor_(actor), last_time_(0.0), planet_(GAME()->planet()),
+  warned_once_about_texture_blend_stage_missing_(false) {}
 
-AsyncTask::DoneStatus StandardMovTask::do_task() {
 
+AsyncTask::DoneStatus HueCyclingMovTask::do_task() {
     // Timing stuff.
     float dt = (float)( get_elapsed_time() - last_time_ );
     last_time_ = get_elapsed_time();
@@ -32,32 +48,70 @@ AsyncTask::DoneStatus StandardMovTask::do_task() {
     PandaNode* node = actor_->node();
 
     // Make the actor move.
-    bool did_move = navi->Move(dt);
-    if(did_move) {
-        node->set_pos( navi->pos() );
-        LPoint3f look_at = navi->pos() + navi->dir();
-        node->look_at( look_at, navi->up() );
-    }
+    if(navi) {
+        bool did_move = navi->Move(dt);
+        if(did_move && node) {
+            node->set_pos( navi->pos() );
+            LPoint3f look_at = navi->pos() + navi->dir();
+            node->look_at( look_at, navi->up() );
+        }
 
-    // LOL.
-    if( actor_texture_blend_stage() )
-        actor_->texture_blend_stage()->set_color( navi->speed_based_color() );
+        // LOL.
+        TextureStage* ts_blend = actor_->texture_blend_stage();
+        if(ts_blend)
+            ts_blend->set_color( navi->speed_based_color() );
+        else if(!warned_once_about_texture_blend_stage_missing_) {
+            puts("HueCyclingMovTask::do_task() Warning:");
+            puts("  a HueCyclingMovTask has been created for an WorldActor");
+            puts("  that has no texture_blend_stage_ .\n");
+            warned_once_about_texture_blend_stage_missing_ = true;
+        }
+    } else {
+        // In this case, the parent Navigator has died.
+        // This task is abnormal and should commit seppuku in a horrible, messy way.
+        _manager->remove(this);
+        return AsyncTask::DS_exit;
+    }
 
     // And... We're done.
     return AsyncTask::DS_cont;
 }
 
-void StandardMovTask::upon_death(AsyncTaskManager *manager, bool clean_exit) {
+void HueCyclingMovTask::upon_death(AsyncTaskManager *manager, bool clean_exit) {
 
-    puts("UPON_DEATH");
+    puts("HueCyclingMovTask::upon_death\n");
+    if(clean_exit)
+        puts("  Task killed by returning DS_done (clean exit).\n");
+    else {
+        puts("  A movement task has died horribly...");
+        puts("  (unclean exit, possibly due to its Navigator dying).\n");
+    }
 
 }
 
 
-// Navigator //
+  /**************/
+  /* NAVIGATORS */
+  /**************/
 
-Navigator::Navigator( const LPoint3f& init_pos, const LVector3f& init_dir )
-  : route_curve_(NULL), actor_pos_(init_pos), actor_dir_(init_dir) {}
+Navigator::Navigator(const WorldActor* owner, const LPoint3f& init_pos,
+                     const LVector3f& init_dir, const float init_speed = 0.0f)
+  : _actor(owner), pos_(init_pos), dir_(init_dir), speed_(init_speed), dest_pos_(NULL), dest_vel_(NULL),
+  current_param_(0.0f), route_curve_(NULL), curve_length_(0.0f), planet_(GAME()->planet()) {}
+
+Navigator::Initialize(const string movtask_type, const LPoint3f& dest_pos = init_pos,
+                      const LVector3f& dest_vel = LVector3f(0.0f,0.0f,0.0f)) {
+
+    // Build the MovTask's name and create it.
+    string movtask_name = _actor->name().substr();
+           movtask_name+= "'s ";
+           movtask_name+= movtask_type;
+    bool did_create_task = CreateMovTask(movtask_type, movtask_name);
+
+
+
+    return did_create_task;
+}
 
 /*
 void Navigator::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos ) {
@@ -73,6 +127,7 @@ void Navigator::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& 
 }
 */
 
+/*
 void Navigator::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos, LVector3f& dest_vel = LVector3f(0,0,0) ) {
     // TODO: caso onde a vel final é nula ou mto próxima de 0.
 
@@ -97,7 +152,9 @@ void Navigator::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& 
     max_param_ = route_curve_->get_max_t();
     curve_length_ = route_curve_->calc_length();
 }
+*/
 
+/*
 void Navigator::get_next_pt( float vel, float dt, LPoint3f& cur_pos_ref, LVector3f& cur_tg_ref ) {
 
     // if vel*dt == 0 then there's nothing to do. cur_pos and cur_tg should be kept the same.
@@ -126,6 +183,7 @@ void Navigator::get_next_pt( float vel, float dt, LPoint3f& cur_pos_ref, LVector
     current_param_ = route_curve_->find_length(current_param_,dist_ran);
     route_curve_->get_pt(current_param_, cur_pos_ref, cur_tg_ref);
 }
+*/
 
 
 

@@ -6,6 +6,7 @@
 #include "nurbsCurve.h"
 #include "asyncTask.h"
 #include "world/planet.h"
+#include <string>
 
 namespace pirates {
 namespace world {
@@ -18,7 +19,7 @@ class Navigator;
 class HueCyclingMovTask : public AsyncTask {
 
   public:
-    HueCyclingMovTask(WorldActor* actor);
+    HueCyclingMovTask(string& movtask_name, WorldActor* actor);
 
   protected:
     AsyncTask::DoneStatus do_task();
@@ -36,19 +37,21 @@ class HueCyclingMovTask : public AsyncTask {
 class Navigator {
 
   public:
-
     /*** PUBLIC METHODS ***/
 
+    //~ Constructor.
     Navigator(const WorldActor* owner, const LPoint3f& init_pos, const LVector3f& init_dir, const float init_speed = 0.0f);
-        // Initializes the Navigator with NULL route.
-    bool Initialize(const string movtask_type, const LPoint3f& dest_pos = init_pos, const LVector3f& dest_vel = LVector3f(0.0f,0.0f,0.0f) )
+        // Builds the Navigator with NULL route. Doesn't create the MovTask.
+    bool Initialize(const string& movtask_type, const LPoint3f& dest_pos = LPoint3f(init_pos),
+                    const LVector3f& dest_vel = LVector3f(0.0f) );
 
+    //~ Standard Navigator Public Methods.
     bool Move(const float dt);
         // Moves the WorldActor.
     bool Stop();
         // Stops the WorldActor from moving.
 
-    // Inline Getters: 
+    //~ Inline Getters.
     LPoint3f  pos()   { return pos_; }
     LVector3f dir()   { return dir_; }
     float     speed() { return speed_; }
@@ -56,16 +59,17 @@ class Navigator {
     // LOL.
     Colorf speed_based_color() { return speed_based_color_; }
 
-  private:
 
+  private:
     /*** PRIVATE METHODS ***/
 
     bool TraceNewRoute(const LPoint3f& init_pos, const float init_vel, const LVector3f& init_dir,
                        const LPoint3f& dest_pos, const LVector3f& dest_vel);
         // Builds the nurbsCurve that represents the curve and returns true.
         // Returns a false if unsucsessful (i.e. if the curve is invalidated before creation).
-    bool CreateMovTask(const string movtask_type);
+    bool CreateMovTask(const string& movtask_type);
         // Creates the movement task for the WorldActor and returns true if succesful.
+
     bool ValidateCurveBeforeCreation();
         // Reads the data that will be used to create a curve and preemtively unvalidates it.
     bool ValidateCurveAfterCreation();

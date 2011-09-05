@@ -20,9 +20,7 @@ static float knotvector[] = {0, 0, 0, MID_PARAM, MAX_PARAM, MAX_PARAM, MAX_PARAM
   /**************/
 
 namespace pirates {
-
 namespace world {
-
 namespace utils {
 
   /******************/
@@ -33,7 +31,7 @@ namespace utils {
   /* HueCyclingMovTask */
   /*********************/
 
-HueCyclingMovTask::HueCyclingMovTask(const string movtask_name, const WorldActor* actor)
+HueCyclingMovTask::HueCyclingMovTask(const string& movtask_name, const WorldActor* actor)
   : AsyncTask(movtask_name), actor_(actor), last_time_(0.0), planet_(GAME()->planet()),
   warned_once_about_texture_blend_stage_missing_(false) {}
 
@@ -97,20 +95,32 @@ void HueCyclingMovTask::upon_death(AsyncTaskManager *manager, bool clean_exit) {
 Navigator::Navigator(const WorldActor* owner, const LPoint3f& init_pos,
                      const LVector3f& init_dir, const float init_speed = 0.0f)
   : _actor(owner), pos_(init_pos), dir_(init_dir), speed_(init_speed), dest_pos_(NULL), dest_vel_(NULL),
-  current_param_(0.0f), route_curve_(NULL), curve_length_(0.0f), planet_(GAME()->planet()) {}
+  current_param_(0.0f), route_curve_(NULL), curve_length_(0.0f), planet_(GAME()->planet()) {
+}
 
-Navigator::Initialize(const string movtask_type, const LPoint3f& dest_pos = init_pos,
-                      const LVector3f& dest_vel = LVector3f(0.0f,0.0f,0.0f)) {
+bool Navigator::Initialize(const string& movtask_type, const LPoint3f& dest_pos = LPoint3f(init_pos_),
+                           const LVector3f& dest_vel = LVector3f(0.0f) {
 
-    // Build the MovTask's name and create it.
+    dest_pos_ = dest_pos;
+    dest_vel_ = dest_vel;
+
+    if(dest_pos_.compare_to(init_pos_, 1.0f) == 0)
+        ;
+
+    bool did_create_task = CreateMovTask(movtask_type);
+
+    return did_create_task;
+}
+
+bool Navigator::CreateMovTask(const string& movtask_type) {
+
     string movtask_name = _actor->name().substr();
            movtask_name+= "'s ";
            movtask_name+= movtask_type;
-    bool did_create_task = CreateMovTask(movtask_type, movtask_name);
 
+    HueCyclingMovTask* task = new HueCyclingMovTask(movtask_name, _actor);
 
-
-    return did_create_task;
+    //TODO some stuff
 }
 
 /*

@@ -12,3 +12,7 @@ And use the commands, in this order:
 $ ./configure
 $ make
 
+
+In order to run the game, go to pirates root directory and:
+
+$ ./bin/pirates

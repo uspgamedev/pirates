@@ -1,0 +1,4 @@
+Right click and hold  - Move
+Left click and drag - Unit selection
+Shift and Right Click - Waypoint Move
+S - Stop movement

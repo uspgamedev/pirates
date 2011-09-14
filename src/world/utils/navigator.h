@@ -7,6 +7,8 @@
 #include "asyncTask.h"
 #include "world/planet.h"
 #include <string>
+#include <utility>
+#include <list>
 
 namespace pirates {
 namespace world {
@@ -19,17 +21,20 @@ class Navigator;
 class HueCyclingMovTask : public AsyncTask {
 
   public:
-    HueCyclingMovTask(string& movtask_name, WorldActor* actor);
+    HueCyclingMovTask(const string& movtask_name, WorldActor* actor);
 
   protected:
     AsyncTask::DoneStatus do_task();
     void upon_death(AsyncTaskManager *manager, bool clean_exit);
 
   private:
+    const Colorf UpdateSpeedBasedHueAndReturnColor(const Navigator* navi, const float dt);
+
     WorldActor* actor_;
-    Planet* planet_;
+    const Planet* planet_;
     double last_time_;
 
+    float speed_based_hue_;
     bool warned_once_about_texture_blend_stage_missing_;
 };
 
@@ -37,54 +42,85 @@ class HueCyclingMovTask : public AsyncTask {
 class Navigator {
 
   public:
+    /*** PUBLIC CONSTANTS ***/
+
+    typedef std::pair<LPoint3f, LVector3f> Waypoint;
+
+    enum MovTask_Types {
+        DEFAULT_MOV = 0,
+        HUE_CYCLING_MOV = 1
+    };
+
     /*** PUBLIC METHODS ***/
 
-    //~ Constructor.
-    Navigator(const WorldActor* owner, const LPoint3f& init_pos, const LVector3f& init_dir, const float init_speed = 0.0f);
-        // Builds the Navigator with NULL route. Doesn't create the MovTask.
-    bool Initialize(const string& movtask_type, const LPoint3f& dest_pos = LPoint3f(init_pos),
-                    const LVector3f& dest_vel = LVector3f(0.0f) );
+    //~ Constructor and Initializer:
+    // Builds the Navigator with NULL route. Doesn't create the MovTask.
+    Navigator(WorldActor* owner, const LPoint3f& init_pos, const LVector3f& init_dir);
+    // Initializes the Navigator, with possible startup speed/destination.
+    // This builds the Navigator, MovTask, and default route (may be NULL).
+    bool Initialize(const MovTask_Types movtask_type, const float init_speed,
+                    const LPoint3f& dest_pos, const LVector3f& dest_vel = LVector3f(0.0f) );
 
-    //~ Standard Navigator Public Methods.
-    bool Move(const float dt);
-        // Moves the WorldActor.
+    bool Initialize(const MovTask_Types movtask_type, const float init_speed = 0.0f ) {
+        const LPoint3f& dest_pos = LPoint3f(pos());
+        return Initialize(movtask_type, init_speed, dest_pos);
+    }
+    bool Initialize(const MovTask_Types movtask_type, const LPoint3f& dest_pos, const LVector3f& dest_vel = LVector3f(0.0f) ) {
+        return Initialize(movtask_type, 0.0f, dest_pos, dest_vel);
+    }
+
+    //~ Standard Navigator Public Methods:
+
+    bool Step(const float dt);
+        // Moves the WorldActor one step. This function is called by the Navigator's associated MovTask.
     bool Stop();
         // Stops the WorldActor from moving.
+    bool Move();
+        // Stops the WorldActor from being stopped.
+    bool TraceNewRouteTo(const LPoint3f& dest_pos, const LVector3f& dest_vel = LVector3f(0.0f));
+        // Clears the waypoint list, adds the waypoint built from the parameters to the list, traces the route.
+    bool AddWaypoint(const Waypoint waypoint);
+        // Adds a waypoint to the queue and tests if it seems valid.
 
     //~ Inline Getters.
-    LPoint3f  pos()   { return pos_; }
-    LVector3f dir()   { return dir_; }
-    float     speed() { return speed_; }
-    LVector3f up()    { return planet_->normal_at(pos_); }
-    // LOL.
-    Colorf speed_based_color() { return speed_based_color_; }
+    const LPoint3f&  pos()   const { return pos_;   }
+    const LVector3f& dir()   const { return dir_;   }
+    const float      speed() const { return speed_; }
+    const std::list<Waypoint>& waypoint_list() const { return waypoint_list_; }
+    //~ Semi-Getters.
+    /* cant return NULL =(.
+    const LPoint3f&  dest_pos() const { if(waypoint_list_.size() > 0) return waypoint_list_.front().first;  return NULL; }
+    const LVector3f& dest_vel() const { if(waypoint_list_.size() > 0) return waypoint_list_.front().second; return NULL; }
+    */
+    LVector3f vel() const { return dir_*speed_; }
+    LVector3f& up() const { return planet_->normal_at(pos_); }
+
 
 
   private:
     /*** PRIVATE METHODS ***/
 
-    bool TraceNewRoute(const LPoint3f& init_pos, const float init_vel, const LVector3f& init_dir,
-                       const LPoint3f& dest_pos, const LVector3f& dest_vel);
-        // Builds the nurbsCurve that represents the curve and returns true.
-        // Returns a false if unsucsessful (i.e. if the curve is invalidated before creation).
-    bool CreateMovTask(const string& movtask_type);
+    bool TraceRoute();
+        // Traces the new route, reading the next waypoint.
+    bool CreateMovTask(const MovTask_Types movtask_type);
         // Creates the movement task for the WorldActor and returns true if succesful.
-
-    bool ValidateCurveBeforeCreation();
+    bool ValidateRouteBeforeCreation();
         // Reads the data that will be used to create a curve and preemtively unvalidates it.
-    bool ValidateCurveAfterCreation();
+    bool ValidateRouteAfterCreation();
         // Same as above, but used after the curve has been created.
         // In particular, returns false and throws a puts in the console if the curve doesn't yet exist.
 
 
-
     /*** ATTRIBUTES ***/
 
+    //~ We should Initialize only once...
+    bool initialized_;
+    //~ And we should know the task, as we might want to kill it.
+    AsyncTask* current_movtask_;
     //~ Whose WorldActor's Navigator Is This Anyway?
-    WorldActor* _actor;
-
-    //~ World state.
-    Planet* planet_;
+    WorldActor* actor_;
+    //~ Where are we?.
+    const Planet* planet_;
 
     //~ Current position and speed state.
     LPoint3f pos_;
@@ -93,20 +129,21 @@ class Navigator {
     float current_param_;
         // The current curve parameter where the ship is located
         // (may be =0.0f if there is no curve).
+    bool stopping_; // Also covers the case "stopped and not starting to move".
+    // The following are used only by Step().
+    LVector3f old_tangent_versor_;
+        // The route's tangent the last time Step() was called, normalized.
+    LVector3f current_tangent_;
+        // The route's tangent at current_param_. Is normalized during Step()
 
-    //~ Destination state.
-    LPoint3f dest_pos_;
-    LVector3f dest_vel_;
+    //~ Destination and waypoints state.
+    std::list<Waypoint> waypoint_list_;
 
     //~ Route state.
     NurbsCurve* route_curve_;
         // The current stored curve.
     float curve_length_;
         // The route's length.
-
-    //~ LOL. state.
-    Colorf speed_based_color_;
-
 };
 
 }

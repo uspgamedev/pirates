@@ -1,17 +1,27 @@
+#ifndef PIRATES_WORLD_UTILS_NAVIGATOR_H_
+#define PIRATES_WORLD_UTILS_NAVIGATOR_H_ 
+
   /************/
   /* INCLUDES */
   /************/
 
 #include "world/utils/navigator.h"
-#include "base/game.h" // used for GAME()->planet() .
+#include "base/game.h" // used for GAME()->planet().
 
   /*************/
   /* CONSTANTS */
   /*************/
 
-#define MAX_PARAM 2
-#define MID_PARAM 1
-static float knotvector[] = {0, 0, 0, MID_PARAM, MAX_PARAM, MAX_PARAM, MAX_PARAM};
+#define MIN_SPEED 0.5f
+#define SPEED_IS_ZERO_THRESHOLD 0.1f
+#define VEL_IS_ZERO_THRESHOLD 0.2f
+#define DEST_IS_ORIGIN_THRESHOLD 0.1f
+
+#define SPEED_PENALTY_FROM_CURVATURE_SCALAR_DIV 30.0f
+
+#define MAX_PARAM 2.0f
+#define MID_PARAM 1.0f
+static float knotvector[] = {0.0f, 0.0f, 0.0f, MID_PARAM, MAX_PARAM, MAX_PARAM, MAX_PARAM};
     // The only valid knot vector for a 3rd degree 'homogeneous' NURBS with 4 control points
     // and with parameter space = [0,MAX_PARAM] (MAX_PARAM effective 3-control-point knot spans).
 
@@ -31,10 +41,34 @@ namespace utils {
   /* HueCyclingMovTask */
   /*********************/
 
-HueCyclingMovTask::HueCyclingMovTask(const string& movtask_name, const WorldActor* actor)
+HueCyclingMovTask::HueCyclingMovTask(const string& movtask_name, WorldActor* actor)
   : AsyncTask(movtask_name), actor_(actor), last_time_(0.0), planet_(GAME()->planet()),
-  warned_once_about_texture_blend_stage_missing_(false) {}
+  speed_based_hue_(0.0f), warned_once_about_texture_blend_stage_missing_(false) {}
 
+const Colorf HueCyclingMovTask::UpdateSpeedBasedHueAndReturnColor(const Navigator* navi, const float dt) {
+    
+    // Update the hue.
+    speed_based_hue_ += navi->speed()/50.0f;
+    speed_based_hue_ -= (float)( 6*( (int)(speed_based_hue_)/6 )) );
+        // == speed_based_hue_ = speed_based_hue_%6
+
+    // Bunch of temporary variables.
+    float hue_mod = speed_based_hue_ - (float)( 2*( (int)(speed_based_hue_)/2 )) ); // == speed_based_hue_%2
+    float triangle = (1 - fabs(hue_mod - 1));
+    int hue_control = (int)( floor(speed_based_hue_) );
+
+    // Do the magic. ( return Colorf(red,gree,blue,alpha) )
+    switch(hue_control) {
+        case 0: return Colorf(     1.0f, triangle,     0.0f, 1.0f); break;
+        case 1: return Colorf( triangle,     1.0f,     0.0f, 1.0f); break;
+        case 2: return Colorf(     0.0f,     1.0f, triangle, 1.0f); break;
+        case 3: return Colorf(     0.0f, triangle,     1.0f, 1.0f); break;
+        case 4: return Colorf( triangle,     0.0f,     1.0f, 1.0f); break;
+        case 5: return Colorf(     1.0f,     0.0f, triangle, 1.0f); break;
+        case default: break;
+    }
+    return Colorf(0.0f);
+}
 
 AsyncTask::DoneStatus HueCyclingMovTask::do_task() {
     // Timing stuff.
@@ -42,26 +76,25 @@ AsyncTask::DoneStatus HueCyclingMovTask::do_task() {
     last_time_ = get_elapsed_time();
 
     // Find the WorldActor's Navigator and Node
-    Navigator* navi = actor_->navigator();
-    PandaNode* node = actor_->node();
+    Navigator* navi = actor_->navigator(); // HEY! LISTEN! HEY! LISTEN! HEY! LISTEN! HEY! LISTEN! HEY! LISTEN!
+    NodePath*  node = actor_->node();
 
     // Make the actor move.
     if(navi) {
-        bool did_move = navi->Move(dt);
+        bool did_move = navi->Step(dt);
         if(did_move && node) {
             node->set_pos( navi->pos() );
             LPoint3f look_at = navi->pos() + navi->dir();
             node->look_at( look_at, navi->up() );
         }
 
-        // LOL.
         TextureStage* ts_blend = actor_->texture_blend_stage();
-        if(ts_blend)
-            ts_blend->set_color( navi->speed_based_color() );
-        else if(!warned_once_about_texture_blend_stage_missing_) {
-            puts("HueCyclingMovTask::do_task() Warning:");
-            puts("  a HueCyclingMovTask has been created for an WorldActor");
-            puts("  that has no texture_blend_stage_ .\n");
+        if(ts_blend) {
+            ts_blend->set_color( UpdateSpeedBasedHueAndReturnColor(navi,dt) );
+        } else if(!warned_once_about_texture_blend_stage_missing_) {
+            fprintf(stderr, "Warning: at HueCyclingMovTask::do_task()\n");
+            fprintf(stderr, "  a HueCyclingMovTask has been created for an WorldActor\n");
+            fprintf(stderr, "  that has no texture_blend_stage_ .\n");
             warned_once_about_texture_blend_stage_missing_ = true;
         }
     } else {
@@ -77,12 +110,10 @@ AsyncTask::DoneStatus HueCyclingMovTask::do_task() {
 
 void HueCyclingMovTask::upon_death(AsyncTaskManager *manager, bool clean_exit) {
 
-    puts("HueCyclingMovTask::upon_death\n");
-    if(clean_exit)
-        puts("  Task killed by returning DS_done (clean exit).\n");
-    else {
-        puts("  A movement task has died horribly...");
-        puts("  (unclean exit, possibly due to its Navigator dying).\n");
+    if(!clean_exit)
+        fprintf(stderr, "HueCyclingMovTask::upon_death(...)\n");
+        fprintf(stderr, "  A movement task has died horribly...\n");
+        fprintf(stderr, "  (unclean exit, possibly due to its Navigator dying).\n");
     }
 
 }
@@ -92,77 +123,89 @@ void HueCyclingMovTask::upon_death(AsyncTaskManager *manager, bool clean_exit) {
   /* NAVIGATORS */
   /**************/
 
-Navigator::Navigator(const WorldActor* owner, const LPoint3f& init_pos,
-                     const LVector3f& init_dir, const float init_speed = 0.0f)
-  : _actor(owner), pos_(init_pos), dir_(init_dir), speed_(init_speed), dest_pos_(NULL), dest_vel_(NULL),
-  current_param_(0.0f), route_curve_(NULL), curve_length_(0.0f), planet_(GAME()->planet()) {
+Navigator::Navigator(WorldActor* owner, const LPoint3f& init_pos, const LVector3f& init_dir)
+  : initialized_(false), current_movtask_(NULL), actor_(owner), pos_(init_pos), dir_(init_dir), speed_(0.0f),
+  current_param_(0.0f), stopping_(true), route_curve_(NULL), curve_length_(0.0f), planet_(GAME()->planet()) {
 }
 
-bool Navigator::Initialize(const string& movtask_type, const LPoint3f& dest_pos = LPoint3f(init_pos_),
-                           const LVector3f& dest_vel = LVector3f(0.0f) {
+bool Navigator::Initialize(const MovTask_Types movtask_type, const float speed,
+                           const LPoint3f& dest_pos, const LVector3f& dest_vel) {
 
-    dest_pos_ = dest_pos;
-    dest_vel_ = dest_vel;
+    if( speed != 0.0f || dest_pos.compare_to(pos_, DEST_IS_ORIGIN_THRESHOLD) != 0 )
+        Move();
 
-    if(dest_pos_.compare_to(init_pos_, 1.0f) == 0)
-        ;
+    if( !TraceNewRouteTo(dest_pos, dest_vel) )
+        Stop();
+        //waypoint_list_.push_front( Waypoint(dest_pos, dest_vel) ); //TODO
+    else {
+        route_curve_->get_2ndtangent(0.0f, current_tangent_);
+        old_tangent_versor_ = current_tangent_;
+        old_tangent_versor_.normalize();
+    }
 
-    bool did_create_task = CreateMovTask(movtask_type);
-
-    return did_create_task;
+    // CreateMovTask takes care of setting initialized_ to true.
+    return CreateMovTask(movtask_type);
 }
 
-bool Navigator::CreateMovTask(const string& movtask_type) {
+bool Navigator::Step(const float dt) {
 
-    string movtask_name = _actor->name().substr();
-           movtask_name+= "'s ";
-           movtask_name+= movtask_type;
+    // Better safe than sorry.
+    if( dt == 0 )
+        return true;
 
-    HueCyclingMovTask* task = new HueCyclingMovTask(movtask_name, _actor);
+    // Find the new speed.
+    if( route_curve_ ) { // We'll treat this possible error later.
+        old_tangent_versor_ = current_tangent_.normalize();
+        route_curve_->get_2ndtangent(current_param_, current_tangent_);
 
-    //TODO some stuff
+        speed_ = current_tangent_.length();
+
+        LVector3f tangent_direction_change = current_tangent_/speed_ - old_tangent_versor_;
+        float speed_penalty_from_curvature = tangent_direction_change_.length()/SPEED_PENALTY_FROM_CURVATURE_SCALAR_DIV;
+
+        speed_ -= speed_penalty_from_curvature; // We'll check if this is negative very soon.
+    }
+
+    // Test if there's a problem with the new speed.
+    if( speed_ < SPEED_IS_ZERO_THRESHOLD ) {
+        if( !stopping_ ) { // TraceRoute would've set this higher if the actor is now trying to move,
+            Stop();        // so the actor tried to make a movement he can't, and we should order it to stop now.
+            speed_ = 0.0f;
+        }
+        return false;
+    }
+
+    // Find the distance to run.
+    float dist_ran = speed_*dt;
+
+    // If there's no curve, well... wtf happened?
+    if( !route_curve_ ) {
+        if( stopping_ ) {
+            fprintf(stderr, "Warning from Navigator::Step(%f) :\n", dt);
+            fprintf(stderr, "    WorldActor \"%s\"'s Navigator is stopping_,\n", actor_->name() );
+            fprintf(stderr, "    has no route_curve_, but has speed_ == %f >= SPEED_IS_ZERO_THRESHOLD.\n", speed_);
+            fprintf(stderr, "    Maybe the threshold is too big? Freezing the WorldActor in place anyway...\n");
+            speed_ = 0.0f;
+            return false;
+        }
+        fprintf(stderr, "Error from Navigator::Step(%f) :\n", dt);
+        fprintf(stderr, "    WorldActor \"%s\"'s Navigator\n", actor_->name() );
+        fprintf(stderr, "    is not stopping_, but has no route_curve_.\n");
+        // the curve despawned.. weird... fix the problem and try again.
+        //TODO
+        return Step(dt);
+    }
+
+    float new_param = route_curve_->find_length(current_param_,dist_ran);
+    if( new_param == MAX_PARAM ) {
+        // reached end of curve, trace new and update new_param.
+        //TODO
+    }
+    current_param_ = new_param;
+    route_curve_->get_point(current_param_, current_pos_);
+        
+    return true;
 }
-
-/*
-void Navigator::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos ) {
-    // (with a point as destination)
-    // TODO : reescrever isso, de forma que o barco faça uma rota mais esperta.
-    if ( init_vel == 0.0f ) init_vel = 0.0001f;
-
-    LVector3f init_vect_vel(init_vel*init_dir);
-    LVector3f shortest_path(dest_pos-init_pos);
-    LVector3f dest_vel = 2*init_vect_vel.project(shortest_path) - init_vect_vel;
-
-    trace_new_route(init_pos, init_vel, init_dir, dest_pos, dest_vel);
-}
-*/
-
-/*
-void Navigator::trace_new_route( LPoint3f& init_pos, float init_vel, LVector3f& init_dir, LPoint3f& dest_pos, LVector3f& dest_vel = LVector3f(0,0,0) ) {
-    // TODO: caso onde a vel final é nula ou mto próxima de 0.
-
-    if( init_vel == 0.0f ) init_vel = 0.0001f;
-
-    LVector3f init_vectorial_vel(init_dir*init_vel);
-
-    // Adding the weights to the 3D vectors:
-    LPoint4f  init_pos_4d(           init_pos.get_x(),           init_pos.get_y(),           init_pos.get_z(), 1.0f );
-    LVector4f init_vel_4d( init_vectorial_vel.get_x(), init_vectorial_vel.get_y(), init_vectorial_vel.get_z(), 0.0f );
-    LPoint4f  dest_pos_4d(           dest_pos.get_x(),           dest_pos.get_y(),           dest_pos.get_z(), 1.0f );
-    LVector4f dest_vel_4d(           dest_vel.get_x(),           dest_vel.get_y(),           dest_vel.get_z(), 0.0f );
-
-    // Building the control points vector and curve.
-    LPoint4f cv_vector[] = {init_pos_4d, init_pos_4d + init_vel_4d, dest_pos_4d - dest_vel_4d, dest_pos_4d};
-
-    if(route_curve_) delete route_curve_;
-    route_curve_ = new NurbsCurve(3, 4, knotvector, cv_vector);
-
-    // Setting up the route's default state.
-    current_param_ = 0.0f;
-    max_param_ = route_curve_->get_max_t();
-    curve_length_ = route_curve_->calc_length();
-}
-*/
 
 /*
 void Navigator::get_next_pt( float vel, float dt, LPoint3f& cur_pos_ref, LVector3f& cur_tg_ref ) {
@@ -195,12 +238,113 @@ void Navigator::get_next_pt( float vel, float dt, LPoint3f& cur_pos_ref, LVector
 }
 */
 
+bool Navigator::Stop() {
 
 
+}
 
+bool Navigator::Move() {
+
+
+}
+
+bool Navigator::TraceNewRouteTo(const LPoint3f& dest_pos, const LVector3f& dest_vel) {
+    // We're dropping all waypoints.
+    waypoint_list_.clear();
+    // Build the new waypoint and add it to the list.
+    waypoint_list_.push_front( Waypoint(dest_pos, dest_vel) );
+    // Decide if we should move or not.
+    if(TraceRoute())
+        return Move();
+    if(Stop())
+        return false;
+    fprintf(stderr, "Warning: Navigator::TraceNewRouteTo((%.2f,%.2f,%.2f),(%.2f,%.2f,%.2f))\n",
+            dest_pos.get_x(), dest_pos.get_y(), dest_pos.get_z(), dest_vel.get_x(), dest_vel.get_y(), dest_vel.get_z());
+    fprintf(stderr, "  says: \"Oops, you're inside a wall.\"\n");
+    return false;
+}
+
+bool Navigator::TraceRoute() {
+    // Can't do much if there's nowhere to go. Get a reference to the destination otherwise.
+    if( waypoint_list_.empty() ) {
+        fprintf(stderr, "Warning: Navigator::TraceRoute() called with no destination set.\n");
+        return false;
+    }
+    Waypoint& waypoint = waypoint_list_.front();
+
+    // If the boat is not stopping/stopped, and is too slow, then it means it's trying to start moving.
+    if(speed_ < SPEED_IS_ZERO_THRESHOLD && !stopping_)
+        speed_ = MIN_SPEED;
+    else if(speed_ < SPEED_IS_ZERO_THRESHOLD) {
+        // Uh... you should stop the ship then. How did you get in here?
+        fprintf(stderr, "Warning: Navigator::TraceRoute() called while stopping with no speed.\n");
+        fprintf(stderr, "    Deleting current route curve (if exists) and setting the speed to 0.0f.\n");
+        if(route_curve_) delete route_curve_;
+        speed_ = 0.0f;
+        return false;
+    }
+
+    // If the player hasn't defined a vectorial velocity for the ship at destination, we must build it.
+    if( waypoint.second.compare_to(LVector3f(0.0f), VEL_IS_ZERO_THRESHOLD) ) {
+        LPoint3f second_point = pos_ + dir_*speed_;
+        waypoint.second = waypoint.first - second_point;
+        waypoint.second.normalize();
+        waypoint.second*=speed_;
+    }
+    // Now, we can validate the route parameters.
+    if( !ValidateRouteBeforeCreation() )
+        return false;
+    
+    // We'll need the initial velocity, not direction + speed.
+    LVector3f vel = dir_*speed_;
+
+    // Adding the weights to the 3D vectors:
+    LPoint4f  init_pos_4d(            pos_.get_x(),            pos_.get_y(),            pos_.get_z(), 1.0f );
+    LVector4f init_vel_4d(             vel.get_x(),             vel.get_y(),             vel.get_z(), 0.0f );
+    LPoint4f  dest_pos_4d(  waypoint.first.get_x(),  waypoint.first.get_y(),  waypoint.first.get_z(), 1.0f );
+    LVector4f dest_vel_4d( waypoint.second.get_x(), waypoint.second.get_y(), waypoint.second.get_z(), 0.0f );
+    
+    // Building the control points vector and curve.
+    LPoint4f cv_vector[] = {init_pos_4d, init_pos_4d + init_vel_4d, dest_pos_4d - dest_vel_4d, dest_pos_4d};
+
+    if(route_curve_) delete route_curve_;
+    route_curve_ = new NurbsCurve(3, 4, knotvector, cv_vector);
+
+    // And... we should validate the curve now.
+    if( !ValidateRouteAfterCreation() )
+        return false;
+
+    // Setting up the route's default state.
+    current_param_ = 0.0f;
+    curve_length_ = route_curve_->calc_length();
+    return true;
+}
+
+
+bool Navigator::CreateMovTask(const MovTask_Types movtask_type) {
+
+    string movtask_name = actor_->name();
+    movtask_name+= "'s ";
+    switch(movtask_type) {
+        case DEFAULT_MOV:
+            return false; //TODO: This will obviously be changed.
+            break;
+        case HUE_CYCLING_MOV:
+            movtask_name+= "hue cycling movtask";
+            current_movtask_ = new HueCyclingMovTask(movtask_name, actor_);
+            //TODO: check if the task was created safely.
+            break;
+        default:
+            break;
+    }
+    initialized_ = true;
+    return true;
+}
 
 } // namespace utils
 
 } // namespace world
 
 } // namespace pirates
+
+#endif

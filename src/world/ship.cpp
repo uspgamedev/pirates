@@ -39,11 +39,9 @@ Ship::Ship () {
     texture_blend_stage_->set_mode(TextureStage::M_blend);
     ship_node_.set_texture( texture_blend_stage_, ship_texture, 1 );
 
-    vel.set(1.0f,1.0f,0.0f); // lol.
-    vel = vel/vel.length();
+    LVector3f dir(1.0f,0.0f,0.0f); // lol.
     LPoint3f ship_pos = ship_node_.get_pos();
-    LVector3f ship_vel_norm = vel/vel.length();
-    navigator_ = new utils::Navigator(ship_pos, vel.length(), ship_vel_norm);
+    navigator_ = new utils::Navigator(this, dir);
 
     new_route_method_ = 0;
     anchored_ = false;

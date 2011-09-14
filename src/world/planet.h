@@ -24,8 +24,8 @@ class Planet : public WorldActor {
 
     LPoint3f node_pos() { return planet_node_.get_pos(); }
 
-    const LVector3f normal_at(LPoint3f& pos);
-    const float height_at(LPoint3f& pos);
+    LVector3f normal_at(const LPoint3f& pos) const;
+    const float height_at(const LPoint3f& pos) const;
 
     CollisionSolid* get_collision() { return collision_; }
 

@@ -8,15 +8,19 @@
 #define PIRATES_WORLD_SHIP_H_
 
 #include "lpoint3.h"
+#include "asyncTask.h"
+#include "genericAsyncTask.h"
+#include "textureStage.h"
 #include "pandaFramework.h"
 #include "world/worldactor.h"
-#include "world/utils/navigator.h"
-#include <cstdlib>
-#include <cmath>
 
 namespace pirates {
 
 namespace world {
+
+namespace utils {
+class Navigator;
+}
 
 class Ship : public WorldActor {
     

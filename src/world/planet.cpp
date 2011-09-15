@@ -18,10 +18,9 @@ using base::Game;
 
 namespace world {
 
-Planet::Planet () {
+Planet::Planet () : /*WorldActor(),*/ center_(0.0f) {
     PandaFramework& framework = Game::reference()->framework();
     WindowFramework* window = Game::reference()->window();
-
 
     // Creating the vertex data
     PT(GeomVertexData) vdata;

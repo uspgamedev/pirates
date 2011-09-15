@@ -1,23 +1,26 @@
-#ifndef PIRATES_WORLD_UTILS_NAVIGATOR_H_
-#define PIRATES_WORLD_UTILS_NAVIGATOR_H_ 
 
   /************/
   /* INCLUDES */
   /************/
 
 #include "world/utils/navigator.h"
+#include "world/worldactor.h"
+#include "world/utils/movtasks.h"
 #include "base/game.h" // used for GAME()->planet().
 
   /*************/
   /* CONSTANTS */
   /*************/
 
-#define MIN_SPEED 0.5f
+#define DEST_IS_ORIGIN_THRESHOLD 0.1f
+#define MAX_SQUARED_DISTANCE_BEFORE_CURVE_RECALC 22500.0f
+
+#define MIN_SPEED 0.3f
 #define SPEED_IS_ZERO_THRESHOLD 0.1f
 #define VEL_IS_ZERO_THRESHOLD 0.2f
-#define DEST_IS_ORIGIN_THRESHOLD 0.1f
 
 #define SPEED_PENALTY_FROM_CURVATURE_SCALAR_DIV 30.0f
+#define ACTOR_BRAKING_FACTOR 50.0f
 
 #define MAX_PARAM 2.0f
 #define MID_PARAM 1.0f
@@ -31,93 +34,8 @@ static float knotvector[] = {0.0f, 0.0f, 0.0f, MID_PARAM, MAX_PARAM, MAX_PARAM, 
 
 namespace pirates {
 namespace world {
+
 namespace utils {
-
-  /******************/
-  /* MOVEMENT TASKS */
-  /******************/
-
-  /*********************/
-  /* HueCyclingMovTask */
-  /*********************/
-
-HueCyclingMovTask::HueCyclingMovTask(const string& movtask_name, WorldActor* actor)
-  : AsyncTask(movtask_name), actor_(actor), last_time_(0.0), planet_(GAME()->planet()),
-  speed_based_hue_(0.0f), warned_once_about_texture_blend_stage_missing_(false) {}
-
-const Colorf HueCyclingMovTask::UpdateSpeedBasedHueAndReturnColor(const Navigator* navi, const float dt) {
-    
-    // Update the hue.
-    speed_based_hue_ += navi->speed()/50.0f;
-    speed_based_hue_ -= (float)( 6*( (int)(speed_based_hue_)/6 )) );
-        // == speed_based_hue_ = speed_based_hue_%6
-
-    // Bunch of temporary variables.
-    float hue_mod = speed_based_hue_ - (float)( 2*( (int)(speed_based_hue_)/2 )) ); // == speed_based_hue_%2
-    float triangle = (1 - fabs(hue_mod - 1));
-    int hue_control = (int)( floor(speed_based_hue_) );
-
-    // Do the magic. ( return Colorf(red,gree,blue,alpha) )
-    switch(hue_control) {
-        case 0: return Colorf(     1.0f, triangle,     0.0f, 1.0f); break;
-        case 1: return Colorf( triangle,     1.0f,     0.0f, 1.0f); break;
-        case 2: return Colorf(     0.0f,     1.0f, triangle, 1.0f); break;
-        case 3: return Colorf(     0.0f, triangle,     1.0f, 1.0f); break;
-        case 4: return Colorf( triangle,     0.0f,     1.0f, 1.0f); break;
-        case 5: return Colorf(     1.0f,     0.0f, triangle, 1.0f); break;
-        case default: break;
-    }
-    return Colorf(0.0f);
-}
-
-AsyncTask::DoneStatus HueCyclingMovTask::do_task() {
-    // Timing stuff.
-    float dt = (float)( get_elapsed_time() - last_time_ );
-    last_time_ = get_elapsed_time();
-
-    // Find the WorldActor's Navigator and Node
-    Navigator* navi = actor_->navigator(); // HEY! LISTEN! HEY! LISTEN! HEY! LISTEN! HEY! LISTEN! HEY! LISTEN!
-    NodePath*  node = actor_->node();
-
-    // Make the actor move.
-    if(navi) {
-        bool did_move = navi->Step(dt);
-        if(did_move && node) {
-            node->set_pos( navi->pos() );
-            LPoint3f look_at = navi->pos() + navi->dir();
-            node->look_at( look_at, navi->up() );
-        }
-
-        TextureStage* ts_blend = actor_->texture_blend_stage();
-        if(ts_blend) {
-            ts_blend->set_color( UpdateSpeedBasedHueAndReturnColor(navi,dt) );
-        } else if(!warned_once_about_texture_blend_stage_missing_) {
-            fprintf(stderr, "Warning: at HueCyclingMovTask::do_task()\n");
-            fprintf(stderr, "  a HueCyclingMovTask has been created for an WorldActor\n");
-            fprintf(stderr, "  that has no texture_blend_stage_ .\n");
-            warned_once_about_texture_blend_stage_missing_ = true;
-        }
-    } else {
-        // In this case, the parent Navigator has died.
-        // This task is abnormal and should commit seppuku in a horrible, messy way.
-        _manager->remove(this);
-        return AsyncTask::DS_exit;
-    }
-
-    // And... We're done.
-    return AsyncTask::DS_cont;
-}
-
-void HueCyclingMovTask::upon_death(AsyncTaskManager *manager, bool clean_exit) {
-
-    if(!clean_exit)
-        fprintf(stderr, "HueCyclingMovTask::upon_death(...)\n");
-        fprintf(stderr, "  A movement task has died horribly...\n");
-        fprintf(stderr, "  (unclean exit, possibly due to its Navigator dying).\n");
-    }
-
-}
-
 
   /**************/
   /* NAVIGATORS */
@@ -131,7 +49,7 @@ Navigator::Navigator(WorldActor* owner, const LPoint3f& init_pos, const LVector3
 bool Navigator::Initialize(const MovTask_Types movtask_type, const float speed,
                            const LPoint3f& dest_pos, const LVector3f& dest_vel) {
 
-    if( speed != 0.0f || dest_pos.compare_to(pos_, DEST_IS_ORIGIN_THRESHOLD) != 0 )
+    if( speed >= SPEED_IS_ZERO_THRESHOLD || dest_pos.compare_to(pos_, DEST_IS_ORIGIN_THRESHOLD) != 0 )
         Move();
 
     if( !TraceNewRouteTo(dest_pos, dest_vel) )
@@ -139,8 +57,8 @@ bool Navigator::Initialize(const MovTask_Types movtask_type, const float speed,
         //waypoint_list_.push_front( Waypoint(dest_pos, dest_vel) ); //TODO
     else {
         route_curve_->get_2ndtangent(0.0f, current_tangent_);
-        old_tangent_versor_ = current_tangent_;
-        old_tangent_versor_.normalize();
+        dir_ = current_tangent_;
+        dir_.normalize();
     }
 
     // CreateMovTask takes care of setting initialized_ to true.
@@ -153,17 +71,17 @@ bool Navigator::Step(const float dt) {
     if( dt == 0 )
         return true;
 
-    // Find the new speed.
-    if( route_curve_ ) { // We'll treat this possible error later.
-        old_tangent_versor_ = current_tangent_.normalize();
+    // Find the new speed and old direction.
+    if( route_curve_ ) { // We'll treat this possible error later, since we need to do some other stuf before.
+        dir_ = current_tangent_.normalize();
         route_curve_->get_2ndtangent(current_param_, current_tangent_);
 
         speed_ = current_tangent_.length();
 
-        LVector3f tangent_direction_change = current_tangent_/speed_ - old_tangent_versor_;
-        float speed_penalty_from_curvature = tangent_direction_change_.length()/SPEED_PENALTY_FROM_CURVATURE_SCALAR_DIV;
+        LVector3f tangent_direction_change = current_tangent_/speed_ - dir_;
+        float speed_penalty = tangent_direction_change.length()/SPEED_PENALTY_FROM_CURVATURE_SCALAR_DIV;
 
-        speed_ -= speed_penalty_from_curvature; // We'll check if this is negative very soon.
+        speed_ -= speed_penalty; // We'll check if this is negative very soon.
     }
 
     // Test if there's a problem with the new speed.
@@ -178,7 +96,7 @@ bool Navigator::Step(const float dt) {
     // Find the distance to run.
     float dist_ran = speed_*dt;
 
-    // If there's no curve, well... wtf happened?
+    // If there's no curve, well... WTF happened?
     if( !route_curve_ ) {
         if( stopping_ ) {
             fprintf(stderr, "Warning from Navigator::Step(%f) :\n", dt);
@@ -191,18 +109,53 @@ bool Navigator::Step(const float dt) {
         fprintf(stderr, "Error from Navigator::Step(%f) :\n", dt);
         fprintf(stderr, "    WorldActor \"%s\"'s Navigator\n", actor_->name() );
         fprintf(stderr, "    is not stopping_, but has no route_curve_.\n");
-        // the curve despawned.. weird... fix the problem and try again.
-        //TODO
+        // The route despawned..? Weird... build it and try again then.
+        if( waypoint_list_.empty() ) {
+            if( !Move() )
+                Stop();
+            return Step(dt);
+        }
+        if( !TraceRoute() )
+            Stop();
         return Step(dt);
     }
 
+    // Time to do the magic.
     float new_param = route_curve_->find_length(current_param_,dist_ran);
     if( new_param == MAX_PARAM ) {
-        // reached end of curve, trace new and update new_param.
-        //TODO
+        // Then it means the curve ended. Discard the waypoint, build the next route, update parameter.
+        waypoint_list_.pop_front();
+        if( waypoint_list_.empty() ) {
+            if( !stopping_ ) {
+                if( !Move() ) // updates the waypoint list with default ones.
+                    Stop();
+            } else             
+                Stop(); // same thing, but this will eventually stop the ship.
+        }
+        TraceRoute();
+        dist_ran -= route_curve_->calc_length(current_param_,MAX_PARAM);
+        current_param_ = route_curve_->find_length(0.0f,dist_ran);
     }
+
+    // Get the new virtual position. We still need to project it onto the planet.
     current_param_ = new_param;
-    route_curve_->get_point(current_param_, current_pos_);
+    route_curve_->get_point(current_param_, pos_);
+
+    // Get the first point of the current route curve, and planet center, used for the projection.
+    LPoint4f first_cv = route_curve_->get_cv(0);
+    const LPoint3f& planet_center = planet_->center();
+    
+    // Project the virtual position onto the planet, making it a real one. 
+    //TODO: better projection
+    pos_ -= planet_center;
+    pos_.normalize();
+    pos_ *= planet_->height_at(pos_);
+    pos_ += planet_center;
+
+    // Update the curve if we're too far away from its origin.
+    if( (LVector3f(pos_.get_x() - first_cv.get_x(), pos_.get_y() - first_cv.get_y(),
+         pos_.get_z() - first_cv.get_z())).length_squared() >= MAX_SQUARED_DISTANCE_BEFORE_CURVE_RECALC )
+        TraceRoute();
         
     return true;
 }
@@ -240,12 +193,35 @@ void Navigator::get_next_pt( float vel, float dt, LPoint3f& cur_pos_ref, LVector
 
 bool Navigator::Stop() {
 
+    stopping_ = true;
+    if( speed_ < SPEED_IS_ZERO_THRESHOLD ) {
+        if( route_curve_ ) delete route_curve_;
+        speed_ = 0.0f;
+        return true;
+    }
+    float distance_to_run = speed_*speed_/ACTOR_BRAKING_FACTOR;
+    LPoint3f straight_ahead = pos_ + (speed_ + distance_to_run)*dir_;
+    LVector3f zero_speed = SPEED_IS_ZERO_THRESHOLD*0.5f*dir_;
+    waypoint_list_.push_front( Waypoint(straight_ahead,zero_speed) );
+    if( !TraceRoute() ) {
+        actor_->DieFromOopsYoureInsideAWall();
+        return false;
+    }
+    return true;
 
 }
 
 bool Navigator::Move() {
 
-
+    if( speed_ < MIN_SPEED )
+        speed_ = MIN_SPEED;
+    stopping_ = false;
+    if( waypoint_list_.empty() ) {
+        LPoint3f straight_ahead = pos_ + 3.0f*speed_*dir_;
+        LVector3f vel = speed_*dir_;
+        waypoint_list_.push_front( Waypoint(straight_ahead,vel) );
+    }
+    return TraceRoute();
 }
 
 bool Navigator::TraceNewRouteTo(const LPoint3f& dest_pos, const LVector3f& dest_vel) {
@@ -320,7 +296,6 @@ bool Navigator::TraceRoute() {
     return true;
 }
 
-
 bool Navigator::CreateMovTask(const MovTask_Types movtask_type) {
 
     string movtask_name = actor_->name();
@@ -341,10 +316,18 @@ bool Navigator::CreateMovTask(const MovTask_Types movtask_type) {
     return true;
 }
 
+bool Navigator::ValidateRouteBeforeCreation() {
+
+    return true;
+}
+
+bool Navigator::ValidateRouteAfterCreation() {
+
+    return true;
+}
+
 } // namespace utils
 
 } // namespace world
 
 } // namespace pirates
-
-#endif

@@ -1,10 +1,9 @@
 
-#ifndef PIRATES_WORLD_UTILS_ROUTETRACER_H_
-#define PIRATES_WORLD_UTILS_ROUTETRACER_H_
+#ifndef PIRATES_WORLD_UTILS_NAVIGATOR_H_
+#define PIRATES_WORLD_UTILS_NAVIGATOR_H_
 
 #include "pandaFramework.h"
 #include "nurbsCurve.h"
-#include "asyncTask.h"
 #include "world/planet.h"
 #include <string>
 #include <utility>
@@ -16,28 +15,6 @@ namespace world {
 class WorldActor;
 
 namespace utils {
-
-class Navigator;
-class HueCyclingMovTask : public AsyncTask {
-
-  public:
-    HueCyclingMovTask(const string& movtask_name, WorldActor* actor);
-
-  protected:
-    AsyncTask::DoneStatus do_task();
-    void upon_death(AsyncTaskManager *manager, bool clean_exit);
-
-  private:
-    const Colorf UpdateSpeedBasedHueAndReturnColor(const Navigator* navi, const float dt);
-
-    WorldActor* actor_;
-    const Planet* planet_;
-    double last_time_;
-
-    float speed_based_hue_;
-    bool warned_once_about_texture_blend_stage_missing_;
-};
-
 
 class Navigator {
 
@@ -93,7 +70,7 @@ class Navigator {
     const LVector3f& dest_vel() const { if(waypoint_list_.size() > 0) return waypoint_list_.front().second; return NULL; }
     */
     LVector3f vel() const { return dir_*speed_; }
-    LVector3f& up() const { return planet_->normal_at(pos_); }
+    LVector3f  up() const { return planet_->normal_at(pos_); }
 
 
 
@@ -125,16 +102,15 @@ class Navigator {
     //~ Current position and speed state.
     LPoint3f pos_;
     LVector3f dir_;
+        // Actually, the direction from last Step() frame.
     float speed_;
     float current_param_;
         // The current curve parameter where the ship is located
         // (may be =0.0f if there is no curve).
     bool stopping_; // Also covers the case "stopped and not starting to move".
     // The following are used only by Step().
-    LVector3f old_tangent_versor_;
-        // The route's tangent the last time Step() was called, normalized.
     LVector3f current_tangent_;
-        // The route's tangent at current_param_. Is normalized during Step()
+        // The route's tangent at current_param_.
 
     //~ Destination and waypoints state.
     std::list<Waypoint> waypoint_list_;

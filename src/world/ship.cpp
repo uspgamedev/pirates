@@ -1,9 +1,8 @@
 
 #include "world/ship.h"
 #include "base/game.h"
-#include "genericAsyncTask.h"
 #include "world/utils/navigator.h"
-#include "world/planet.h"
+#include "genericAsyncTask.h"
 #include "pnmImage.h"
 #include "texture.h"
 #include <string>
@@ -21,14 +20,14 @@ using base::Game;
 
 namespace world {
 
-Ship::Ship () {
+Ship::Ship() : WorldActor("lonely ship", GAME()->window()->load_model(GAME()->framework().get_models(), "data/king")) {
     PandaFramework& framework = Game::reference()->framework();
     WindowFramework* window = Game::reference()->window();
-    ship_node_ = window->load_model(framework.get_models(), "data/king");
+    //ship_node_ = window->load_model(framework.get_models(), "data/king");
     ship_node_.set_scale(0.5f);
     ship_node_.reparent_to(window->get_render());
     ship_node_.set_color((rand() / (float)(RAND_MAX))/10.0f+0.6f, (rand() / (float)(RAND_MAX))/10.0f+0.6f, (rand() / (float)(RAND_MAX))/10.0f+0.6f,1);
-    ship_node_.set_pos(0.0f, 0.0f, 40.0f);
+    ship_node_.set_pos(0.0f, 0.0f, 50.0f);
 
     PNMImage texImage = PNMImage();
     texImage.read(Filename("./data/blank.png"));
@@ -41,7 +40,7 @@ Ship::Ship () {
 
     LVector3f dir(1.0f,0.0f,0.0f); // lol.
     LPoint3f ship_pos = ship_node_.get_pos();
-    navigator_ = new utils::Navigator(this, dir);
+    navigator_ = new utils::Navigator(this, ship_pos, dir);
 
     new_route_method_ = 0;
     anchored_ = false;
@@ -49,6 +48,11 @@ Ship::Ship () {
 }
 
 AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
+/*
+
+    THE POWER OF GREEN INK
+    MHWAHHAHAHAHHAHAHAHAHAHA
+
     Planet *planet = Game::reference()->planet();
     //static LVector3f spd( 0, -0.1, 0);
     static double last = task->get_elapsed_time();
@@ -156,7 +160,7 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     LVector3f ship_look_at = ship_sphere_pos + this->new_tangent - this->new_tangent.project(ship_sphere_pos);
     this->ship_node_.set_pos(ship_sphere_pos);
     this->ship_node_.look_at(ship_look_at, planet->normal_at(this->new_point) );
-
+*/
     return AsyncTask::DS_cont;
 }
 
@@ -168,18 +172,18 @@ void Ship::taskInitialize ( AsyncTaskManager& taskMgr ) {
 }
 
 void Ship::set_new_route_dest(LPoint3f& dest) {
-    new_route_dest_pos_ = dest;
+/*    new_route_dest_pos_ = dest;
     new_route_method_ = 1;
     if(anchored_)
-        puts("Raise the anchors!!!1!!!one!");
+        puts("Raise the anchors!!!1!!!one!"); */
 }
 
 void Ship::set_new_route_dest(LPoint3f& dest_pos, LVector3f& dest_vel) {
-    new_route_dest_pos_ = dest_pos;
+/*    new_route_dest_pos_ = dest_pos;
     new_route_dest_vel_ = dest_vel;
     new_route_method_ = 2;
     if(anchored_)
-        puts("Raise the anchors!!!!!!");
+        puts("Raise the anchors!!!!!!"); */
 }
 
 

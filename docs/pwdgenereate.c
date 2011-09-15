@@ -23,7 +23,7 @@ struct PWD_Header {
 	/*  256 */char thumbnail_path[256];
 	/*   32 */char gametype[32]; // UTF-8 Encoded
 	/* 1024 */char description[1024]; // UTF-8 Encoded (be careful when treating the input for this)
-	/*    4 */uint32 size; // Always an odd number.
+	/*    4 */uint32 number_of_strips; // Always an odd number.
 	
 	char padding[1484]; // Header is exactly 3072 bytes (3 KiB) long. (Fill padding with 0x00)
 };
@@ -53,18 +53,18 @@ int main() {
 	strcpy(header.world_name, "3fort");
 	strcpy(header.thumbnail_path, "thumbnail.png");
 	strcpy(header.gametype, "Melee");
-	strcpy(header.description, "3forst Description");
-	header.size = 11;
+	strcpy(header.description, "3fort Description");
+	header.number_of_strips = 11;
 	memset(header.padding, 0, 1484);
 	
 	header.filesize += sizeof(struct PWD_Tile) * 2;
 	
 	int num_tiles = 0;
 	
-	int i = header.size/2, inc = -1;
+	int i = header.number_of_strips/2, inc = -1;
 	int a;
-	for(a = 0; a < header.size; a++) {
-		num_tiles += floor(2 * header.size * cos(i * 3.14159f/header.size));
+	for(a = 0; a < header.number_of_strips; a++) {
+		num_tiles += floor(2 * header.number_of_strips * cos(i * 3.14159f/header.number_of_strips));
 		if((i += inc) == 0)
 			inc = 1;
 	}
@@ -73,18 +73,36 @@ int main() {
 	
 	fwrite(&header, sizeof(struct PWD_Header), 1, world);
 	
-	struct PWD_Tile tile;
-	tile.height = 8;
-	tile.texture = 1;
-	tile.player_start_location = 0; // 0 for none else player_id
-	tile.wind_module_min = 0;
-	tile.wind_module_max = 0;
-	tile.wind_angle_min = 0;
-	tile.wind_angle_max = 0;
-	memset(tile.padding, 0, 19);
-	
+	struct PWD_Tile tiles[num_tiles+2];
+	for(a=0; a<num_tiles+2; a++){
+		tiles[i].height = 8;
+		tiles[i].texture = 1;
+		tiles[i].player_start_location = 0; // 0 for none else player_id
+		tiles[i].wind_module_min = 0;
+		tiles[i].wind_module_max = 0;
+		tiles[i].wind_angle_min = 0;
+		tiles[i].wind_angle_max = 0;
+		memset(tiles[i].padding, 0, 19);
+	}
+
+	tiles[5].player_start_location = 1;
+	tiles[num_tiles-10].player_start_location = 2;
+
+	tiles[49].height = 14;
+	tiles[50].height = 15;
+	tiles[51].height = 14;
+	tiles[70].height = 12;
+	tiles[71].height = 13;
+	tiles[72].height = 12;
+	tiles[100].height = 3;
+	tiles[101].height = 2;
+	tiles[102].height = 3;
+	tiles[130].height = 6;
+	tiles[131].height = 5;
+	tiles[132].height = 6;
+
 	for(i = 0; i < num_tiles + 2; i++)
-		fwrite(&tile, sizeof(struct PWD_Tile), 1, world);
+		fwrite(&tiles[i], sizeof(struct PWD_Tile), 1, world);
 		
 	fclose(world);
 	return 0;

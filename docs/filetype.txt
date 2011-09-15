@@ -42,3 +42,7 @@ After the two poles, there are size strips, each with a different ammount of PWD
 The first strip is the topmost strip, and is considered the floor(size/2)-th strip.
 Each following strip is closer to the 0-th strip, and then increments again up to the floor(size/2)-th strip again.
 The i-th strip has floor(2 * size * cos(i * pi/size)) PWD_Tile tiles.
+For purpose of the binary file, the strips will be also ordered by their place above the north pole.
+So the Equator will be the floor(size/2)-th strips in the binary file order.
+The tiles will be ordered clockwise, being the first tile the Meridian, or the 0-Longitude.
+The j-th tile of the i-th strips will be the (SUM x from 0 to i (floor(2 * size * cos(x * pi/size)))) + j.

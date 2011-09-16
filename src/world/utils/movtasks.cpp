@@ -11,17 +11,18 @@ namespace pirates {
 namespace world {
 namespace utils {
 
-  /******************/
-  /* MOVEMENT TASKS */
-  /******************/
-
   /*********************/
   /* HueCyclingMovTask */
   /*********************/
 
 HueCyclingMovTask::HueCyclingMovTask(const string& movtask_name, WorldActor* actor)
-  : AsyncTask(movtask_name), actor_(actor), last_time_(0.0), planet_(GAME()->planet()),
-  speed_based_hue_(0.0f), warned_once_about_texture_blend_stage_missing_(false) {}
+  : AsyncTask(movtask_name) {
+    actor_ = actor;
+    last_time_ = 0.0;
+    speed_based_hue_ = 0.0f;
+    warned_once_about_texture_blend_stage_missing_ = false;
+    int x = 0;
+}
 
 const Colorf HueCyclingMovTask::UpdateSpeedBasedHueAndReturnColor(const Navigator* navi, const float dt) {
     
@@ -49,21 +50,21 @@ const Colorf HueCyclingMovTask::UpdateSpeedBasedHueAndReturnColor(const Navigato
 }
 
 AsyncTask::DoneStatus HueCyclingMovTask::do_task() {
+
     // Timing stuff.
     float dt = (float)( get_elapsed_time() - last_time_ );
     last_time_ = get_elapsed_time();
 
     // Find the WorldActor's Navigator and Node
     Navigator* navi = actor_->navigator(); // HEY! LISTEN! HEY! LISTEN! HEY! LISTEN! HEY! LISTEN! HEY! LISTEN!
-    NodePath*  node = actor_->node();
+    NodePath&  node = actor_->node();
 
     // Make the actor move.
     if(navi) {
-        bool did_move = navi->Step(dt);
-        if(did_move && node) {
-            node->set_pos( navi->pos() );
+        if( navi->Step(dt) ) {
+            node.set_pos( navi->pos() );
             LPoint3f look_at = navi->pos() + navi->dir();
-            node->look_at( look_at, navi->up() );
+            node.look_at( look_at, navi->up() );
         }
 
         TextureStage* ts_blend = actor_->texture_blend_stage();
@@ -71,8 +72,8 @@ AsyncTask::DoneStatus HueCyclingMovTask::do_task() {
             ts_blend->set_color( UpdateSpeedBasedHueAndReturnColor(navi,dt) );
         } else if(!warned_once_about_texture_blend_stage_missing_) {
             fprintf(stderr, "Warning: at HueCyclingMovTask::do_task()\n");
-            fprintf(stderr, "  a HueCyclingMovTask has been created for an WorldActor\n");
-            fprintf(stderr, "  that has no texture_blend_stage_ .\n");
+            fprintf(stderr, "    a HueCyclingMovTask has been created for an WorldActor\n");
+            fprintf(stderr, "    that has no texture_blend_stage_ .\n");
             warned_once_about_texture_blend_stage_missing_ = true;
         }
     } else {
@@ -85,13 +86,27 @@ AsyncTask::DoneStatus HueCyclingMovTask::do_task() {
     // And... We're done.
     return AsyncTask::DS_cont;
 }
+/*
+void HueCyclingMovTask::upon_birth(AsyncTaskManager *manager) {
+
+    // Place the WorldActor on the world.
+    Navigator* navi = actor_->navigator(); // HEY! LISTEN! HEY! LISTEN! HEY! LISTEN! HEY! LISTEN! HEY! LISTEN!
+    NodePath&  node = actor_->node();
+
+    if( navi ) {
+        node.set_pos(navi->pos());
+        LPoint3f look_at = navi->pos() + navi->dir();
+        node.look_at(look_at, navi->up());
+    }
+    //TODO: what if navi has disappeared?
+}*/
 
 void HueCyclingMovTask::upon_death(AsyncTaskManager *manager, bool clean_exit) {
 
     if(!clean_exit) {
         fprintf(stderr, "HueCyclingMovTask::upon_death(...)\n");
-        fprintf(stderr, "  A movement task has died horribly...\n");
-        fprintf(stderr, "  (unclean exit, possibly due to its Navigator dying).\n");
+        fprintf(stderr, "    A movement task has died horribly...\n");
+        fprintf(stderr, "    (unclean exit, possibly due to its Navigator dying).\n");
     }
 
 }

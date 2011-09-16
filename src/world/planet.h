@@ -29,6 +29,10 @@ class Planet /*: public WorldActor*/ {
 
     const LPoint3f& center() const { return center_; }
 
+    const LPoint3f default_start_pos() const { const LPoint3f dsp(0.0f,0.0f,50.0f); return dsp; }
+    const LPoint3f default_look_at() const { const LPoint3f dla(1.0f,0.0f,50.0f); return dla; }
+    const LVector3f default_up() const { const LVector3f du(0.0f,0.0f,1.0f); return du; }
+
   private :
     NodePath planet_node_;
     PT(CollisionSphere) collision_;

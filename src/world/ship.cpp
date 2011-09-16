@@ -2,53 +2,70 @@
 #include "world/ship.h"
 #include "base/game.h"
 #include "world/utils/navigator.h"
-#include "genericAsyncTask.h"
-#include "pnmImage.h"
-#include "texture.h"
+#include "pandaFramework.h"
+#include "PNMImage.h"
 #include <string>
-
+/*
 typedef AsyncTask::DoneStatus (*TaskFunc) (GenericAsyncTask*, void*);
 
 static AsyncTask::DoneStatus moveShipAux ( GenericAsyncTask* task, void* data ) {
     pirates::world::Ship* ship = static_cast <pirates::world::Ship*> (data);
     return ship->moveShip(task);
 }
+*/
 
 namespace pirates {
 
-using base::Game;
-
 namespace world {
 
-Ship::Ship() : WorldActor("lonely ship", GAME()->window()->load_model(GAME()->framework().get_models(), "data/king")) {
-    PandaFramework& framework = Game::reference()->framework();
-    WindowFramework* window = Game::reference()->window();
-    //ship_node_ = window->load_model(framework.get_models(), "data/king");
-    ship_node_.set_scale(0.5f);
-    ship_node_.reparent_to(window->get_render());
-    ship_node_.set_color((rand() / (float)(RAND_MAX))/10.0f+0.6f, (rand() / (float)(RAND_MAX))/10.0f+0.6f, (rand() / (float)(RAND_MAX))/10.0f+0.6f,1);
-    ship_node_.set_pos(0.0f, 0.0f, 50.0f);
+const bool Ship::Initialize(const LPoint3f& init_pos, const LPoint3f& init_look_at, LVector3f& init_up) {
 
-    PNMImage texImage = PNMImage();
-    texImage.read(Filename("./data/blank.png"));
-    Texture* ship_texture = new Texture("ship_texture");
-    ship_texture->load(texImage);
+    if(!initialized_) {
+        puts("Initializing Ship");
+        LVector3f dir = init_look_at - init_pos;
+        dir.normalize();
 
-    texture_blend_stage_ = new TextureStage("ts");
-    texture_blend_stage_->set_mode(TextureStage::M_blend);
-    ship_node_.set_texture( texture_blend_stage_, ship_texture, 1 );
+        string texture_stage_name = name_;
+        texture_stage_name += "'s texture blend stage";
 
-    LVector3f dir(1.0f,0.0f,0.0f); // lol.
-    LPoint3f ship_pos = ship_node_.get_pos();
-    navigator_ = new utils::Navigator(this, ship_pos, dir);
+        texture_blend_stage_ = new TextureStage(texture_stage_name);
+        texture_blend_stage_->set_color(Colorf(1.0f,0.0f,0.0f,1.0f));
 
-    new_route_method_ = 0;
-    anchored_ = false;
-    matiz_ = 0.0f;
+        PNMImage blend_image = PNMImage();
+        blend_image.read(Filename("./data/blank.png"));
+        Texture* blend_texture = new Texture("blend_texture");
+        blend_texture->load(blend_image);
+
+
+        PandaFramework& framework = GAME()->framework();
+        node_ = GAME()->window()->load_model(framework.get_models(),model_);
+        node_.set_scale(0.5f);
+        node_.set_pos(init_pos);
+        node_.look_at(init_look_at,init_up);
+
+        node_.set_texture(texture_blend_stage_, blend_texture);
+
+        node_.reparent_to(GAME()->window()->get_render());
+
+        //TODO: FIX THIS
+
+
+
+       // if(!navigator_) {
+            if(navigator_) delete navigator_;
+            navigator_ = new utils::Navigator(this, init_pos, dir);
+            navigator_->Initialize(utils::Navigator::HUE_CYCLING_MOV, 0.0f);
+                //TODO: we need a ShipBuilder, in order to initialize the Navigator better.
+      //  }
+
+        initialized_ = true;
+        return true;
+    }
+    return false;
 }
 
-AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
-/*
+/*AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
+
 
     THE POWER OF GREEN INK
     MHWAHHAHAHAHHAHAHAHAHAHA
@@ -160,31 +177,31 @@ AsyncTask::DoneStatus Ship::moveShip ( GenericAsyncTask* task ) {
     LVector3f ship_look_at = ship_sphere_pos + this->new_tangent - this->new_tangent.project(ship_sphere_pos);
     this->ship_node_.set_pos(ship_sphere_pos);
     this->ship_node_.look_at(ship_look_at, planet->normal_at(this->new_point) );
-*/
-    return AsyncTask::DS_cont;
-}
 
+    return AsyncTask::DS_cont;
+}*/
+/*
 void Ship::taskInitialize ( AsyncTaskManager& taskMgr ) {
     GenericAsyncTask *task = new GenericAsyncTask(string("Ainda nao sei"),
         (TaskFunc)&moveShipAux, 
         (void*) this);
     taskMgr.add(task);
 }
-
-void Ship::set_new_route_dest(LPoint3f& dest) {
-/*    new_route_dest_pos_ = dest;
+*/
+/*void Ship::set_new_route_dest(LPoint3f& dest) {
+    new_route_dest_pos_ = dest;
     new_route_method_ = 1;
     if(anchored_)
-        puts("Raise the anchors!!!1!!!one!"); */
+        puts("Raise the anchors!!!1!!!one!"); 
 }
 
 void Ship::set_new_route_dest(LPoint3f& dest_pos, LVector3f& dest_vel) {
-/*    new_route_dest_pos_ = dest_pos;
+    new_route_dest_pos_ = dest_pos;
     new_route_dest_vel_ = dest_vel;
     new_route_method_ = 2;
     if(anchored_)
-        puts("Raise the anchors!!!!!!"); */
-}
+        puts("Raise the anchors!!!!!!");
+}*/
 
 
 } // Namespace world

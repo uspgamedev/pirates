@@ -2,6 +2,7 @@
 #include "base/game.h"
 #include "base/inputmanager.h"
 #include "world/ship.h"
+#include "world/utils/navigator.h"
 #include "world/inputhandler.h"
 #include "world/arrow.h"
 #include "world/planet.h"
@@ -81,9 +82,9 @@ void InputHandler::ClickUpEvent(const Event *event, int mouse_button) {
                 floor_node_->remove_solid(plane_id_);
                 planet_id_ = world_node_->add_solid(base::Game::reference()->planet()->get_collision());
                 if(vector.length()<=0.5f)
-		  game_->ship()->set_new_route_dest(target_pos_);
+		            game_->ship()->navigator()->TraceNewRouteTo(target_pos_);
                 else
-		  game_->ship()->set_new_route_dest(target_pos_,vector);
+		            game_->ship()->navigator()->TraceNewRouteTo(target_pos_,vector);
             }
         }
     }

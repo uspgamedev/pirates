@@ -23,21 +23,21 @@ class HueCyclingMovTask : public AsyncTask {
 
   protected:
     AsyncTask::DoneStatus do_task();
+    /*void upon_birth(AsyncTaskManager *manager);*/
     void upon_death(AsyncTaskManager *manager, bool clean_exit);
 
   private:
     const Colorf UpdateSpeedBasedHueAndReturnColor(const Navigator* navi, const float dt);
 
     WorldActor* actor_;
-    const Planet* planet_;
     double last_time_;
 
     float speed_based_hue_;
     bool warned_once_about_texture_blend_stage_missing_;
 };
 
-}
-}
-}
+} // utils
+} // world
+} // pirates
 
 #endif

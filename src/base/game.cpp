@@ -29,8 +29,10 @@ void Game::Init (int &argc, char **&argv) {
     camera_node_.set_pos(60,-120,150);
     camera_node_.look_at(0,0,0);
 
-    ship_ = new Ship();
-    ship_->taskInitialize(taskMgr());
+    const string ship_name = "ship";
+    const string ship_model = "data/king";
+    ship_ = new Ship(ship_name,ship_model);
+    ship_->Initialize();
 
     planet_ = new Planet();
     InputManager::reference()->Init();

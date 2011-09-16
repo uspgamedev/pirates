@@ -28,8 +28,6 @@ class Navigator {
         HUE_CYCLING_MOV = 1
     };
 
-    /*** PUBLIC METHODS ***/
-
     //~ Constructor and Initializer:
     // Builds the Navigator with NULL route. Doesn't create the MovTask.
     Navigator(WorldActor* owner, const LPoint3f& init_pos, const LVector3f& init_dir);
@@ -39,36 +37,38 @@ class Navigator {
                     const LPoint3f& dest_pos, const LVector3f& dest_vel = LVector3f(0.0f) );
 
     bool Initialize(const MovTask_Types movtask_type, const float init_speed = 0.0f ) {
-        const LPoint3f& dest_pos = LPoint3f(pos());
+        const LPoint3f& dest_pos = LPoint3f(pos() + 3.0f*dir());
         return Initialize(movtask_type, init_speed, dest_pos);
     }
     bool Initialize(const MovTask_Types movtask_type, const LPoint3f& dest_pos, const LVector3f& dest_vel = LVector3f(0.0f) ) {
         return Initialize(movtask_type, 0.0f, dest_pos, dest_vel);
     }
 
-    //~ Standard Navigator Public Methods:
+    /*** PUBLIC METHODS ***/
+    //~ Used by the MovTasks.
 
+    // Moves the WorldActor one step, basically an update method.
     bool Step(const float dt);
-        // Moves the WorldActor one step. This function is called by the Navigator's associated MovTask.
+    // Stops the WorldActor from moving, calls WorldActor::DieFromOopsYoureInsideAWall() if it is stuck.
     bool Stop();
-        // Stops the WorldActor from moving.
+    // Stops the WorldActor from being stopped, updates the speed to minimum, and retraces the route if it doesn't exist.
     bool Move();
-        // Stops the WorldActor from being stopped.
+    // Clears the waypoint list, adds the waypoint built from the parameters to the list, traces the route.    
     bool TraceNewRouteTo(const LPoint3f& dest_pos, const LVector3f& dest_vel = LVector3f(0.0f));
-        // Clears the waypoint list, adds the waypoint built from the parameters to the list, traces the route.
+    // Adds a waypoint to the queue and tests if it seems valid.    
     bool AddWaypoint(const Waypoint waypoint);
-        // Adds a waypoint to the queue and tests if it seems valid.
+    
 
     //~ Inline Getters.
     const LPoint3f&  pos()   const { return pos_;   }
     const LVector3f& dir()   const { return dir_;   }
-    const float      speed() const { return speed_; }
+    float            speed() const { return speed_; }
     const std::list<Waypoint>& waypoint_list() const { return waypoint_list_; }
     //~ Semi-Getters.
-    /* cant return NULL =(.
-    const LPoint3f&  dest_pos() const { if(waypoint_list_.size() > 0) return waypoint_list_.front().first;  return NULL; }
-    const LVector3f& dest_vel() const { if(waypoint_list_.size() > 0) return waypoint_list_.front().second; return NULL; }
-    */
+    /* cant return NULL =(.*/
+    /*  const LPoint3f&  dest_pos() { if(waypoint_list_.size() > 0) return waypoint_list_.front().first;  return NULL; }
+     *  const LVector3f& dest_vel() { if(waypoint_list_.size() > 0) return waypoint_list_.front().second; return NULL; }
+     */
     LVector3f vel() const { return dir_*speed_; }
     LVector3f  up() const { return planet_->normal_at(pos_); }
 
@@ -119,7 +119,7 @@ class Navigator {
     NurbsCurve* route_curve_;
         // The current stored curve.
     float curve_length_;
-        // The route's length.
+        // The route's length, calculated at route_curve_ creation.
 };
 
 }

@@ -7,6 +7,7 @@
 #include "world/worldactor.h"
 #include "world/utils/movtasks.h"
 #include "base/game.h" // used for GAME()->planet().
+#include <memory>
 
   /*************/
   /* CONSTANTS */
@@ -37,9 +38,9 @@ namespace world {
 
 namespace utils {
 
-  /**************/
-  /* NAVIGATORS */
-  /**************/
+  /*************/
+  /* NAVIGATOR */
+  /*************/
 
 Navigator::Navigator(WorldActor* owner, const LPoint3f& init_pos, const LVector3f& init_dir)
   : initialized_(false), current_movtask_(NULL), actor_(owner), pos_(init_pos), dir_(init_dir), speed_(0.0f),
@@ -49,6 +50,7 @@ Navigator::Navigator(WorldActor* owner, const LPoint3f& init_pos, const LVector3
 bool Navigator::Initialize(const MovTask_Types movtask_type, const float speed,
                            const LPoint3f& dest_pos, const LVector3f& dest_vel) {
 
+   puts("Initializing Navigator");
     if( speed >= SPEED_IS_ZERO_THRESHOLD || dest_pos.compare_to(pos_, DEST_IS_ORIGIN_THRESHOLD) != 0 )
         Move();
 
@@ -66,14 +68,15 @@ bool Navigator::Initialize(const MovTask_Types movtask_type, const float speed,
 }
 
 bool Navigator::Step(const float dt) {
-
+    
     // Better safe than sorry.
     if( dt == 0 )
         return true;
 
     // Find the new speed and old direction.
     if( route_curve_ ) { // We'll treat this possible error later, since we need to do some other stuf before.
-        dir_ = current_tangent_.normalize();
+        dir_ = current_tangent_;
+        dir_.normalize();
         route_curve_->get_2ndtangent(current_param_, current_tangent_);
 
         speed_ = current_tangent_.length();
@@ -85,11 +88,9 @@ bool Navigator::Step(const float dt) {
     }
 
     // Test if there's a problem with the new speed.
-    if( speed_ < SPEED_IS_ZERO_THRESHOLD ) {
-        if( !stopping_ ) { // TraceRoute would've set this higher if the actor is now trying to move,
+    if( speed_ < MIN_SPEED ) {
+        if( !stopping_ )   // TraceRoute would've set this higher if the actor is now trying to move,
             Stop();        // so the actor tried to make a movement he can't, and we should order it to stop now.
-            speed_ = 0.0f;
-        }
         return false;
     }
 
@@ -98,6 +99,7 @@ bool Navigator::Step(const float dt) {
 
     // If there's no curve, well... WTF happened?
     if( !route_curve_ ) {
+        puts("WTF HAPPENED?");
         if( stopping_ ) {
             fprintf(stderr, "Warning from Navigator::Step(%f) :\n", dt);
             fprintf(stderr, "    WorldActor \"%s\"'s Navigator is stopping_,\n", actor_->name() );
@@ -121,8 +123,8 @@ bool Navigator::Step(const float dt) {
     }
 
     // Time to do the magic.
-    float new_param = route_curve_->find_length(current_param_,dist_ran);
-    if( new_param == MAX_PARAM ) {
+    float max_distance = route_curve_->calc_length(current_param_,MAX_PARAM);
+    if( dist_ran >= max_distance ) {
         // Then it means the curve ended. Discard the waypoint, build the next route, update parameter.
         waypoint_list_.pop_front();
         if( waypoint_list_.empty() ) {
@@ -134,29 +136,29 @@ bool Navigator::Step(const float dt) {
         }
         TraceRoute();
         dist_ran -= route_curve_->calc_length(current_param_,MAX_PARAM);
-        current_param_ = route_curve_->find_length(0.0f,dist_ran);
+        current_param_ = 0.0f;
     }
 
     // Get the new virtual position. We still need to project it onto the planet.
-    current_param_ = new_param;
+    current_param_ = route_curve_->find_length(current_param_,dist_ran);
     route_curve_->get_point(current_param_, pos_);
 
     // Get the first point of the current route curve, and planet center, used for the projection.
     LPoint4f first_cv = route_curve_->get_cv(0);
-    const LPoint3f& planet_center = planet_->center();
+    //LPoint3f planet_center = planet_->center(); //TODO: FIX THIS
     
     // Project the virtual position onto the planet, making it a real one. 
     //TODO: better projection
-    pos_ -= planet_center;
+    //pos_ -= planet_center;
     pos_.normalize();
     pos_ *= planet_->height_at(pos_);
-    pos_ += planet_center;
-
+    //pos_ += planet_center;
+/*DEBUGGING...
     // Update the curve if we're too far away from its origin.
     if( (LVector3f(pos_.get_x() - first_cv.get_x(), pos_.get_y() - first_cv.get_y(),
          pos_.get_z() - first_cv.get_z())).length_squared() >= MAX_SQUARED_DISTANCE_BEFORE_CURVE_RECALC )
         TraceRoute();
-        
+*/        
     return true;
 }
 
@@ -192,12 +194,12 @@ void Navigator::get_next_pt( float vel, float dt, LPoint3f& cur_pos_ref, LVector
 */
 
 bool Navigator::Stop() {
-
-    stopping_ = true;
+    puts("Stopping...");
+    stopping_ = true;/*DEBUGGING
     if( speed_ < SPEED_IS_ZERO_THRESHOLD ) {
-        if( route_curve_ ) delete route_curve_;
+        if( route_curve_ ) { delete route_curve_; route_curve_ = NULL; current_param_ = 0.0f; }*/
         speed_ = 0.0f;
-        return true;
+        return true;/*
     }
     float distance_to_run = speed_*speed_/ACTOR_BRAKING_FACTOR;
     LPoint3f straight_ahead = pos_ + (speed_ + distance_to_run)*dir_;
@@ -206,13 +208,13 @@ bool Navigator::Stop() {
     if( !TraceRoute() ) {
         actor_->DieFromOopsYoureInsideAWall();
         return false;
-    }
+    }*/
     return true;
 
 }
 
 bool Navigator::Move() {
-
+    puts("Moving...");
     if( speed_ < MIN_SPEED )
         speed_ = MIN_SPEED;
     stopping_ = false;
@@ -226,7 +228,7 @@ bool Navigator::Move() {
 
 bool Navigator::TraceNewRouteTo(const LPoint3f& dest_pos, const LVector3f& dest_vel) {
     // We're dropping all waypoints.
-    waypoint_list_.clear();
+    if(!waypoint_list_.empty()) waypoint_list_.clear();
     // Build the new waypoint and add it to the list.
     waypoint_list_.push_front( Waypoint(dest_pos, dest_vel) );
     // Decide if we should move or not.
@@ -255,7 +257,7 @@ bool Navigator::TraceRoute() {
         // Uh... you should stop the ship then. How did you get in here?
         fprintf(stderr, "Warning: Navigator::TraceRoute() called while stopping with no speed.\n");
         fprintf(stderr, "    Deleting current route curve (if exists) and setting the speed to 0.0f.\n");
-        if(route_curve_) delete route_curve_;
+        if(route_curve_) { delete route_curve_; route_curve_ = NULL; current_param_ = 0.0f; }
         speed_ = 0.0f;
         return false;
     }
@@ -283,7 +285,7 @@ bool Navigator::TraceRoute() {
     // Building the control points vector and curve.
     LPoint4f cv_vector[] = {init_pos_4d, init_pos_4d + init_vel_4d, dest_pos_4d - dest_vel_4d, dest_pos_4d};
 
-    if(route_curve_) delete route_curve_;
+    if(route_curve_) { delete route_curve_; route_curve_ = NULL; current_param_ = 0.0f; }
     route_curve_ = new NurbsCurve(3, 4, knotvector, cv_vector);
 
     // And... we should validate the curve now.
@@ -299,30 +301,55 @@ bool Navigator::TraceRoute() {
 bool Navigator::CreateMovTask(const MovTask_Types movtask_type) {
 
     string movtask_name = actor_->name();
-    movtask_name+= "'s ";
+    movtask_name+= "'s";
+
+    //TODO: FIX THIS
+
+    movtask_name+= " hue cycling movtask";
+
+    HueCyclingMovTask task(movtask_name, actor_);
+
+    allocator<HueCyclingMovTask> allocator;
+    HueCyclingMovTask* pointer = allocator.allocate(1);
+    allocator.construct(pointer, task);
+
+    current_movtask_ = pointer;
+    //current_movtask_ = new HueCyclingMovTask(movtask_name, actor_);
+
+    /*
     switch(movtask_type) {
         case DEFAULT_MOV:
             return false; //TODO: This will obviously be changed.
             break;
         case HUE_CYCLING_MOV:
-            movtask_name+= "hue cycling movtask";
-            current_movtask_ = new HueCyclingMovTask(movtask_name, actor_);
+            movtask_name+= " hue cycling movtask";
+
+            HueCyclingMovTask task(movtask_name, actor_);
+
+            allocator<HueCyclingMovTask> allocator;
+            HueCyclingMovTask* pointer = allocator.allocate(1);
+            allocator.construct(pointer, task);
+
+            current_movtask_ = pointer;
+            //current_movtask_ = new HueCyclingMovTask(movtask_name, actor_);
             //TODO: check if the task was created safely.
             break;
         default:
             break;
     }
+    */
+    GAME()->taskMgr().add(current_movtask_);
     initialized_ = true;
     return true;
 }
 
 bool Navigator::ValidateRouteBeforeCreation() {
-
+    //TODO
     return true;
 }
 
 bool Navigator::ValidateRouteAfterCreation() {
-
+    //TODO
     return true;
 }
 

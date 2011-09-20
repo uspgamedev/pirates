@@ -18,7 +18,7 @@ using base::Game;
 
 namespace world {
 
-Planet::Planet () : /*WorldActor(),*/ center_(0.0f) {
+Planet::Planet () : /*WorldActor(),*/ center_(LPoint3f::zero()) {
     PandaFramework& framework = Game::reference()->framework();
     WindowFramework* window = Game::reference()->window();
 

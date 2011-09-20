@@ -14,18 +14,18 @@
   /*************/
 
 #define DEST_IS_ORIGIN_THRESHOLD 0.1f
-#define MAX_SQUARED_DISTANCE_BEFORE_CURVE_RECALC 22500.0f
+#define MAX_SQUARED_DISTANCE_BEFORE_CURVE_RECALC 64.0f
 
-#define MIN_SPEED 0.3f
+#define MIN_SPEED 0.5f
 #define SPEED_IS_ZERO_THRESHOLD 0.1f
 #define VEL_IS_ZERO_THRESHOLD 0.2f
 
-#define SPEED_PENALTY_FROM_CURVATURE_SCALAR_DIV 30.0f
+#define SPEED_PENALTY_FROM_CURVATURE_SCALAR 10.0f
 #define ACTOR_BRAKING_FACTOR 50.0f
 
 #define MAX_PARAM 2.0f
 #define MID_PARAM 1.0f
-static float knotvector[] = {0.0f, 0.0f, 0.0f, MID_PARAM, MAX_PARAM, MAX_PARAM, MAX_PARAM};
+const static float knotvector[7] = {0.0f, 0.0f, 0.0f, MID_PARAM, MAX_PARAM, MAX_PARAM, MAX_PARAM};
     // The only valid knot vector for a 3rd degree 'homogeneous' NURBS with 4 control points
     // and with parameter space = [0,MAX_PARAM] (MAX_PARAM effective 3-control-point knot spans).
 
@@ -50,7 +50,7 @@ Navigator::Navigator(WorldActor* owner, const LPoint3f& init_pos, const LVector3
 bool Navigator::Initialize(const MovTask_Types movtask_type, const float speed,
                            const LPoint3f& dest_pos, const LVector3f& dest_vel) {
 
-   puts("Initializing Navigator");
+    puts("Initializing Navigator");
     if( speed >= SPEED_IS_ZERO_THRESHOLD || dest_pos.compare_to(pos_, DEST_IS_ORIGIN_THRESHOLD) != 0 )
         Move();
 
@@ -77,14 +77,16 @@ bool Navigator::Step(const float dt) {
     if( route_curve_ ) { // We'll treat this possible error later, since we need to do some other stuf before.
         dir_ = current_tangent_;
         dir_.normalize();
-        route_curve_->get_2ndtangent(current_param_, current_tangent_);
+        route_curve_->get_tangent(current_param_, current_tangent_);
 
         speed_ = current_tangent_.length();
 
-        LVector3f tangent_direction_change = current_tangent_/speed_ - dir_;
-        float speed_penalty = tangent_direction_change.length()/SPEED_PENALTY_FROM_CURVATURE_SCALAR_DIV;
+        if( !stopping_ ) {
+            LVector3f tangent_direction_change = current_tangent_/speed_ - dir_;
+            float speed_penalty = tangent_direction_change.length()*SPEED_PENALTY_FROM_CURVATURE_SCALAR;
 
-        speed_ -= speed_penalty; // We'll check if this is negative very soon.
+            speed_ -= speed_penalty; // We'll check if this is negative very soon.
+        }
     }
 
     // Test if there's a problem with the new speed.
@@ -99,7 +101,6 @@ bool Navigator::Step(const float dt) {
 
     // If there's no curve, well... WTF happened?
     if( !route_curve_ ) {
-        puts("WTF HAPPENED?");
         if( stopping_ ) {
             fprintf(stderr, "Warning from Navigator::Step(%f) :\n", dt);
             fprintf(stderr, "    WorldActor \"%s\"'s Navigator is stopping_,\n", actor_->name() );
@@ -135,7 +136,7 @@ bool Navigator::Step(const float dt) {
                 Stop(); // same thing, but this will eventually stop the ship.
         }
         TraceRoute();
-        dist_ran -= route_curve_->calc_length(current_param_,MAX_PARAM);
+        dist_ran -= max_distance;
         current_param_ = 0.0f;
     }
 
@@ -145,76 +146,47 @@ bool Navigator::Step(const float dt) {
 
     // Get the first point of the current route curve, and planet center, used for the projection.
     LPoint4f first_cv = route_curve_->get_cv(0);
-    //LPoint3f planet_center = planet_->center(); //TODO: FIX THIS
+    const LPoint3f& planet_center = planet_->center();
     
     // Project the virtual position onto the planet, making it a real one. 
     //TODO: better projection
-    //pos_ -= planet_center;
+    pos_ -= planet_center;
     pos_.normalize();
     pos_ *= planet_->height_at(pos_);
-    //pos_ += planet_center;
-/*DEBUGGING...
+    pos_ += planet_center;
+
     // Update the curve if we're too far away from its origin.
-    if( (LVector3f(pos_.get_x() - first_cv.get_x(), pos_.get_y() - first_cv.get_y(),
+/*DEBUGGING    if( (LVector3f(pos_.get_x() - first_cv.get_x(), pos_.get_y() - first_cv.get_y(),
          pos_.get_z() - first_cv.get_z())).length_squared() >= MAX_SQUARED_DISTANCE_BEFORE_CURVE_RECALC )
         TraceRoute();
 */        
     return true;
 }
 
-/*
-void Navigator::get_next_pt( float vel, float dt, LPoint3f& cur_pos_ref, LVector3f& cur_tg_ref ) {
-
-    // if vel*dt == 0 then there's nothing to do. cur_pos and cur_tg should be kept the same.
-    if(vel <= 0.00001f || dt <= 0.00001f ) {
-        puts("boat is stopped");
-        return;
-    }
-
-    float dist_ran = vel*dt;
-    float max_dist = route_curve_->calc_length(current_param_,max_param_);
-
-    if( dist_ran >= max_dist ) {
-        // Curve ended. Trace new straight line and calculate the movement as if the curve and line were stitched.
-        dist_ran = dist_ran - max_dist;
-
-        LPoint3f temp_startpoint = route_curve_->get_cv_point(3);
-
-        LVector3f temp_dir = temp_startpoint - route_curve_->get_cv_point(2);
-        temp_dir = temp_dir/temp_dir.length();
-        LVector3f temp_last_vect_vel = vel*temp_dir;
-        LPoint3f temp_lastpoint = temp_startpoint + 3*temp_last_vect_vel;
-            // Control points are positioned with equal length between them.
-
-        trace_new_route(temp_startpoint, vel, temp_dir, temp_lastpoint, temp_last_vect_vel);
-    }
-    current_param_ = route_curve_->find_length(current_param_,dist_ran);
-    route_curve_->get_pt(current_param_, cur_pos_ref, cur_tg_ref);
-}
-*/
-
 bool Navigator::Stop() {
     puts("Stopping...");
-    stopping_ = true;/*DEBUGGING
-    if( speed_ < SPEED_IS_ZERO_THRESHOLD ) {
-        if( route_curve_ ) { delete route_curve_; route_curve_ = NULL; current_param_ = 0.0f; }*/
-        speed_ = 0.0f;
-        return true;/*
+    if( !stopping_ ) {
+        stopping_ = true;/*DEBUGGING
+        if( speed_ < SPEED_IS_ZERO_THRESHOLD ) {*/
+            if( route_curve_ ) { delete route_curve_; route_curve_ = NULL; current_param_ = 0.0f; }
+            speed_ = 0.0f;
+            return true;/*DEBUGGING
+        }
+        float distance_to_run = speed_*speed_/ACTOR_BRAKING_FACTOR;
+        LPoint3f straight_ahead = pos_ + (speed_ + distance_to_run)*dir_;
+        LVector3f zero_speed = SPEED_IS_ZERO_THRESHOLD*0.5f*dir_;
+        waypoint_list_.push_front( Waypoint(straight_ahead,zero_speed) );
+        if( !TraceRoute() ) {
+            actor_->DieFromOopsYoureInsideAWall();
+            return false;
+        }*/
     }
-    float distance_to_run = speed_*speed_/ACTOR_BRAKING_FACTOR;
-    LPoint3f straight_ahead = pos_ + (speed_ + distance_to_run)*dir_;
-    LVector3f zero_speed = SPEED_IS_ZERO_THRESHOLD*0.5f*dir_;
-    waypoint_list_.push_front( Waypoint(straight_ahead,zero_speed) );
-    if( !TraceRoute() ) {
-        actor_->DieFromOopsYoureInsideAWall();
-        return false;
-    }*/
     return true;
 
 }
 
 bool Navigator::Move() {
-    puts("Moving...");
+    
     if( speed_ < MIN_SPEED )
         speed_ = MIN_SPEED;
     stopping_ = false;
@@ -223,23 +195,28 @@ bool Navigator::Move() {
         LVector3f vel = speed_*dir_;
         waypoint_list_.push_front( Waypoint(straight_ahead,vel) );
     }
-    return TraceRoute();
+    return true;
 }
 
 bool Navigator::TraceNewRouteTo(const LPoint3f& dest_pos, const LVector3f& dest_vel) {
     // We're dropping all waypoints.
     if(!waypoint_list_.empty()) waypoint_list_.clear();
     // Build the new waypoint and add it to the list.
-    waypoint_list_.push_front( Waypoint(dest_pos, dest_vel) );
+    Waypoint waypoint = Waypoint(dest_pos, dest_vel);
+    waypoint_list_.push_front( waypoint );
     // Decide if we should move or not.
-    if(TraceRoute())
-        return Move();
-    if(Stop())
+    Move();
+    if(!TraceRoute()) {
+        if(!Stop()) {
+            fprintf(stderr, "Warning: Navigator::TraceNewRouteTo((%.2f,%.2f,%.2f),(%.2f,%.2f,%.2f))\n",
+                    dest_pos.get_x(), dest_pos.get_y(), dest_pos.get_z(), dest_vel.get_x(), dest_vel.get_y(), dest_vel.get_z());
+            fprintf(stderr, "  says: \"Oops, you're inside a wall.\"\n");
+        }
+        speed_ = 0.0f;
+        stopping_ = true;
         return false;
-    fprintf(stderr, "Warning: Navigator::TraceNewRouteTo((%.2f,%.2f,%.2f),(%.2f,%.2f,%.2f))\n",
-            dest_pos.get_x(), dest_pos.get_y(), dest_pos.get_z(), dest_vel.get_x(), dest_vel.get_y(), dest_vel.get_z());
-    fprintf(stderr, "  says: \"Oops, you're inside a wall.\"\n");
-    return false;
+    }
+    return true;
 }
 
 bool Navigator::TraceRoute() {
@@ -262,19 +239,20 @@ bool Navigator::TraceRoute() {
         return false;
     }
 
+    // Now, we'll need the initial velocity, not direction + speed.
+    LVector3f vel = dir_*speed_;
+
     // If the player hasn't defined a vectorial velocity for the ship at destination, we must build it.
-    if( waypoint.second.compare_to(LVector3f(0.0f), VEL_IS_ZERO_THRESHOLD) ) {
-        LPoint3f second_point = pos_ + dir_*speed_;
-        waypoint.second = waypoint.first - second_point;
-        waypoint.second.normalize();
-        waypoint.second*=speed_;
+    if( waypoint.second.compare_to(LVector3f::zero(), VEL_IS_ZERO_THRESHOLD) == 0 ) {
+
+        LPoint3f second_point = pos_ + vel;                 // Where the actor is looking at.
+        waypoint.second = waypoint.first - second_point;    // Find the direction from where he's looking at,
+        waypoint.second.normalize();                        //      to the destination
+        waypoint.second*=speed_;                            // Keep the same speed at destination.
     }
     // Now, we can validate the route parameters.
     if( !ValidateRouteBeforeCreation() )
         return false;
-    
-    // We'll need the initial velocity, not direction + speed.
-    LVector3f vel = dir_*speed_;
 
     // Adding the weights to the 3D vectors:
     LPoint4f  init_pos_4d(            pos_.get_x(),            pos_.get_y(),            pos_.get_z(), 1.0f );
@@ -283,7 +261,7 @@ bool Navigator::TraceRoute() {
     LVector4f dest_vel_4d( waypoint.second.get_x(), waypoint.second.get_y(), waypoint.second.get_z(), 0.0f );
     
     // Building the control points vector and curve.
-    LPoint4f cv_vector[] = {init_pos_4d, init_pos_4d + init_vel_4d, dest_pos_4d - dest_vel_4d, dest_pos_4d};
+    LPoint4f cv_vector[4] = {init_pos_4d, init_pos_4d + init_vel_4d, dest_pos_4d - dest_vel_4d, dest_pos_4d};
 
     if(route_curve_) { delete route_curve_; route_curve_ = NULL; current_param_ = 0.0f; }
     route_curve_ = new NurbsCurve(3, 4, knotvector, cv_vector);
@@ -306,6 +284,10 @@ bool Navigator::CreateMovTask(const MovTask_Types movtask_type) {
     //TODO: FIX THIS
 
     movtask_name+= " hue cycling movtask";
+
+    // the following does basically:
+    // current_movtask_ = new HueCyclingMovTask(movtask_name, actor_);
+    // but the former doesn't work for some strange reason, so we do:
 
     HueCyclingMovTask task(movtask_name, actor_);
 

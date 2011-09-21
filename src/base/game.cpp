@@ -1,6 +1,7 @@
 
 #include "base/game.h"
 #include "base/inputmanager.h"
+#include "base/runnable.h"
 #include "world/inputhandler.h"
 #include "world/ship.h"
 #include "world/planet.h"
@@ -40,6 +41,8 @@ void Game::Init (int &argc, char **&argv) {
         new pirates::world::InputHandler(Game::reference(), mouseWatcher, ship_);
     handler->Setup();
     InputManager::reference()->set_current_handler(handler);
+
+    RunnableManager::reference()->Initialize();
 
     Spotlight* light = new Spotlight("the_light");
     light->set_color(Colorf(1, 1, 1, 1));

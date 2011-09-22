@@ -202,6 +202,14 @@
 				RelativePath=".\world\ship.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\world\utils\tile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\tileset.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -225,11 +233,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\base\inputhandler.h"
+				RelativePath=".\world\inputhandler.h"
 				>
 			</File>
 			<File
-				RelativePath=".\world\inputhandler.h"
+				RelativePath=".\base\inputhandler.h"
 				>
 			</File>
 			<File
@@ -254,6 +262,14 @@
 			</File>
 			<File
 				RelativePath=".\world\ship.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\tile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\tileset.h"
 				>
 			</File>
 			<File

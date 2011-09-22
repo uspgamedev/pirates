@@ -54,7 +54,7 @@ const bool Ship::Initialize(const LPoint3f& init_pos, const LPoint3f& init_look_
        // if(!navigator_) {
             if(navigator_) delete navigator_;
             navigator_ = new utils::Navigator(this, init_pos, dir);
-            navigator_->Initialize(utils::Navigator::HUE_CYCLING_MOV, 0.0f);
+            navigator_->Initialize(utils::Navigator::HUE_CYCLING_MOV, 5.0f);
                 //TODO: we need a ShipBuilder, in order to initialize the Navigator better.
       //  }
 

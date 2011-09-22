@@ -32,6 +32,7 @@ const bool WorldActor::Initialize(const LPoint3f& init_pos, const LPoint3f& init
 }
 
 bool WorldActor::DieFromOopsYoureInsideAWall() {
+    fprintf(stderr,"Oops... you're inside a wall...\n");
     return false; //TODO: implement this error
 }
 

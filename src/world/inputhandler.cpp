@@ -35,6 +35,7 @@ void InputHandler::ClickDownEvent(const Event *event, int mouse_button) {
     if (mouse_watcher_->has_mouse()) {
         LPoint2f pos = mouse_watcher_->get_mouse();
         PT(CollisionEntry) entry;
+
         bool drag = false;
         switch(mouse_button) {
         case InputManager::LEFT_BUTTON:

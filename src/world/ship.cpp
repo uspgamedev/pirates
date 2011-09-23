@@ -4,6 +4,8 @@
 #include "world/utils/navigator.h"
 #include "pandaFramework.h"
 #include "PNMImage.h"
+#include "texture.h"
+#include "textureStage.h"
 #include <string>
 /*
 typedef AsyncTask::DoneStatus (*TaskFunc) (GenericAsyncTask*, void*);
@@ -29,6 +31,7 @@ const bool Ship::Initialize(const LPoint3f& init_pos, const LPoint3f& init_look_
         texture_stage_name += "'s texture blend stage";
 
         texture_blend_stage_ = new TextureStage(texture_stage_name);
+        texture_blend_stage_->set_mode(TextureStage::M_blend);
         texture_blend_stage_->set_color(Colorf(1.0f,0.0f,0.0f,1.0f));
 
         PNMImage blend_image = PNMImage();
@@ -44,17 +47,13 @@ const bool Ship::Initialize(const LPoint3f& init_pos, const LPoint3f& init_look_
         node_.look_at(init_look_at,init_up);
 
         node_.set_texture(texture_blend_stage_, blend_texture);
-
         node_.reparent_to(GAME()->window()->get_render());
 
         //TODO: FIX THIS
-
-
-
        // if(!navigator_) {
             if(navigator_) delete navigator_;
             navigator_ = new utils::Navigator(this, init_pos, dir);
-            navigator_->Initialize(utils::Navigator::HUE_CYCLING_MOV, 5.0f);
+            navigator_->Initialize(utils::Navigator::HUE_CYCLING_MOV, 1.0f);
                 //TODO: we need a ShipBuilder, in order to initialize the Navigator better.
       //  }
 

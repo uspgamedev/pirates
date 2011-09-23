@@ -14,13 +14,15 @@
   /*************/
 
 #define DEST_IS_ORIGIN_THRESHOLD 0.1f
-#define MAX_SQUARED_DISTANCE_BEFORE_CURVE_RECALC 8.0f
+#define MAX_SQUARED_DISTANCE_BEFORE_CURVE_RECALC 4.0f
 
 #define MIN_SPEED 0.4f
-#define SPEED_IS_ZERO_THRESHOLD 0.01f
-#define VEL_IS_ZERO_THRESHOLD 0.05f
+#define SPEED_IS_ZERO_THRESHOLD 0.08f
+#define VEL_IS_ZERO_THRESHOLD 0.1f
 
-#define SPEED_PENALTY_FROM_CURVATURE_SCALAR 0.4f
+#define SHIP_SPEED_SCALAR_FACTOR 3.0f
+
+#define SPEED_PENALTY_FROM_CURVATURE_SCALAR 0.002f
 #define ACTOR_INV_BRAKING_FACTOR 15.0f
 
 #define MAX_PARAM 2.0f
@@ -87,6 +89,12 @@ bool Navigator::Step(const float dt) {
         return Step(dt);
     }
 
+    if( speed_ < MIN_SPEED*0.8f ) {
+        if( !stopping_ )   // TraceRoute would've set this higher if the actor is now trying to move,
+            Stop();        // so the actor tried to make a movement he can't, and we should order it to stop now.
+        return false;
+    }
+
     // Find the new speed and old direction.
     if( route_curve_ && !stopping_ ) {
         if( current_tangent_.compare_to(LVector3f::zero()) != 0 ) {
@@ -98,16 +106,7 @@ bool Navigator::Step(const float dt) {
         }
         route_curve_->get_tangent(current_param_, current_tangent_);
 
-        speed_ = current_tangent_.length();
-
-        if( !stopping_ && speed_ >= MIN_SPEED*0.8f ) {
-            LVector3f tangent_direction_change = (current_tangent_/speed_ - dir_)/dt;
-            float speed_penalty = tangent_direction_change.length()*SPEED_PENALTY_FROM_CURVATURE_SCALAR;
-
-            speed_ -= speed_penalty;
-            if( speed_ < 0.0f )
-                speed_ = 0.0f;
-        }
+        speed_ = current_tangent_.length()*0.5f;
 
     } else if( route_curve_ ) {
         // huh?
@@ -115,15 +114,8 @@ bool Navigator::Step(const float dt) {
         return Step(dt);
     }
 
-
-    if( speed_ < MIN_SPEED*0.8f ) {
-        if( !stopping_ )   // TraceRoute would've set this higher if the actor is now trying to move,
-            Stop();        // so the actor tried to make a movement he can't, and we should order it to stop now.
-        return false;
-    }
-
     // Find the distance to run.
-    float dist_ran = speed_*dt;
+    float dist_ran = speed_*dt*SHIP_SPEED_SCALAR_FACTOR;
 
     // Time to do the magic.
     float max_distance = route_curve_->calc_length(current_param_,MAX_PARAM);
@@ -138,30 +130,33 @@ bool Navigator::Step(const float dt) {
                 Stop(); // same thing, but this will eventually stop the ship.
         }
         TraceRoute();
-        dist_ran -= max_distance;
+        //dist_ran -= max_distance;
         current_param_ = 0.0f;
     }
 
     // Get the new virtual position. We still need to project it onto the planet.
     current_param_ = route_curve_->find_length(current_param_,dist_ran);
     route_curve_->get_point(current_param_, pos_);
+    pos_*=0.5f;
 
     // Get the first point of the current route curve, and planet center, used for the projection.
     LPoint4f first_cv = route_curve_->get_cv(0);
     const LPoint3f& planet_center = planet_->center();
 
     // Update the curve if we're too far away from the planet's surface.
-/*    if( (pos_ - planet_->center()).length_squared() / (planet_->height_at(pos_) * planet_->height_at(pos_))
+    if( (pos_ - planet_->center()).length_squared() / (planet_->height_at(pos_) * planet_->height_at(pos_))
         >= MAX_SQUARED_DISTANCE_BEFORE_CURVE_RECALC ) {
 
-        // Project the virtual position onto the planet, making it a real one, and update the curve.
+        // Project the virtual position and direction onto the planet, making it a real one, and update the curve.
         //TODO: better projection
         pos_ -= planet_center;
+
+        dir_ -= dir_.project(pos_);
+        dir_.normalize();
+
         pos_.normalize();
         pos_ *= planet_->height_at(pos_);
         pos_ += planet_center;
-
-        dir_
 
         Move();
         if(!TraceRoute()) {
@@ -169,25 +164,31 @@ bool Navigator::Step(const float dt) {
             return false;
         }
         return true;
-    }*/
+    }
     // Otherwise, just project the virtual position onto the planet
     //TODO: better projection
+
     pos_ -= planet_center;
+
+    dir_ -= dir_.project(pos_);
+    dir_.normalize();
+
     pos_.normalize();
     pos_ *= planet_->height_at(pos_);
     pos_ += planet_center;
+
         
     return true;
 }
 
 bool Navigator::Stop() {
-    printf("Stopping... dir_.length_sqared()=%.3f, speed_=%.3f\n",dir_.length_squared(),speed_);/*DEBUGGING //TODO: fix this.
-    if( !stopping_ ) {*/
-        stopping_ = true;/*DEBUGGING
-        if( speed_ < SPEED_IS_ZERO_THRESHOLD*2.0f ) {*/
+
+    if( !stopping_ ) {
+        stopping_ = true;
+        if( speed_ < MIN_SPEED*0.4f ) {
             if( route_curve_ ) { delete route_curve_; route_curve_ = NULL; current_param_ = 0.0f; }
             speed_ = 0.0f;
-            return true;/*DEBUGGING
+            return true;
         }
         float distance_to_run = speed_*ACTOR_INV_BRAKING_FACTOR;
         LPoint3f straight_ahead = pos_ + distance_to_run*dir_;
@@ -199,11 +200,10 @@ bool Navigator::Stop() {
         }
     }
     return true;
-*/
+
 }
 
 bool Navigator::Move() {
-    puts("Moving...");
     if( speed_ < MIN_SPEED*3.0f )
         speed_ = MIN_SPEED*3.0f;
     stopping_ = false;
@@ -255,14 +255,12 @@ bool Navigator::TraceRoute() {
         return false;
     }
 
-    speed_ *= 0.5f;
-
     // Now, we'll need the initial velocity, not direction + speed.
     LVector3f vel = dir_*speed_;
 
     // If the player hasn't defined a vectorial velocity for the ship at destination, we must build it.
     if( waypoint.second.compare_to(LVector3f::zero(), VEL_IS_ZERO_THRESHOLD) == 0 ) {
-
+        puts("no dest_vel detected");
         LPoint3f second_point = pos_ + vel;                 // Where the actor is looking at.
         waypoint.second = waypoint.first - second_point;    // Find the direction from where he's looking at,
         waypoint.second.normalize();                        //      to the destination
@@ -277,7 +275,7 @@ bool Navigator::TraceRoute() {
     LVector4f init_vel_4d(             vel.get_x(),             vel.get_y(),             vel.get_z(),            0.0f );
     LPoint4f  dest_pos_4d(  waypoint.first.get_x(),  waypoint.first.get_y(),  waypoint.first.get_z(), MAX_PARAM*0.25f );
     LVector4f dest_vel_4d( waypoint.second.get_x(), waypoint.second.get_y(), waypoint.second.get_z(),            0.0f );
-    
+
     // Building the control points vector and curve.
     LPoint4f cv_vector[4] = {init_pos_4d, init_pos_4d + init_vel_4d, dest_pos_4d - dest_vel_4d, dest_pos_4d};
 
@@ -314,8 +312,8 @@ bool Navigator::CreateMovTask(const MovTask_Types movtask_type) {
     allocator.construct(pointer, task);
 
     current_movtask_ = pointer;
-    //current_movtask_ = new HueCyclingMovTask(movtask_name, actor_);
 
+    //TODO: fix this.
     /*
     switch(movtask_type) {
         case DEFAULT_MOV:

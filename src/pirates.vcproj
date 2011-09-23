@@ -117,6 +117,7 @@
 				EnableFunctionLevelLinking="true"
 				WarningLevel="2"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4275"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -225,11 +226,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\base\inputhandler.h"
+				RelativePath=".\world\inputhandler.h"
 				>
 			</File>
 			<File
-				RelativePath=".\world\inputhandler.h"
+				RelativePath=".\base\inputhandler.h"
 				>
 			</File>
 			<File

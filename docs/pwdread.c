@@ -1,45 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-typedef unsigned long uint32;
-typedef unsigned long long uint64;
-
-
-struct PWD_Header {
-	// About the file
-	/*    4 */char mime[4]; // Alyways PWLD
-	/*	  2	*/uint16 endian_check; //0x8910
-	/*    1 */uint8 version;
-	/*    4 */uint32 filesize; // Remember to actually use this safeguard.
-	
-	// About the World
-	/*    1 */uint8 number_of_players;
-	/*    4 */uint32 ocean_height;
-	
-	/*  256 */char world_name[256]; // UTF-8 Encoded
-	/*  256 */char thumbnail_path[256];
-	/*   32 */char gametype[32]; // UTF-8 Encoded
-	/* 1024 */char description[1024]; // UTF-8 Encoded (be careful when treating the input for this)
-	/*    4 */uint32 number_of_strips; // Always an odd number.
-	
-	char padding[1484]; // Header is exactly 3072 bytes (3 KiB) long. (Fill padding with 0x00)
-};
-struct PWD_Tile {
-	/*    4 */uint32 height;
-	/*    2 */uint16 texture;
-	/*    1 */uint8 player_start_location; // 0 for none else player_id
-	
-	//Wind
-	/*    1 */uint8 wind_module_min;
-	/*    1 */uint8 wind_module_max;
-	/*	  2 */uint16 wind_angle_min;
-	/*	  2 */uint16 wind_angle_max;
-
-	char padding[19]; // Tile is exactly 32 bytes long. (Fill padding with 0x00)
-};
+#include "filetype_code.h"
 
 int main() {
 	FILE *world = fopen("3fort.pwd", "rb");
@@ -49,10 +11,10 @@ int main() {
 
 	int num_tiles = 0;
 	
-	int i = header.number_of_strips/2, inc = -1;
+	int i = header.size/2, inc = -1;
 	int a;
-	for(a = 0; a < header.number_of_strips; a++) {
-		num_tiles += floor(2 * header.number_of_strips * cos(i * 3.14159f/header.number_of_strips));
+	for(a = 0; a < header.size; a++) {
+		num_tiles += floor(2 * header.size * cos(i * 3.14159f/header.size));
 		if((i += inc) == 0)
 			inc = 1;
 	}
@@ -64,8 +26,19 @@ int main() {
 		
 	fclose(world);
 
-	printf("%s\n", header.description);
-	printf("%d\n", (int) tiles[50].height);
-
+	printf("Mime: '%c%c%c%c'\n", header.mime[0], header.mime[1], header.mime[2], header.mime[3]);
+	printf("Endian Check: 0x%x\n", header.endian_check);
+	printf("Version: %u\n", header.version);
+	printf("Filesize: %u\n", header.filesize);
+	puts("");
+	// About the World
+	printf("Num Players: %u\n", header.number_of_players);
+	printf("Ocean Height: %u\n", header.ocean_height);
+	puts("");
+	printf("World Name: '%s'\n", header.world_name);
+	printf("Thumbnail: '%s'\n", header.thumbnail_path);
+	printf("Gametype: '%s'\n", header.gametype);
+	printf("Description: '%s'\n", header.description);
+	printf("Size: %u\n", header.size);
 	return 0;
 }

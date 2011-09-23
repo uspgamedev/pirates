@@ -238,11 +238,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\base\inputhandler.h"
+				RelativePath=".\world\inputhandler.h"
 				>
 			</File>
 			<File
-				RelativePath=".\world\inputhandler.h"
+				RelativePath=".\base\inputhandler.h"
 				>
 			</File>
 			<File

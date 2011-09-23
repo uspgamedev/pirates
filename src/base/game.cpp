@@ -5,6 +5,7 @@
 #include "world/inputhandler.h"
 #include "world/ship.h"
 #include "world/planet.h"
+#include "world/utils/worlddata.h"
 #include "load_prc_file.h"
 
 #include "ambientLight.h"
@@ -16,6 +17,7 @@ namespace pirates {
 
 using world::Ship;
 using world::Planet;
+using world::utils::WorldData;
 
 namespace base {
 
@@ -56,6 +58,9 @@ void Game::Init (int &argc, char **&argv) {
     amb_light->set_color(Colorf(0.2f, 0.2f, 0.2f, 1));
     NodePath alnp = window_->get_render().attach_new_node(amb_light);
     window_->get_render().set_light(alnp);
+
+	WorldData* data = new WorldData();
+	data->Load("data/3fort.pwd");
 }
 
 } // namespace base

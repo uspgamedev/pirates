@@ -117,6 +117,7 @@
 				EnableFunctionLevelLinking="true"
 				WarningLevel="2"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4275"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -207,7 +208,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\world\utils\tileset.cpp"
+				RelativePath=".\world\utils\worlddata.cpp"
 				>
 			</File>
 		</Filter>
@@ -229,15 +230,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\world\utils\filetype.h"
+				>
+			</File>
+			<File
 				RelativePath=".\base\game.h"
 				>
 			</File>
 			<File
-				RelativePath=".\world\inputhandler.h"
+				RelativePath=".\base\inputhandler.h"
 				>
 			</File>
 			<File
-				RelativePath=".\base\inputhandler.h"
+				RelativePath=".\world\inputhandler.h"
 				>
 			</File>
 			<File
@@ -269,15 +274,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\world\utils\tileset.h"
-				>
-			</File>
-			<File
 				RelativePath=".\world\treasure.h"
 				>
 			</File>
 			<File
 				RelativePath=".\world\worldactor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worlddata.h"
 				>
 			</File>
 			<File

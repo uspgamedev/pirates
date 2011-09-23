@@ -203,6 +203,14 @@
 				RelativePath=".\world\ship.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\world\utils\worldpos.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worldvector.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -226,11 +234,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\world\inputhandler.h"
+				RelativePath=".\base\inputhandler.h"
 				>
 			</File>
 			<File
-				RelativePath=".\base\inputhandler.h"
+				RelativePath=".\world\inputhandler.h"
 				>
 			</File>
 			<File
@@ -267,6 +275,14 @@
 			</File>
 			<File
 				RelativePath=".\world\worldobject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worldpos.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worldvector.h"
 				>
 			</File>
 		</Filter>

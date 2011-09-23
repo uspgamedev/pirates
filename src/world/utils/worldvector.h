@@ -8,7 +8,7 @@ namespace utils {
 class WorldVector {
   public:
     WorldVector() : x_(0.0f), y_(0.0f) {}
-    WorldVector(float& x, float& y) : x_(x), y(y) {}
+    WorldVector(float& x, float& y) : x_(x), y_(y) {}
     
     // getters
     float theta() const { return theta_; }

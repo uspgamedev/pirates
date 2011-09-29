@@ -10,7 +10,7 @@ namespace pirates {
 
 namespace world {
 
-class Arrow : public WorldActor {
+class Arrow /*: public WorldActor*/ {
 
   public:
 

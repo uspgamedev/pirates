@@ -6,7 +6,8 @@ namespace pirates {
 namespace world {
 
 class WorldObject {
-
+  public:
+    virtual ~WorldObject() {}
 };
 
 }

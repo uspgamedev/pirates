@@ -5,11 +5,15 @@ namespace pirates {
 namespace world {
 namespace utils {
 
+// Theta is the longitude and belongs to the interval [-PI/2,PI/2].
+// Phi is the latitude and belongs to the interval [0, 2PI].
+// (PI/2, 0) is the north pole, while (-PI/2, 0) is the south pole.
+
 class WorldPos {
   public:
     WorldPos() : theta_(0.0f), phi_(0.0f), r_(-1.0f) {}
-    WorldPos(float& theta, float& phi) : theta_(theta), phi_(phi), r_(-1.0f) {}
-    WorldPos(float& theta, float& phi, float& r) : theta_(theta), phi_(phi), r_(r) {}
+    WorldPos(float theta, float phi) : theta_(theta), phi_(phi), r_(-1.0f) {}
+    WorldPos(float theta, float phi, float r) : theta_(theta), phi_(phi), r_(r) {}
     
     // getters
     float radius() const { return r_; }
@@ -17,9 +21,9 @@ class WorldPos {
     float phi() const { return phi_; }
 
     // setters
-    void set_radius(float& r) { r_ = r; }
-    void set_theta(float& theta) { theta_ = theta; }
-    void set_phi(float& phi) { phi_ = phi; } 
+    void set_radius(float r) { r_ = r; }
+    void set_theta(float theta) { theta_ = theta; }
+    void set_phi(float phi) { phi_ = phi; } 
 
   private:
 	union {

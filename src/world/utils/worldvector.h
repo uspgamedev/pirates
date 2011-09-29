@@ -8,15 +8,15 @@ namespace utils {
 class WorldVector {
   public:
     WorldVector() : x_(0.0f), y_(0.0f) {}
-    WorldVector(float& x, float& y) : x_(x), y(y) {}
+    WorldVector(float x, float y) : x_(x), y_(y) {}
     
     // getters
     float theta() const { return theta_; }
     float phi() const { return phi_; }
 
     // setters
-    void set_theta(float& theta) { theta_ = theta; }
-    void set_phi(float& phi) { phi_ = phi; } 
+    void set_theta(float theta) { theta_ = theta; }
+    void set_phi(float phi) { phi_ = phi; } 
 
   private:
 	union {

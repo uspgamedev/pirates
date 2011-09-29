@@ -2,7 +2,7 @@
 #include "world/worldactor.h"
 #include "pandaFramework.h"
 #include "nodePath.h"
-#include "PNMImage.h"
+#include "pnmImage.h"
 #include "texture.h"
 
 namespace pirates {
@@ -12,7 +12,7 @@ WorldActor::WorldActor(const string& name, const string& model)
   : name_(name), model_(model), initialized_(false), navigator_(NULL), texture_blend_stage_(NULL) {
 }
 
-const bool WorldActor::Initialize(const LPoint3f& init_pos, const LPoint3f& init_look_at, LVector3f& init_up) {
+const bool WorldActor::Initialize(const LPoint3f& init_pos, const LPoint3f& init_look_at, LVector3f init_up) {
 
     if(init_up.get_x() == 0.0f && init_up.get_y() == 0.0f && init_up.get_z() == 0.0f)
         init_up = GAME()->planet()->normal_at(init_pos);

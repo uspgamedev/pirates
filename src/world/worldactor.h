@@ -25,7 +25,7 @@ class WorldActor /*: public WorldObject*/ {
 
     virtual const bool Initialize(const LPoint3f&   init_pos     = GAME()->planet()->default_start_pos(),
                                   const LPoint3f&   init_look_at = GAME()->planet()->default_look_at(),
-                                  LVector3f&        init_up      = LVector3f(0.0f)  ) = 0;
+                                  LVector3f        init_up      = LVector3f(0.0f)  ) = 0;
 
 
     /*** PUBLIC METHODS ***/

@@ -22,11 +22,11 @@ class Navigator;
 class Ship : public WorldActor {
     
   public :   
-    Ship::Ship(const string& name, const string& model) : WorldActor(name, model) {}
+    Ship(const string& name, const string& model) : WorldActor(name, model) {}
 
     const bool Initialize(const LPoint3f&   init_pos     = GAME()->planet()->default_start_pos(),
                           const LPoint3f&   init_look_at = GAME()->planet()->default_look_at(),
-                          LVector3f&        init_up      = LVector3f(0.0f)  );
+                          LVector3f        init_up      = LVector3f(0.0f)  );
 
   private:
 

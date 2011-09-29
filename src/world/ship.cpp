@@ -3,7 +3,7 @@
 #include "base/game.h"
 #include "world/utils/navigator.h"
 #include "pandaFramework.h"
-#include "PNMImage.h"
+#include "pnmImage.h"
 #include "texture.h"
 #include "textureStage.h"
 #include <string>
@@ -20,7 +20,7 @@ namespace pirates {
 
 namespace world {
 
-const bool Ship::Initialize(const LPoint3f& init_pos, const LPoint3f& init_look_at, LVector3f& init_up) {
+const bool Ship::Initialize(const LPoint3f& init_pos, const LPoint3f& init_look_at, LVector3f init_up) {
 
     if(!initialized_) {
         puts("Initializing Ship");

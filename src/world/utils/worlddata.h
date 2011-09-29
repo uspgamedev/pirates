@@ -2,6 +2,7 @@
 #define PIRATES_WORLD_UTILS_WORLDDATA_H_
 
 #include <string>
+#include <vector>
 #include "world/utils/worldpos.h"
 
 namespace pirates {
@@ -16,6 +17,8 @@ class WorldData {
 	~WorldData();
 	bool Load(std::string file);
 
+    typedef std::vector<Tile*> Strip;
+
     const Tile* tile_at(const WorldPos& pos);
 
 	const unsigned long& size() const { return size_; }
@@ -24,12 +27,16 @@ class WorldData {
 	//const std::wstring& description const { return description_; }
 
   private:
-	Tile** tile_list_;
+	Tile *north_pole_, *south_pole_;
+    std::vector<Strip> strip_list_;
+
 	std::string loaded_file_;
 	int num_tiles_;
 
 	unsigned long size_, ocean_height_;
 	std::wstring name_, description_;
+
+    int CalculateIthStripSize(int strip_i);
 
 };
 

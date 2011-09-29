@@ -4,7 +4,7 @@
 #include <cmath>
 
 #define PRINT_ERROR_AND_RET_FALSE(file, filename, errormsg) { fclose(file); fprintf(stderr, errormsg, filename.c_str()); return false; }
-#define PI 3.1415926535897932384626433832795
+#define PI 3.1415926535897932384626433832795f
 
 #include "world/utils/filetype.h"
 
@@ -14,15 +14,21 @@ namespace world {
 
 namespace utils {
 
-WorldData::WorldData() : tile_list_(NULL) {
+WorldData::WorldData() : north_pole_(NULL), south_pole_(NULL) {
 }
 
 WorldData::~WorldData() {
-	if(tile_list_ != NULL) {
-		for(int i = 0; i < num_tiles_; ++i)
-			delete tile_list_[i];
-		delete tile_list_;
-	}
+    if(north_pole_) delete north_pole_;
+    if(south_pole_) delete south_pole_;
+    std::vector<Strip>::iterator it;
+    for(it = strip_list_.begin(); it != strip_list_.end(); ++it) {
+        Strip::iterator itstrip;
+        for(itstrip = (*it).begin(); itstrip != (*it).end(); ++it) {
+            delete (*itstrip);
+        }
+        (*it).clear();
+    }
+    strip_list_.clear();
 }
 
 static void CopyCharToWString(char* origin, std::wstring &target) {
@@ -35,9 +41,13 @@ const Tile* WorldData::tile_at(const WorldPos& pos) {
     return NULL;
 }
 
+int WorldData::CalculateIthStripSize(int strip_i) {
+    return (int)(floor(2 * size_ * cos(strip_i * PI/size_)));
+}
+
 bool WorldData::Load(std::string filename) {
 	// A single Tileset cannot be used to load more than one world file.
-	if(tile_list_ != NULL) return false;
+    if(strip_list_.size() > 0) return false;
 
 	FILE* file = fopen(filename.c_str(), "rb");
 	if(file == NULL) return false;
@@ -63,48 +73,58 @@ bool WorldData::Load(std::string filename) {
 
 	// Calculate the number of tiles
 	num_tiles_ = 0;	
-	int i = size_/2, inc = -1;
-	int a;
-	for(a = 0; a < size_; a++) {
-		num_tiles_ += (int)(floor(2 * size_ * cos(i * PI/size_)));
-		if((i += inc) == 0)
+	int strip_num = size_/2, inc = -1;
+	for(register int ecx = 0; ecx < size_; ecx++) {
+		num_tiles_ += CalculateIthStripSize(strip_num);
+		if((strip_num += inc) == 0)
 			inc = 1;
 	}
-
-	tile_list_ = new Tile*[num_tiles_];
 
     {   // North pole
 		struct PWD_Tile tile;
 		fread(&tile, sizeof(struct PWD_Tile), 1, file);
-		tile_list_[0] = new Tile(tile.height);
+		north_pole_ = new Tile(tile.height);
 
         WorldPos pos(PI/2.0f, 0.0f);
-        tile_list_[0]->set_position(pos);
+        north_pole_->set_position(pos);
     }
 
     {   // South pole
 		struct PWD_Tile tile;
 		fread(&tile, sizeof(struct PWD_Tile), 1, file);
-		tile_list_[1] = new Tile(tile.height);
+		south_pole_ = new Tile(tile.height);
 
-        WorldPos pos(-PI/2, 0.0f);
-        tile_list_[1]->set_position(pos);
+        WorldPos pos(-PI/2.0f, 0.0f);
+        south_pole_->set_position(pos);
     }
 
-    // ???? Preciso lembrar pq tem isso
-    for(int strip_num = 0; strip_num < size_; ++strip_num) {
+    fprintf(stderr, "Name: %s\n", header.world_name);
+
+    // For each strip, read the tiles associated with it.
+    strip_num = size_/2, inc = -1;
+    for(register int ecx = 0; ecx < size_; ecx++) {
+        // Calculate the number of tiles in this strip.
+		int strip_size = CalculateIthStripSize(strip_num);
+
+        float theta = ((strip_num * 1.0f) / (size_/2 + 1)) * (-inc) * PI/2.0f;
+        Strip strip;
+        for(int tile_i = 0; tile_i < strip_size; ++tile_i) {
+            struct PWD_Tile pwtile;
+		    fread(&pwtile, sizeof(struct PWD_Tile), 1, file);
+            Tile *tile = new Tile(pwtile.height);
+
+            float phi = ((tile_i * 1.0f) / strip_size) * 2.0f * PI;
+            WorldPos pos(theta, phi);
+            tile->set_position(pos);
+            strip.push_back(tile);
+            fprintf(stderr, "S%d, T%d. Pos: %f %f\n", ecx, tile_i, theta, phi);
+        }
+        strip_list_.push_back(strip);
+
+		if((strip_num += inc) == 0)
+			inc = 1;
     }
-
-
-    // READ THE TILES!
-	for(int i = 2; i < num_tiles_; ++i) {
-		struct PWD_Tile tile;
-		fread(&tile, sizeof(struct PWD_Tile), 1, file);
-		tile_list_[i] = new Tile(tile.height);
-	}
-
 	fclose(file);
-	printf("Name: %s\n", header.world_name);
 	return true;
 }
 

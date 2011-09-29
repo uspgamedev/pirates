@@ -216,6 +216,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\world\utils\worldpos.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worldvector.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\world\worldactor.cpp"
 				>
 			</File>
@@ -299,6 +307,14 @@
 			</File>
 			<File
 				RelativePath=".\world\worldobject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worldpos.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worldvector.h"
 				>
 			</File>
 		</Filter>

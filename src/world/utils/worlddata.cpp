@@ -31,6 +31,10 @@ static void CopyCharToWString(char* origin, std::wstring &target) {
 	std::copy(text.begin(), text.end(), target.begin());
 }
 
+const Tile* WorldData::tile_at(const WorldPos& pos) {
+    return NULL;
+}
+
 bool WorldData::Load(std::string filename) {
 	// A single Tileset cannot be used to load more than one world file.
 	if(tile_list_ != NULL) return false;
@@ -68,7 +72,32 @@ bool WorldData::Load(std::string filename) {
 	}
 
 	tile_list_ = new Tile*[num_tiles_];
-	for(int i = 0; i < num_tiles_; ++i) {
+
+    {   // North pole
+		struct PWD_Tile tile;
+		fread(&tile, sizeof(struct PWD_Tile), 1, file);
+		tile_list_[0] = new Tile(tile.height);
+
+        WorldPos pos(PI/2.0f, 0.0f);
+        tile_list_[0]->set_position(pos);
+    }
+
+    {   // South pole
+		struct PWD_Tile tile;
+		fread(&tile, sizeof(struct PWD_Tile), 1, file);
+		tile_list_[1] = new Tile(tile.height);
+
+        WorldPos pos(-PI/2, 0.0f);
+        tile_list_[1]->set_position(pos);
+    }
+
+    // ???? Preciso lembrar pq tem isso
+    for(int strip_num = 0; strip_num < size_; ++strip_num) {
+    }
+
+
+    // READ THE TILES!
+	for(int i = 2; i < num_tiles_; ++i) {
 		struct PWD_Tile tile;
 		fread(&tile, sizeof(struct PWD_Tile), 1, file);
 		tile_list_[i] = new Tile(tile.height);

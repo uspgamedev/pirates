@@ -204,11 +204,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\world\utils\worldpos.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\world\utils\worldvector.cpp"
+				RelativePath=".\world\utils\worldvecbase.cpp"
 				>
 			</File>
 		</Filter>
@@ -278,7 +274,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\world\utils\worldpos.h"
+				RelativePath=".\world\utils\worldpoint.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worldvecbase.h"
 				>
 			</File>
 			<File

@@ -3,6 +3,7 @@
 #define PIRATES_WORLD_INPUTHANDLER_H_
 
 #include "base/inputhandler.h"
+#include "base/runnable.h"
 
 #include "nodePath.h"
 #include "collisionTraverser.h"
@@ -32,6 +33,7 @@ class InputHandler : public pirates::base::InputHandler {
         int mouse_button;
     } TaskData;
 
+    void Update(float dt);
     void Setup();
     void ClickDownEvent(const Event *event, int mouse_button);
     void ClickUpEvent(const Event *event, int mouse_button);
@@ -51,6 +53,11 @@ class InputHandler : public pirates::base::InputHandler {
     LPoint2f                    mouse_pos_;
     int                         held_buttons_;
     TaskData                    task_data_[3];
+
+    //TODO: futuro camera.h/camera.cpp
+    LVector3f                   look_at_;
+    LVector3f                   up_;
+    LVector3f                   right_;
 
     void loadColliders();
     CollisionEntry* pick(LPoint2f pos);

@@ -1,5 +1,6 @@
 
 #include "base/game.h"
+#include "camera.h"
 #include "base/inputmanager.h"
 #include "world/ship.h"
 #include "world/utils/navigator.h"
@@ -9,6 +10,10 @@
 
 #include "mouseWatcher.h"
 #include "collisionPlane.h"
+
+//TODO: futuro camera.h/camera.cpp
+#define CAMERA_VEL    500.0f
+#define CAMERA_HEIGHT 150.0f
 
 typedef AsyncTask::DoneStatus (*TaskFunc) (GenericAsyncTask*, void*);
 
@@ -29,6 +34,105 @@ void InputHandler::Setup() {
         task_data_[i].handler = this;
         task_data_[i].mouse_button = 1 << i;
     }
+    base::RunnableManager::reference()->Add(this);
+
+    //TODO: futuro camera.h/camera.cpp
+    
+    LPoint3f planet_center = GAME()->planet()->center();
+    up_ = LVector3f(0.0f,1.0f,0.0f);
+    look_at_ = planet_center - GAME()->camera().get_pos();
+    right_ = look_at_.cross(up_);
+    right_.normalize();
+
+    GAME()->camera().look_at(planet_center,up_);
+}
+
+void InputHandler::Update(float dt) {
+
+    enum TWOD_MOV_DIR {
+        NOTHING         = 0,
+        X_UP            = 1,
+        X_DOWN          = 2,
+        Y_UP            = 3,
+        X_UP_Y_UP       = 4,
+        X_DOWN_Y_UP     = 5,
+        Y_DOWN          = 6,
+        X_UP_Y_DOWN     = 7,
+        X_DOWN_Y_DOWN   = 8
+    };
+
+    //TODO: futuro camera.h/camera.cpp
+    if(mouse_watcher_->has_mouse()) {
+        if(mouse_watcher_->get_mouse_y() < -0.9f) {
+
+            /*LPoint3f planet_center = GAME()->planet()->center();
+
+            LPoint3f new_pos = GAME()->camera().get_pos() - up_*dt*CAMERA_VEL;
+            new_pos -= planet_center;
+            new_pos.normalize();
+            new_pos *= (GAME()->planet()->height_at(new_pos) + CAMERA_HEIGHT);
+
+            GAME()->camera().set_pos(new_pos);
+
+            look_at_ = new_pos - planet_center;
+            up_ -= up_.project(look_at_);
+            up_.normalize();
+            GAME()->camera().look_at(planet_center,up_);*/
+            GAME()->camera_man()->MoveCamera(0, dt);
+
+        } else if(mouse_watcher_->get_mouse_y() > 0.9f) {
+
+            LPoint3f planet_center = GAME()->planet()->center();
+
+            LPoint3f new_pos = GAME()->camera().get_pos() + up_*dt*CAMERA_VEL;
+            new_pos -= planet_center;
+            new_pos.normalize();
+            new_pos *= (GAME()->planet()->height_at(new_pos) + CAMERA_HEIGHT);
+
+            GAME()->camera().set_pos(new_pos);
+
+            look_at_ = new_pos - planet_center;
+            up_ -= up_.project(look_at_);
+            up_.normalize();
+            GAME()->camera().look_at(planet_center,up_);
+
+        }
+        if(mouse_watcher_->get_mouse_x() < -0.9f) {
+
+            LPoint3f planet_center = GAME()->planet()->center();
+
+            LPoint3f new_pos = GAME()->camera().get_pos() - right_*dt*CAMERA_VEL;
+            new_pos -= planet_center;
+            new_pos.normalize();
+            new_pos *= (GAME()->planet()->height_at(new_pos) + CAMERA_HEIGHT);
+
+            GAME()->camera().set_pos(new_pos);
+
+            look_at_ = new_pos - planet_center;
+            right_ -= right_.project(look_at_);
+            right_.normalize();
+            GAME()->camera().look_at(planet_center,up_);
+
+        } else if(mouse_watcher_->get_mouse_x() > 0.9f) {
+
+            LPoint3f planet_center = GAME()->planet()->center();
+
+            LPoint3f new_pos = GAME()->camera().get_pos() + right_*dt*CAMERA_VEL;
+            new_pos -= planet_center;
+            new_pos.normalize();
+            new_pos *= (GAME()->planet()->height_at(new_pos) + CAMERA_HEIGHT);
+
+            GAME()->camera().set_pos(new_pos);
+
+            look_at_ = new_pos - planet_center;
+            right_ -= right_.project(look_at_);
+            right_.normalize();
+            GAME()->camera().look_at(planet_center,up_);
+
+        }
+    }
+
+    return;
 }
 
 void InputHandler::ClickDownEvent(const Event *event, int mouse_button) {

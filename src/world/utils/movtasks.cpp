@@ -65,7 +65,7 @@ AsyncTask::DoneStatus HueCyclingMovTask::do_task() {
             // Set position and look_at.
             node.set_pos( navi->pos() );
             LPoint3f look_at = navi->pos() + navi->dir();
-            // Now we need to project this "look at" point to the current tangent plane.
+            //TODO Now we need to project this "look at" point to the current tangent plane.
 
             node.look_at( look_at, navi->up() );
         }

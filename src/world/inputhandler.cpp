@@ -2,6 +2,7 @@
 #include "base/game.h"
 #include "base/inputmanager.h"
 #include "world/ship.h"
+#include "world/utils/navigator.h"
 #include "world/inputhandler.h"
 #include "world/arrow.h"
 #include "world/planet.h"
@@ -34,6 +35,7 @@ void InputHandler::ClickDownEvent(const Event *event, int mouse_button) {
     if (mouse_watcher_->has_mouse()) {
         LPoint2f pos = mouse_watcher_->get_mouse();
         PT(CollisionEntry) entry;
+
         bool drag = false;
         switch(mouse_button) {
         case InputManager::LEFT_BUTTON:
@@ -63,7 +65,7 @@ void InputHandler::ClickDownEvent(const Event *event, int mouse_button) {
                 if(1 << i == mouse_button)
                     data = &task_data_[i];
             GenericAsyncTask *task = new GenericAsyncTask(string("MouseDrag"), (TaskFunc)&dragAux, (void*) data);
-            printf("UP %d, Held: %d, TaskBtn %d\n", mouse_button, held_buttons_, data->mouse_button);
+            printf("DOWN %d, Held: %d, TaskBtn %d\n", mouse_button, held_buttons_, data->mouse_button);
             GAME()->taskMgr().add(task);
         }
     }
@@ -80,15 +82,12 @@ void InputHandler::ClickUpEvent(const Event *event, int mouse_button) {
 			    LVector3f vector = vector_end - target_pos_;
                 floor_node_->remove_solid(plane_id_);
                 planet_id_ = world_node_->add_solid(base::Game::reference()->planet()->get_collision());
-                if(vector.length()<=0.5f)
-		  game_->ship()->set_new_route_dest(target_pos_);
-                else
-		  game_->ship()->set_new_route_dest(target_pos_,vector);
+		        game_->ship()->navigator()->TraceNewRouteTo(target_pos_,vector);
             }
         }
     }
     held_buttons_ &= (mouse_button ^ 0xFFFF);
-    printf("DOWN %d, Held: %d\n", mouse_button, held_buttons_);
+    printf("UP %d, Held: %d\n", mouse_button, held_buttons_);
 }
 
 

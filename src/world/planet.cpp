@@ -18,10 +18,9 @@ using base::Game;
 
 namespace world {
 
-Planet::Planet () {
+Planet::Planet () : /*WorldActor(),*/ center_(LPoint3f::zero()) {
     PandaFramework& framework = Game::reference()->framework();
     WindowFramework* window = Game::reference()->window();
-
 
     // Creating the vertex data
     PT(GeomVertexData) vdata;
@@ -107,10 +106,10 @@ Planet::Planet () {
     collision_ = new CollisionSphere(0.0f, 0.0f, 0.0f, height_at(pos));
 }
 
-const LVector3f Planet::normal_at(LPoint3f& pos) {
+LVector3f Planet::normal_at(const LPoint3f& pos) const {
     return pos/pos.length();
 }
-const float Planet::height_at(LPoint3f& pos) {
+const float Planet::height_at(const LPoint3f& pos) const {
     return 50.0f;
 }
 

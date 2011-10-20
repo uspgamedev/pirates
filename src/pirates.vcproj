@@ -188,6 +188,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\world\utils\movtasks.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\world\utils\navigator.cpp"
 				>
 			</File>
@@ -201,6 +205,10 @@
 			</File>
 			<File
 				RelativePath=".\world\ship.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\world\worldactor.cpp"
 				>
 			</File>
 			<File
@@ -243,6 +251,10 @@
 			</File>
 			<File
 				RelativePath=".\world\island.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\movtasks.h"
 				>
 			</File>
 			<File

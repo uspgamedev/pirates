@@ -39,6 +39,21 @@ class WorldVector {
         return WorldVector(x_ / length, y_ / length, z_ / length);
     }
 
+
+    WorldVector operator+= (const WorldVector& right) {
+        x_ += right.x_;
+        y_ += right.y_;
+        z_ += right.z_;
+        return *this;
+    }
+
+    WorldVector operator*= (const float &scalar) {
+        x_ *= scalar;
+        y_ *= scalar;
+        z_ *= scalar;
+        return *this;
+    }
+
     const static WorldVector ZERO, UNIT_X, UNIT_Y, UNIT_Z;
 };
 

@@ -38,7 +38,26 @@ static void CopyCharToWString(char* origin, std::wstring &target) {
 }
 
 const Tile* WorldData::tile_at(const WorldPoint& pos) {
-    return NULL;
+
+    // Artificially create two more strips.
+    int num_strips = strip_list_.size() + 2;
+
+
+    // pos.theta_: Longitude. Says which strip the tile we want is at
+    int stripid = num_strips * (1.0f - (pos.theta_ + PI/2) / PI);
+
+
+    // The first and last "strips" only have one tile in then.
+    if(stripid == 0)
+        return north_pole_;
+    else if(stripid == num_strips)
+        return south_pole_;
+
+    Strip srip = strip_list_[stripid - 1];
+
+    // pos.phi_: Latitude. Says which tile of the strip the tile is.
+    int tileid = (srip.size() - 1) * (pos.phi_ / (2.0f * PI));
+    return srip[tileid];
 }
 
 int WorldData::CalculateIthStripSize(int strip_i) {
@@ -125,6 +144,17 @@ bool WorldData::Load(std::string filename) {
 			inc = 1;
     }
 	fclose(file);
+
+    fprintf(stderr, "Stripcount: %d\n", strip_list_.size());
+
+
+    {   WorldPoint pos(PI/2.0f, 0.0f);
+        tile_at(pos); }
+    {   WorldPoint pos(0.0f, 0.0f);
+        tile_at(pos); }
+    {   WorldPoint pos(-PI/2.0f, 0.0f);
+        tile_at(pos); }
+
 	return true;
 }
 

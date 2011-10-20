@@ -215,6 +215,10 @@
 				RelativePath=".\world\worldactor.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\world\utils\worldvecbase.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -287,6 +291,18 @@
 			</File>
 			<File
 				RelativePath=".\world\worldobject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worldpoint.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worldvecbase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worldvector.h"
 				>
 			</File>
 		</Filter>

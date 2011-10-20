@@ -18,6 +18,7 @@ namespace pirates {
 namespace world {
 class Ship;
 class Planet;
+class Camera;
 }
 
 namespace base {
@@ -63,6 +64,7 @@ class Game {
 
     world::Ship* ship() { return ship_; }
     world::Planet* planet() { return planet_; }
+    world::Camera* camera_man() { return camera_man_; }
 
   private:
     Game () : window_(NULL), inputmanager_(NULL) {}
@@ -72,6 +74,7 @@ class Game {
     PandaFramework  framework_;
     WindowFramework *window_;
     NodePath camera_node_;
+    world::Camera*  camera_man_;
 
     InputManager *inputmanager_;
 

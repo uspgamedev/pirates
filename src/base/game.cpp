@@ -4,6 +4,7 @@
 #include "base/runnable.h"
 #include "world/inputhandler.h"
 #include "world/ship.h"
+#include "world/camera.h"
 #include "world/planet.h"
 #include "load_prc_file.h"
 
@@ -16,6 +17,7 @@ namespace pirates {
 
 using world::Ship;
 using world::Planet;
+using world::Camera;
 
 namespace base {
 
@@ -26,12 +28,16 @@ void Game::Init (int &argc, char **&argv) {
     framework_.set_window_title("Pirates by USPGameDev");
     window_ = framework_.open_window();
     load_prc_file_data("", "model-path .");
+    //TODO : deixar o camera.h/camera.cpp fazer isso
     camera_node_ = window_->get_camera_group();
-    camera_node_.set_pos(60,-120,150);
-    camera_node_.look_at(0,0,0);
+    camera_node_.set_pos(0.0f,0.0f,200.0f);
+    camera_node_.look_at(LPoint3f::zero(),LVector3f(0.0f,1.0f,0.0f));
 
     planet_ = new Planet();
     InputManager::reference()->Init();
+
+    camera_man_ = new Camera();
+    camera_man_->Initialize();
 
     const string ship_name = "ship";
     const string ship_model = "data/king";

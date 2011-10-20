@@ -117,7 +117,7 @@
 				EnableFunctionLevelLinking="true"
 				WarningLevel="2"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4275"
+				DisableSpecificWarnings="4275;4251"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -212,19 +212,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\world\utils\worlddata.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\world\utils\worldpos.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\world\utils\worldvector.cpp"
+				RelativePath=".\world\worldactor.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\world\worldactor.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worlddata.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worldvecbase.cpp"
 				>
 			</File>
 		</Filter>
@@ -310,7 +310,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\world\utils\worldpos.h"
+				RelativePath=".\world\utils\worldpoint.h"
+				>
+			</File>
+			<File
+				RelativePath=".\world\utils\worldvecbase.h"
 				>
 			</File>
 			<File

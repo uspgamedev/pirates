@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "world/utils/worldpos.h"
+#include "world/utils/worldpoint.h"
 
 namespace pirates {
 namespace world {
@@ -19,7 +19,7 @@ class WorldData {
 
     typedef std::vector<Tile*> Strip;
 
-    const Tile* tile_at(const WorldPos& pos);
+    const Tile* tile_at(const WorldPoint& pos);
 
 	const unsigned long& size() const { return size_; }
 	const unsigned long& ocean_height() const { return ocean_height_; }

@@ -37,7 +37,7 @@ static void CopyCharToWString(char* origin, std::wstring &target) {
 	std::copy(text.begin(), text.end(), target.begin());
 }
 
-const Tile* WorldData::tile_at(const WorldPos& pos) {
+const Tile* WorldData::tile_at(const WorldPoint& pos) {
     return NULL;
 }
 
@@ -85,7 +85,7 @@ bool WorldData::Load(std::string filename) {
 		fread(&tile, sizeof(struct PWD_Tile), 1, file);
 		north_pole_ = new Tile(tile.height);
 
-        WorldPos pos(PI/2.0f, 0.0f);
+        WorldPoint pos(PI/2.0f, 0.0f);
         north_pole_->set_position(pos);
     }
 
@@ -94,7 +94,7 @@ bool WorldData::Load(std::string filename) {
 		fread(&tile, sizeof(struct PWD_Tile), 1, file);
 		south_pole_ = new Tile(tile.height);
 
-        WorldPos pos(-PI/2.0f, 0.0f);
+        WorldPoint pos(-PI/2.0f, 0.0f);
         south_pole_->set_position(pos);
     }
 
@@ -114,7 +114,7 @@ bool WorldData::Load(std::string filename) {
             Tile *tile = new Tile(pwtile.height);
 
             float phi = ((tile_i * 1.0f) / strip_size) * 2.0f * PI;
-            WorldPos pos(theta, phi);
+            WorldPoint pos(theta, phi);
             tile->set_position(pos);
             strip.push_back(tile);
             fprintf(stderr, "S%d, T%d. Pos: %f %f\n", ecx, tile_i, theta, phi);

@@ -1,7 +1,7 @@
 #ifndef PIRATES_WORLD_UTILS_TILE_H_
 #define PIRATES_WORLD_UTILS_TILE_H_
 
-#include "world/utils/worldpos.h"
+#include "world/utils/worldpoint.h"
 
 namespace pirates {
 namespace world {
@@ -13,15 +13,15 @@ class Tile {
 	~Tile() {}
 
     // Getters
-    const WorldPos& position() const { return position_; }
+    const WorldPoint& position() const { return position_; }
 	int height() const { return height_; }
 
     // Setters
-    void set_position(const WorldPos& position) { position_ = position; }
+    void set_position(const WorldPoint& position) { position_ = position; }
 
   private:
 	int height_;
-    WorldPos position_;
+    WorldPoint position_;
 
 };
 

@@ -172,6 +172,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\world\camera.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\base\game.cpp"
 				>
 			</File>
@@ -238,6 +242,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\world\camera.h"
+				>
+			</File>
+			<File
 				RelativePath=".\world\city.h"
 				>
 			</File>
@@ -254,11 +262,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\base\inputhandler.h"
+				RelativePath=".\world\inputhandler.h"
 				>
 			</File>
 			<File
-				RelativePath=".\world\inputhandler.h"
+				RelativePath=".\base\inputhandler.h"
 				>
 			</File>
 			<File

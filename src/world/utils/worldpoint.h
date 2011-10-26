@@ -1,7 +1,7 @@
 #ifndef PIRATES_WORLD_UTILS_WORLDPOINT_H_
 #define PIRATES_WORLD_UTILS_WORLDPOINT_H_
 
-#include "lPoint3.h"
+#include "lpoint3.h"
 #include <cmath>
 
 namespace pirates {

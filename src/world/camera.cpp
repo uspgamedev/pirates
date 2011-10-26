@@ -64,7 +64,7 @@ namespace world {
     
     void Camera::MoveCamera(InputHandler::TWOD_MOV_DIR movement, float dt) {
 
-        if(movement == InputHandler::TWOD_MOV_DIR::NOTHING)
+        if(movement == InputHandler::NOTHING)
             return;
 
         LPoint3f planet_center = GAME()->planet()->center();
@@ -72,14 +72,14 @@ namespace world {
         InputHandler::TWOD_MOV_DIR y_movement = (InputHandler::TWOD_MOV_DIR) ((int) movement - (int) x_movement);
         LPoint3f new_pos = GAME()->camera().get_pos();
 
-        if(y_movement == InputHandler::TWOD_MOV_DIR::Y_DOWN)
+        if(y_movement == InputHandler::Y_DOWN)
             new_pos -= up_*dt*CAMERA_VEL;
-        else if (y_movement == InputHandler::TWOD_MOV_DIR::Y_UP)
+        else if (y_movement == InputHandler::Y_UP)
             new_pos += up_*dt*CAMERA_VEL;
 
-        if(x_movement == InputHandler::TWOD_MOV_DIR::X_DOWN)
+        if(x_movement == InputHandler::X_DOWN)
             new_pos -= right_*dt*CAMERA_VEL;
-        else if (x_movement == InputHandler::TWOD_MOV_DIR::X_UP)
+        else if (x_movement == InputHandler::X_UP)
             new_pos += right_*dt*CAMERA_VEL;
 
         new_pos -= planet_center;
@@ -89,11 +89,11 @@ namespace world {
         GAME()->camera().set_pos(new_pos);
         look_at_ = new_pos - planet_center;
 
-        if( (y_movement == InputHandler::TWOD_MOV_DIR::Y_UP) || (y_movement == InputHandler::TWOD_MOV_DIR::Y_DOWN) ) {
+        if( (y_movement == InputHandler::Y_UP) || (y_movement == InputHandler::Y_DOWN) ) {
             up_ -= up_.project(look_at_);
             up_.normalize();
         }
-        if( (x_movement == InputHandler::TWOD_MOV_DIR::X_UP) || (x_movement == InputHandler::TWOD_MOV_DIR::X_DOWN) ) {
+        if( (x_movement == InputHandler::X_UP) || (x_movement == InputHandler::X_DOWN) ) {
             right_ -= right_.project(look_at_);
             right_.normalize();
         }

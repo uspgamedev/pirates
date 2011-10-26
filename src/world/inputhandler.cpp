@@ -42,14 +42,14 @@ void InputHandler::Update(float dt) {
         TWOD_MOV_DIR movement = NOTHING;
 
         if(mouse_watcher_->get_mouse_y() < -0.9f)
-            movement = TWOD_MOV_DIR::Y_DOWN;
+            movement = Y_DOWN;
         else if(mouse_watcher_->get_mouse_y() > 0.9f)
-            movement = TWOD_MOV_DIR::Y_UP;
+            movement = Y_UP;
 
         if(mouse_watcher_->get_mouse_x() < -0.9f)
-            movement = (TWOD_MOV_DIR) ((int) movement + (int) TWOD_MOV_DIR::X_UP);
+            movement = (TWOD_MOV_DIR) ((int) movement + (int) X_UP);
         else if(mouse_watcher_->get_mouse_x() > 0.9f)
-            movement = (TWOD_MOV_DIR) ((int) movement + (int) TWOD_MOV_DIR::X_DOWN);
+            movement = (TWOD_MOV_DIR) ((int) movement + (int) X_DOWN);
 
         GAME()->camera_man()->MoveCamera(movement, dt);
     }

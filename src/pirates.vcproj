@@ -298,6 +298,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stdint.h"
+				>
+			</File>
+			<File
 				RelativePath=".\world\utils\tile.h"
 				>
 			</File>

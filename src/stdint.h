@@ -1,4 +1,6 @@
-/*  A portable stdint.h
+/*  Visual Studio 2008 doesn't support C99, so this header doesn't exist.
+ *
+ *   A portable stdint.h
  ****************************************************************************
  *  BSD License:
  ****************************************************************************

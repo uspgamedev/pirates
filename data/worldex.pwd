@@ -1,0 +1,33 @@
+Exemplo de um arquivo de mundo ( para humanos ):
+
+==================================================================================
+
+Nome = Mapa de Exemplo 
+Tipo = Multiplayer
+Numero de Jogadores = n
+Raio = z
+Ilhas =
+    Modelo = Ilha1.egg
+    Tamanho = z
+    Centro = (x,y)
+    
+    ...
+
+SpawnPoints = (x,y) ...
+
+Coisas Estranhas =
+    
+    Tipo = Monstros
+    Tamanho = z
+    Centro = (x,y)
+
+
+x, y in [0,1] ( de 0 a 1 Real )
+z in R ( Reais )
+n in N ( Naturais )
+
+===================================================================================
+
+Ideias = Construir um vetor de vetores, onde cada possição do vetor identifica se ele está preenchido por algo ou não. Cada vetor é uma "linha" da esfera.
+         Na hora de ler o arquivo, um parser elimina as informações desnecessárias, como o "Nome =", pois podemos colocar com que cada linha represente algo específico.
+         Como apróximar os reais para inteiros de uma maneira boa?

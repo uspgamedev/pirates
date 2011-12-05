@@ -1,12 +1,8 @@
 #ifndef PIRATES_WORLD_UTILS_FILETYPE_H_
 #define PIRATES_WORLD_UTILS_FILETYPE_H_
 
-#include <stdint.h>
+#include "base/types.h"
 
-typedef uint8_t uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef uint64_t uint64;
 struct PWD_Header {
 	// About the file
 	/*    4 */char mime[4]; // Alyways PWLD
